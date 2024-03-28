@@ -8,35 +8,190 @@
 {# Spice Groups #}
 {% do site_groups.update({
     "gungho_model_spice_developer": [
+        "gungho_model_agnesi_hyd_cart-BiP120x4-2000x2000_spice_intel_fast-debug-64bit",
         "gungho_model_baroclinic-C24_MG_spice_intel_fast-debug-64bit",
-        "gungho_model_straka_200m-BiP256x4-200x200_spice_intel_fast-debug-64bit",
-        "gungho_model_semi-implicit-for-linear-C12_spice_intel_fast-debug-64bit",
+        "gungho_model_baroclinic-alt1-C24_MG_op_spice_intel_fast-debug-64bit",
+        "gungho_model_baroclinic-alt2-C24s_MG_spice_intel_fast-debug-64bit",
+        "gungho_model_baroclinic-C24_MG_spice_intel_fast-debug-64bit",
+        "gungho_model_baroclinic-ffsl-split-spt-edges-C24_MG_spice_intel_fast-debug-64bit",
+        "gungho_model_baroclinic-next-C24_MG_spice_intel_fast-debug-64bit",
+        "gungho_model_baroclinic-noio-C24_MG_spice_intel_fast-debug-64bit",
+        "gungho_model_bryan_fritsch-dry-BiP200x10-100x100_spice_intel_fast-debug-64bit",
+        "gungho_model_dcmip200-C24_MG_spice_intel_fast-debug-64bit",
+        "gungho_model_dcmip200_realorog-C48_MG_spice_intel_fast-debug-64bit",
+        "gungho_model_dcmip301-C24_spice_intel_fast-debug-64bit",
+        "gungho_model_deep-hot-jupiter-C24_MG_spice_intel_fast-debug-64bit",
+        "gungho_model_earth-like-C24_MG_spice_intel_fast-debug-64bit",
+        "gungho_model_held-suarez-C24_MG_spice_intel_fast-debug-64bit",
+        "gungho_model_lfric-real-domain-C48_MG_spice_intel_fast-debug-64bit",
+        "gungho_model_no-timestep-method-C12_spice_intel_fast-debug-64bit",
+        "gungho_model_rk-dcmip301-C24_spice_intel_fast-debug-64bit",
         "gungho_model_robert-moist-lam-BiP100x4-10x10_spice_intel_fast-debug-64bit",
-        "gungho_model_canned_spice_intel_fast-debug-64bit",
+        "gungho_model_robert-moist-smag-BiP100x4-10x10_spice_intel_fast-debug-64bit",
+        "gungho_model_runge-kutta-for-linear-C12_spice_intel_fast-debug-64bit",
+        "gungho_model_sbr-C24_MG_spice_intel_fast-debug-64bit",
+        "gungho_model_sbr-alt1-C24_MG_op_spice_intel_fast-debug-64bit",
+        "gungho_model_sbr-alt2-C24s_MG_spice_intel_fast-debug-64bit",
+        "gungho_model_sbr_lam-n96_MG_lam_spice_intel_fast-debug-64bit",
+        "gungho_model_sbr_lam-n96_MG_lam_rotate_spice_intel_fast-debug-64bit",
+        "gungho_model_schar_cart_8s-BiP200x4-500x500_spice_intel_fast-debug-64bit",
+        "gungho_model_schar_cart_8s_lagged_orog-BiP200x4-500x500_spice_intel_fast-debug-64bit",
+        "gungho_model_semi-implicit-for-linear-C12_spice_intel_fast-debug-64bit",
+        "gungho_model_shallow-hot-jupiter-C24_MG_spice_intel_fast-debug-64bit",
+        "gungho_model_skamarock_klemp_gw_p0-BiP300x4-1000x2000_spice_intel_fast-debug-64bit",
+        "gungho_model_skamarock_klemp_gw_p1-BiP75x4-4000x2000_spice_intel_fast-debug-64bit",
+        "gungho_model_straka_200m-BiP256x4-200x200_spice_intel_fast-debug-64bit",
+        "gungho_model_straka_200m-alt1-BiP256x16-200x50_op_spice_intel_fast-debug-64bit",
+        "gungho_model_straka_200m-alt2-BiP256x4-200x200_spice_intel_fast-debug-64bit",
+        "gungho_model_tidally-locked-earth-C24s_rot_MG_spice_intel_fast-debug-64bit",
+        "gungho_model_tidally-locked-earth-C24_MG_spice_intel_fast-debug-64bit",
+        "gungho_model_spice_canned",
     ],
     "gungho_model_spice": [
         "gungho_model_spice_developer",
     ],
+    "gungho_model_spice_canned": [
+        "gungho_model_canned_spice_intel_fast-debug-64bit",
+        "gungho_model_canned_spice_intel_fast-debug-32bit",
+        "gungho_model_canned_spice_gnu_fast-debug-64bit",
+        "gungho_model_canned_spice_gnu_fast-debug-32bit",
+    ],
     "gungho_model_spice_build": [
         "build_gungho_model_spice_intel_fast-debug-64bit",
+        "build_gungho_model_spice_intel_fast-debug-32bit",
+        "build_gungho_model_spice_gnu_fast-debug-64bit",
+        "build_gungho_model_gnu_intel_fast-debug-32bit",
+    ],
+    "gungho_model_spice_next-config": [
+        "gungho_model_baroclinic-next-C24_MG_spice_intel_fast-debug-64bit",
+        "gungho_model_sbr-next-C24_MG_spice_intel_fast-debug-64bit",
+        "gungho_model_skamarock_klemp_gw-next-BiP300x16-1000x500_spice_intel_fast-debug-64bit",
+        "gungho_model_straka_200m-next-BiP256x16-200x50_spice_intel_fast-debug-64bit",
     ],
     })  %}
 
 {# XC40 Groups #}
 {% do site_groups.update({
     "gungho_model_xc40_developer": [
+        "gungho_model_agnesi_hyd_cart-BiP120x4-2000x2000_xc40_intel_fast-debug-64bit",
         "gungho_model_baroclinic-C24_MG_xc40_intel_fast-debug-64bit",
-        "gungho_model_straka_200m-BiP256x4-200x200_xc40_intel_fast-debug-64bit",
-        "gungho_model_semi-implicit-for-linear-C12_xc40_intel_fast-debug-64bit",
+        "gungho_model_baroclinic-alt1-C24_MG_op_xc40_intel_fast-debug-64bit",
+        "gungho_model_baroclinic-alt2-C24s_MG_xc40_intel_fast-debug-64bit",
+        "gungho_model_baroclinic-C24_MG_xc40_intel_fast-debug-64bit",
+        "gungho_model_baroclinic-ffsl-split-spt-edges-C24_MG_xc40_intel_fast-debug-64bit",
+        "gungho_model_baroclinic-next-C24_MG_xc40_intel_fast-debug-64bit",
+        "gungho_model_baroclinic-noio-C24_MG_xc40_intel_fast-debug-64bit",
+        "gungho_model_bryan_fritsch-dry-BiP200x10-100x100_xc40_intel_fast-debug-64bit",
+        "gungho_model_dcmip200-C24_MG_xc40_intel_fast-debug-64bit",
+        "gungho_model_dcmip200_realorog-C48_MG_xc40_intel_fast-debug-64bit",
+        "gungho_model_dcmip301-C24_xc40_intel_fast-debug-64bit",
+        "gungho_model_deep-hot-jupiter-C24_MG_xc40_intel_fast-debug-64bit",
+        "gungho_model_earth-like-C24_MG_xc40_intel_fast-debug-64bit",
+        "gungho_model_held-suarez-C24_MG_xc40_intel_fast-debug-64bit",
+        "gungho_model_lfric-real-domain-C48_MG_xc40_intel_fast-debug-64bit",
+        "gungho_model_no-timestep-method-C12_xc40_intel_fast-debug-64bit",
+        "gungho_model_rk-dcmip301-C24_xc40_intel_fast-debug-64bit",
         "gungho_model_robert-moist-lam-BiP100x4-10x10_xc40_intel_fast-debug-64bit",
-        "gungho_model_canned_xc40_intel_fast-debug-64bit",
+        "gungho_model_robert-moist-smag-BiP100x4-10x10_xc40_intel_fast-debug-64bit",
+        "gungho_model_runge-kutta-for-linear-C12_xc40_intel_fast-debug-64bit",
+        "gungho_model_sbr-C24_MG_xc40_intel_fast-debug-64bit",
+        "gungho_model_sbr-alt1-C24_MG_op_xc40_intel_fast-debug-64bit",
+        "gungho_model_sbr-alt2-C24s_MG_xc40_intel_fast-debug-64bit",
+        "gungho_model_sbr_lam-n96_MG_lam_xc40_intel_fast-debug-64bit",
+        "gungho_model_sbr_lam-n96_MG_lam_rotate_xc40_intel_fast-debug-64bit",
+        "gungho_model_schar_cart_8s-BiP200x4-500x500_xc40_intel_fast-debug-64bit",
+        "gungho_model_schar_cart_8s_lagged_orog-BiP200x4-500x500_xc40_intel_fast-debug-64bit",
+        "gungho_model_semi-implicit-for-linear-C12_xc40_intel_fast-debug-64bit",
+        "gungho_model_shallow-hot-jupiter-C24_MG_xc40_intel_fast-debug-64bit",
+        "gungho_model_skamarock_klemp_gw_p0-BiP300x4-1000x2000_xc40_intel_fast-debug-64bit",
+        "gungho_model_skamarock_klemp_gw_p1-BiP75x4-4000x2000_xc40_intel_fast-debug-64bit",
+        "gungho_model_straka_200m-BiP256x4-200x200_xc40_intel_fast-debug-64bit",
+        "gungho_model_straka_200m-alt1-BiP256x16-200x50_op_xc40_intel_fast-debug-64bit",
+        "gungho_model_straka_200m-alt2-BiP256x4-200x200_xc40_intel_fast-debug-64bit",
+        "gungho_model_tidally-locked-earth-C24s_rot_MG_xc40_intel_fast-debug-64bit",
+        "gungho_model_tidally-locked-earth-C24_MG_xc40_intel_fast-debug-64bit",
+        "gungho_model_xc40_canned",
     ],
     "gungho_model_xc40": [
         "gungho_model_xc40_developer",
     ],
+    "gungho_model_xc40_canned": [
+        "gungho_model_canned_xc40_intel_fast-debug-64bit",
+        "gungho_model_canned_xc40_intel_fast-debug-32bit",
+    ],
     "gungho_model_xc40_build": [
         "build_gungho_model_xc40_intel_fast-debug-64bit"
-    ]
+    ],
+    "gungho_model_xc40_weekly": [
+        "gungho_model_agnesi_nhyd_cart-BiP360x4-400x400_xc40_intel_fast-debug-64bit",
+        "gungho_model_baroclinic-C48_MG_xc40_intel_fast-debug-64bit",
+        "gungho_model_baroclinic-C96_MG_xc40_intel_fast-debug-64bit",
+        "gungho_model_baroclinic-C192_MG_xc40_intel_fast-debug-64bit",
+        "gungho_model_bell_3d_cart-BiP300x200-200x200_xc40_intel_fast-debug-64bit",
+        "gungho_model_bryan_fritsch-moist-BiP200x10-100x100_xc40_intel_fast-debug-64bit",
+        "gungho_model_earth-like-C24_MG_crun3_xc40_intel_fast-debug-64bit",
+        "gungho_model_earth-like-C48_MG_crun3_xc40_intel_fast-debug-64bit",
+        "gungho_model_gh_profile_omp6_6nodes-C192_MG_xc40_intel_fast-debug-64bit",
+        "gungho_model_grabowski-clark-BiP200x10-18x20_xc40_intel_fast-debug-64bit",
+        "gungho_model_held-suarez-C24_MG_crun3_xc40_intel_fast-debug-64bit",
+        "gungho_model_held-suarez-C48_MG_crun3_xc40_intel_fast-debug-64bit",
+        "gungho_model_moist_baroclinic_orog-C24_MG_xc40_intel_fast-debug-64bit",
+        "gungho_model_robert-moist-smag-1300-BiP200x4-5x5_xc40_intel_fast-debug-64bit",
+        "gungho_model_sbr-C48_MG_xc40_intel_fast-debug-64bit",
+        "gungho_model_sbr-C96_MG_xc40_intel_fast-debug-64bit",
+        "gungho_model_schar_cart_8s_inconsistent-BiP200x4-500x500_xc40_intel_fast-debug-64bit",
+        "gungho_model_schar3d_cart_8s-BiP200x200-500x500_xc40_intel_fast-debug-64bit",
+        "gungho_model_straka_50m-BiP1024x4-50x50_xc40_intel_fast-debug-64bit",
+        "gungho_model_straka_25m-BiP2048x4-25x25_xc40_intel_fast-debug-64bit",
+        "gungho_model_warm3dbubble-BiP100x100-10x10_xc40_intel_fast-debug-64bit",
+    ],
+    "gungho_model_xc40_next-config": [
+        "gungho_model_baroclinic-next-C24_MG_xc40_intel_fast-debug-64bit",
+        "gungho_model_sbr-next-C24_MG_xc40_intel_fast-debug-64bit",
+        "gungho_model_skamarock_klemp_gw-next-BiP300x16-1000x500_xc40_intel_fast-debug-64bit",
+        "gungho_model_straka_200m-next-BiP256x16-200x50_xc40_intel_fast-debug-64bit",
+    ],
+    "gungho_model_xc40_performance": [
+        "gungho_model_gh_profile_omp1_6nodes-C192_MG_xc40_intel_fast-debug-64bit",
+        "gungho_model_gh_profile_omp6_6nodes-C192_MG_xc40_intel_fast-debug-64bit",
+        "gungho_model_gh_profile_omp9_6nodes-C192_MG_xc40_intel_fast-debug-64bit",
+        "gungho_model_gh_profile_omp1_12nodes-C192_MG_xc40_intel_fast-debug-64bit",
+        "gungho_model_gh_profile_omp6_12nodes-C192_MG_xc40_intel_fast-debug-64bit",
+        "gungho_model_gh_profile_omp9_12nodes-C192_MG_xc40_intel_fast-debug-64bit",
+        "gungho_model_gh_profile_omp1_24nodes-C192_MG_xc40_intel_fast-debug-64bit",
+        "gungho_model_gh_profile_omp6_24nodes-C192_MG_xc40_intel_fast-debug-64bit",
+        "gungho_model_gh_profile_omp9_24nodes-C192_MG_xc40_intel_fast-debug-64bit",
+        "gungho_model_gh_profile-C384_MG_xc40_intel_fast-debug-64bit",
+        "gungho_model_gh_profile-C768_MG_xc40_intel_fast-debug-64bit",
+        "gungho_model_gh_profile_omp2_192mpi-C64_MG_xc40_intel_fast-debug-64bit",
+        "gungho_model_gh_profile_omp2_96mpi-C64_MG_xc40_intel_fast-debug-64bit",
+    ],
+    "gungho_model_xc40_exoplanet": [
+        "gungho_model_exo-hs-C24_MG_xc40_intel_fast-debug-64bit",
+        "gungho_model_exo-hs-C48_MG_xc40_intel_fast-debug-64bit",
+        "gungho_model_exo-el-C24_MG_xc40_intel_fast-debug-64bit",
+        "gungho_model_exo-el-C48_MG_xc40_intel_fast-debug-64bit",
+        "gungho_model_exo-tle-C24_MG_xc40_intel_fast-debug-64bit",
+        "gungho_model_exo-tle-C48_MG_xc40_intel_fast-debug-64bit",
+        "gungho_model_exo-shj-C24_MG_xc40_intel_fast-debug-64bit",
+        "gungho_model_exo-shj-C48_MG_xc40_intel_fast-debug-64bit",
+        "gungho_model_exo-dhj-C24_MG_xc40_intel_fast-debug-64bit",
+        "gungho_model_exo-dhj-C48_MG_xc40_intel_fast-debug-64bit",
+    ],
+    "gungho_model_xc40_cartesian": [
+        "gungho_model_cart-skamarock_xc40_intel_fast-debug-64bit",
+        "gungho_model_cart-straka_400m_xc40_intel_fast-debug-64bit",
+        "gungho_model_cart-straka_200m_xc40_intel_fast-debug-64bit",
+        "gungho_model_cart-straka_100m_xc40_intel_fast-debug-64bit",
+        "gungho_model_cart-straka_50m_xc40_intel_fast-debug-64bit",
+        "gungho_model_cart-straka_25m_xc40_intel_fast-debug-64bit",
+        "gungho_model_cart-agnesi_hyd_xc40_intel_fast-debug-64bit",
+        "gungho_model_cart-agnesi_nhyd_xc40_intel_fast-debug-64bit",
+        "gungho_model_cart-schar_8s_xc40_intel_fast-debug-64bit",
+        "gungho_model_cart-schar_8s_inconsistent_xc40_intel_fast-debug-64bit",
+        "gungho_model_cart-bell_3d_xc40_intel_fast-debug-64bit",
+        "gungho_model_cart-warm3dbubble_xc40_intel_fast-debug-64bit",
+    ],
     }) %}
 
 {# Platform Generic Groups #}
@@ -51,9 +206,29 @@
         "gungho_model_spice",
         "gungho_model_xc40",
     ],
+    "gungho_model_canned": [
+        "gungho_model_spice_canned",
+        "gungho_model_xc40_canned",
+    ],
     "gungho_model_build": [
         "gungho_model_spice_build",
         "gungho_model_xc40_build",
+    ],
+    "gungho_model_weekly": [
+        "gungho_model_xc40_weekly",
+    ],
+    "gungho_model_next-config": [
+        "gungho_model_spice_next-config",
+        "gungho_model_xc40_next-config",
+    ],
+    "gungho_model_performance": [
+        "gungho_model_xc40_performance",
+    ],
+    "gungho_model_exoplanet": [
+        "gungho_model_xc40_exoplanet",
+    ],
+    "gungho_model_cartesian": [
+        "gungho_model_xc40_cartesian",
     ],
     }) %}
 
@@ -61,6 +236,7 @@
 {% do site_groups.developer.extend(site_groups.gungho_model_developer) %}
 {% do site_groups.all.extend(site_groups.gungho_model) %}
 {% do site_groups.build.extend(site_groups.gungho_model_build) %}
+{% do site_groups.performance.extend(site_groups.gungho_model_performance) %}
 
 {# Spice Extends #}
 {% do site_groups.spice_developer.extend(site_groups.gungho_model_spice_developer) %}
@@ -71,5 +247,6 @@
 {% do site_groups.xc40_developer.extend(site_groups.gungho_model_xc40_developer) %}
 {% do site_groups.xc40.extend(site_groups.gungho_model_xc40) %}
 {% do site_groups.xc40_build.extend(site_groups.gungho_model_xc40_build) %}
+{% do site_groups.xc40_performance.extend(site_groups.gungho_model_xc40_performance) %}
 
 {% do LOG.debug("Finished in site/meto/groups/groups_gungho_model.cylc") %}

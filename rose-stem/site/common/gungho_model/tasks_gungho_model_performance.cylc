@@ -1,0 +1,196 @@
+{# ########################################################################### #}
+{# (c) Crown copyright 2024 Met Office. All rights reserved. #}
+{# The file LICENCE, distributed with this code, contains details of the terms #}
+{# under which the code may be used. #}
+{# ########################################################################### #}
+{% do LOG.debug("Entered site/common/gungho_model/tasks_gungho_model_performance.cylc") %}
+
+{# ####################### #}
+{# Performance Group Tasks #}
+{# ####################### #}
+
+{% if task_ns.conf_name == "gh_profile_omp1_6nodes-C192_MG" %}
+
+    {% do task_dict.update({
+        "opt_confs": ["gh_profile_omp1_6nodes"],
+        "resolution": "C192_MG",
+        "DT": 1200,
+        "use_xios": false,
+        "mpi_parts": 216,
+        "tsteps": 96,
+        "wallclock": 40,
+        "kgo_checks": [],
+    }) %}
+
+{% elif task_ns.conf_name == "gh_profile_omp6_6nodes-C192_MG" %}
+
+    {% do task_dict.update({
+        "opt_confs": ["gh_profile_omp6_6nodes"],
+        "resolution": "C192_MG",
+        "DT": 1200,
+        "use_xios": false,
+        "mpi_parts": 216,
+        "threads": 6,
+        "tsteps": 96,
+        "wallclock": 40,
+        "kgo_checks": [],
+    }) %}
+
+{% elif task_ns.conf_name == "gh_profile_omp9_6nodes-C192_MG" %}
+
+    {% do task_dict.update({
+        "opt_confs": ["gh_profile_omp9_6nodes"],
+        "resolution": "C192_MG",
+        "DT": 1200,
+        "use_xios": false,
+        "mpi_parts": 24,
+        "threads": 9,
+        "tsteps": 96,
+        "wallclock": 45,
+        "kgo_checks": [],
+    }) %}
+
+{% elif task_ns.conf_name == "gh_profile_omp1_12nodes-C192_MG" %}
+
+    {% do task_dict.update({
+        "opt_confs": ["gh_profile_omp1_12nodes"],
+        "resolution": "C192_MG",
+        "DT": 1200,
+        "use_xios": false,
+        "mpi_parts": 432,
+        "panel_decomp": "custom",
+        "xproc": 12,
+        "yproc": 6,
+        "tsteps": 96,
+        "wallclock": 20,
+        "kgo_checks": [],
+    }) %}
+
+{% elif task_ns.conf_name == "gh_profile_omp6_12nodes-C192_MG" %}
+
+    {% do task_dict.update({
+        "opt_confs": ["gh_profile_omp6_12nodes"],
+        "resolution": "C192_MG",
+        "DT": 1200,
+        "use_xios": false,
+        "mpi_parts": 72,
+        "threads": 6,
+        "tsteps": 96,
+        "wallclock": 25,
+        "kgo_checks": [],
+    }) %}
+
+{% elif task_ns.conf_name == "gh_profile_omp9_12nodes-C192_MG" %}
+
+    {% do task_dict.update({
+        "opt_confs": ["gh_profile_omp9_12nodes"],
+        "resolution": "C192_MG",
+        "DT": 1200,
+        "use_xios": false,
+        "mpi_parts": 48,
+        "threads": 9,
+        "tsteps": 96,
+        "wallclock": 25,
+        "kgo_checks": [],
+    }) %}
+
+{% elif task_ns.conf_name == "gh_profile_omp1_24nodes-C192_MG" %}
+
+    {% do task_dict.update({
+        "opt_confs": ["gh_profile_omp1_24nodes"],
+        "resolution": "C192_MG",
+        "DT": 1200,
+        "use_xios": false,
+        "mpi_parts": 864,
+        "tsteps": 96,
+        "wallclock": 20,
+        "kgo_checks": [],
+    }) %}
+
+{% elif task_ns.conf_name == "gh_profile_omp6_24nodes-C192_MG" %}
+
+    {% do task_dict.update({
+        "opt_confs": ["gh_profile_omp6_24nodes"],
+        "resolution": "C192_MG",
+        "DT": 1200,
+        "use_xios": false,
+        "mpi_parts": 144,
+        "threads": 6,
+        "tsteps": 96,
+        "wallclock": 20,
+        "kgo_checks": [],
+    }) %}
+
+{% elif task_ns.conf_name == "gh_profile_omp9_24nodes-C192_MG" %}
+
+    {% do task_dict.update({
+        "opt_confs": ["gh_profile_omp9_24nodes"],
+        "resolution": "C192_MG",
+        "DT": 1200,
+        "use_xios": false,
+        "mpi_parts": 96,
+        "threads": 9,
+        "tsteps": 96,
+        "wallclock": 20,
+        "kgo_checks": [],
+    }) %}
+
+{% elif task_ns.conf_name == "gh_profile-C384_MG" %}
+
+    {% do task_dict.update({
+        "opt_confs": ["gh_profile"],
+        "resolution": "C384_MG",
+        "DT": 600,
+        "use_xios": false,
+        "mpi_parts": 288,
+        "threads": 6,
+        "tsteps": 96,
+        "wallclock": 40,
+        "kgo_checks": [],
+    }) %}
+
+{% elif task_ns.conf_name == "gh_profile-C768_MG" %}
+
+    {% do task_dict.update({
+        "opt_confs": ["gh_profile"],
+        "resolution": "C768_MG",
+        "DT": 300,
+        "use_xios": false,
+        "mpi_parts": 1152,
+        "threads": 6,
+        "tsteps": 96,
+        "wallclock": 40,
+        "kgo_checks": [],
+    }) %}
+
+{% elif task_ns.conf_name == "gh_profile_omp2_192mpi-C64_MG" %}
+
+    {% do task_dict.update({
+        "opt_confs": ["gh_profile_omp2_192mpi"],
+        "resolution": "C64_MG",
+        "DT": 1800,
+        "use_xios": false,
+        "mpi_parts": 192,
+        "threads": 2,
+        "tsteps": 1440,
+        "wallclock": 160,
+        "kgo_checks": [],
+    }) %}
+
+{% elif task_ns.conf_name == "gh_profile_omp2_96mpi-C64_MG" %}
+
+    {% do task_dict.update({
+        "opt_confs": ["gh_profile_omp2_96mpi"],
+        "resolution": "C64_MG",
+        "DT": 1800,
+        "use_xios": false,
+        "mpi_parts": 96,
+        "threads": 2,
+        "tsteps": 1440,
+        "wallclock": 160,
+        "kgo_checks": [],
+    }) %}
+
+{% endif %}
+
+{% do LOG.debug("Finished in site/common/gungho_model/tasks_gungho_model_performance.cylc") %}

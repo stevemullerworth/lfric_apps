@@ -42,6 +42,9 @@
         "gungho_model_xc40",
         "lfric_atm_xc40",
     ],
+    "performance": [
+        "xc40_performance",
+    ],
     "spice_developer": [],
     "spice": ["spice_developer"],
     "xc40_developer": [],
@@ -52,6 +55,7 @@
     "xc40_unit_tests": [],
     "spice_integration_tests": [],
     "xc40_integration_tests": [],
+    "xc40_performance": [],
     }) %}
 
 {% include "site/meto/groups/groups_coupled_interface.cylc" %}
