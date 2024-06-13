@@ -643,9 +643,15 @@ contains
         call increment%initialise( sh_w3_fs )
         call sum_flux%initialise( sh_w2_fs )
 
-        call invoke( inject_wt_to_sh_w3_kernel_type(mr_sh_w3_start, mr_start), &
-                     X_times_Y(rho_X_start, mr_sh_w3_start, rho_d_start) )
-
+        if (enforce_min_value) then
+          ! Assign values in all layers from original mixing ratio
+          ! (the inverse of this operation can generate new extrema)
+          call invoke( X_times_Y(rho_X_start, mr_start, rho_d_start) )
+        else
+          ! Interpolate in top/bottom layers
+          call invoke( inject_wt_to_sh_w3_kernel_type(mr_sh_w3_start, mr_start), &
+                       X_times_Y(rho_X_start, mr_sh_w3_start, rho_d_start) )
+        end if
       end select
 
       ! ---------------------------------------------------------------------- !
@@ -710,9 +716,15 @@ contains
         call invoke( X_divideby_Y(field_np1, rho_X_np1, rho_d_np1) )
 
       case ( Wtheta )
-        call invoke( X_divideby_Y(mr_sh_w3_np1, rho_X_np1, rho_d_np1) )
-        ! Turn back to Wtheta -- separate invoke as on different mesh
-        call invoke( inject_sh_w3_to_wt_kernel_type(field_np1, mr_sh_w3_np1) )
+        if (enforce_min_value) then
+          ! Cannot generate negative values, so just pointwise injection
+          call invoke( X_divideby_Y(field_np1, rho_X_np1, rho_d_np1) )
+        else
+          call invoke( X_divideby_Y(mr_sh_w3_np1, rho_X_np1, rho_d_np1) )
+          ! Extrapolation at top/bottom is allowed
+          ! Turn back to Wtheta -- separate invoke as on different mesh
+          call invoke( inject_sh_w3_to_wt_kernel_type(field_np1, mr_sh_w3_np1) )
+        end if
 
       case default
         call log_event('Function space for consistent transport not implemented', LOG_LEVEL_ERROR)

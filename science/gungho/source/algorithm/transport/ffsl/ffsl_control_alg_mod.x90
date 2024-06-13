@@ -77,6 +77,7 @@ contains
 
     ! Internal variables
     logical(kind=l_def)                   :: compute_adv_field
+    logical(kind=l_def)                   :: enforce_min_value
     integer(kind=i_def)                   :: function_space
     type(function_space_type),    pointer :: w3_shifted_fs => null()
     type(mesh_type),              pointer :: mesh => null()
@@ -95,6 +96,7 @@ contains
     mesh => field_n%get_mesh()
     transport_runtime => get_transport_runtime(mesh)
     function_space = field_n%which_function_space()
+    enforce_min_value = transport_metadata%get_enforce_min_value()
 
     ! Determine whether individual routines should return a flux or updated field
     compute_adv_field = ( transport_metadata%get_equation_form() == equation_form_advective &
@@ -111,7 +113,12 @@ contains
       w3_shifted_fs => function_space_collection%get_fs(shifted_mesh, 0_i_def, W3)
       call field_n_w3_shifted%initialise( vector_space = w3_shifted_fs )
       call field_np1_w3_shifted%initialise( vector_space = w3_shifted_fs )
-      call invoke( inject_wt_to_sh_w3_kernel_type(field_n_w3_shifted, field_n) )
+      if (enforce_min_value) then
+        call invoke( setval_X(field_n_w3_shifted, field_n) )
+      else
+        ! Interpolate in bottom/top layers
+        call invoke( inject_wt_to_sh_w3_kernel_type(field_n_w3_shifted, field_n) )
+      end if
       field_n_ptr => field_n_w3_shifted
       field_np1_ptr => field_np1_w3_shifted
     else
@@ -151,7 +158,13 @@ contains
 
     if (function_space == Wtheta .and. compute_adv_field) then
       ! If Wtheta variable, move field_np1 back to Wtheta
-      call invoke( inject_sh_w3_to_wt_kernel_type(field_np1, field_np1_w3_shifted) )
+      if (enforce_min_value) then
+        ! Can't generate negatives by extrapolation, so just inject
+        call invoke( setval_X(field_np1, field_np1_w3_shifted) )
+      else
+        ! Extrapolation allowed
+        call invoke( inject_sh_w3_to_wt_kernel_type(field_np1, field_np1_w3_shifted) )
+      end if
     end if
 
     ! ======================================================================== !

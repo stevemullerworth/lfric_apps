@@ -76,7 +76,6 @@ contains
     type(mesh_type),              pointer :: primary_mesh => null()
     type(mesh_type),              pointer :: shifted_mesh => null()
     type(transport_runtime_type), pointer :: transport_runtime => null()
-    real(kind=r_tran)                     :: min_value
     integer(kind=i_def)                   :: num_dry_steps
 
     ! Set up some things that are independent of the function space
@@ -106,7 +105,7 @@ contains
       rho_d_np1 => transport_runtime%get_rho_d(primary_mesh%get_id(), num_dry_steps+1)
 
       ! multiply field by rho in native space
-      call invoke(X_times_Y( rho_field_n, rho_d_n, field_n_rdef))
+      call invoke( X_times_Y(rho_field_n, rho_d_n, field_n_rdef) )
 
       call transport_field_r_tran(rho_field_np1, rho_field_n, model_dt_rtran, &
                                   transport_metadata)
@@ -130,9 +129,14 @@ contains
       rho_d_np1 => transport_runtime%get_rho_d(shifted_mesh%get_id(), num_dry_steps+1)
 
       ! multiply field by rho in shifted space
-      call invoke( inject_wt_to_sh_w3_kernel_type(field_n_sh_w3, field_n_rtran), &
-                   X_times_Y(rho_field_n, field_n_sh_w3, rho_d_n) )
-
+      if ( transport_metadata%get_enforce_min_value() ) then
+        ! Do not interpolate
+        call invoke( X_times_Y(rho_field_n, field_n_rtran, rho_d_n) )
+      else
+        ! Interpolate at top and bottom
+        call invoke( inject_wt_to_sh_w3_kernel_type(field_n_sh_w3, field_n_rtran), &
+                     X_times_Y(rho_field_n, field_n_sh_w3, rho_d_n) )
+      end if
 
       call transport_field_r_tran(rho_field_np1, rho_field_n, model_dt_rtran, &
                                   transport_metadata)
@@ -140,13 +144,13 @@ contains
       call invoke( X_divideby_Y(field_np1_sh_w3, rho_field_np1, rho_d_np1) )
 
 
-      ! Turn back to Wtheta -- separate invoke as on different mesh
-      call invoke( inject_sh_w3_to_wt_kernel_type(field_np1_rtran, field_np1_sh_w3) )
-
-      ! This could lead to negative values at top so enforce lower bound
+      ! Turn back to Wtheta
       if ( transport_metadata%get_enforce_min_value() ) then
-        min_value = transport_metadata%get_min_value()
-        call invoke( enforce_lower_bound_kernel_type(field_np1_rtran, min_value) )
+        ! Do not allow extrapolation
+        call invoke( setval_X(field_np1_rtran, field_np1_sh_w3) )
+      else
+        ! Allow extrapolation
+        call invoke( inject_sh_w3_to_wt_kernel_type(field_np1_rtran, field_np1_sh_w3) )
       end if
 
     case  default

@@ -17,7 +17,6 @@ module moisture_conservation_alg_mod
                                              nqp_exact
   use fs_continuity_mod,               only: W3
   use function_space_mod,              only: function_space_type
-  use inject_wt_to_sh_w3_kernel_mod,   only: inject_wt_to_sh_w3_kernel_type
   use intermesh_mappings_alg_mod,      only: obtain_shifted_rho
   use log_mod,                         only: log_event,         &
                                              log_scratch_space, &
@@ -69,7 +68,7 @@ contains
     type(function_space_type),  pointer :: w3_sh_fs => null()
 
     ! Fields and values
-    type(field_type)                    :: mr_shifted, rho_X_shifted
+    type(field_type)                    :: rho_X_shifted
     type(field_type)                    :: rho_d_shifted
     real(kind=r_def)                    :: total_dry
     real(kind=r_def)                    :: total_water_all(nummr)
@@ -98,13 +97,11 @@ contains
     shifted_mesh_id = shifted_mesh%get_id()
     chi_shifted => get_coordinates(shifted_mesh_id)
     w3_sh_fs => function_space_collection%get_fs( shifted_mesh, 0, W3 )
-    call mr_shifted%initialise( vector_space = w3_sh_fs )
     call rho_X_shifted%initialise( vector_space = w3_sh_fs )
 
     call obtain_shifted_rho(rho_d_shifted, rho_d)
     do i_mr = 1, nummr
-      call invoke( inject_wt_to_sh_w3_kernel_type(mr_shifted, mr(i_mr)),   &
-                   X_times_Y(rho_X_shifted, mr_shifted, rho_d_shifted) )
+      call invoke( X_times_Y(rho_X_shifted, mr(i_mr), rho_d_shifted) )
       call compute_total_mass_alg(total_water_all(i_mr), rho_X_shifted, &
                                   shifted_mesh, method=integral_method_fe)
     end do

@@ -597,9 +597,6 @@ contains
   subroutine restrict_mr( target_field, source_field, &
                           target_rho_sh_w3, source_rho_sh_w3 )
 
-    use inject_sh_w3_to_wt_kernel_mod, only: inject_sh_w3_to_wt_kernel_type
-    use inject_wt_to_sh_w3_kernel_mod, only: inject_wt_to_sh_w3_kernel_type
-
     implicit none
 
     type(field_type),    intent(inout) :: target_field
@@ -620,18 +617,14 @@ contains
     call source_field_sh_w3%initialise( source_sh_w3_fs )
     call target_field_sh_w3%initialise( target_sh_w3_fs )
 
-    ! Convert source field to to density in shifted W3 (needs separate invokes)
-    call invoke( setval_c(source_field_sh_w3, 0.0_r_def))
-    call invoke( inject_wt_to_sh_w3_kernel_type(source_field_sh_w3, source_field ) )
-    call invoke( X_times_Y(rho_X_source, source_rho_sh_w3, source_field_sh_w3) )
+    ! Convert source field to to density in shifted W3
+    call invoke( X_times_Y(rho_X_source, source_rho_sh_w3, source_field) )
 
     ! Restrict as a density
     call restrict_rho(rho_X_target, rho_X_source)
 
-    ! Convert back to mixing ratio (needs to be separate invokes)
-    call invoke( setval_c(target_field, 0.0_r_def))
-    call invoke( X_divideby_Y(target_field_sh_w3, rho_X_target, target_rho_sh_w3) )
-    call invoke( inject_sh_w3_to_wt_kernel_type(target_field, target_field_sh_w3) )
+    ! Convert back to mixing ratio
+    call invoke( X_divideby_Y(target_field, rho_X_target, target_rho_sh_w3) )
 
   end subroutine restrict_mr
 
@@ -645,9 +638,6 @@ contains
   subroutine inject_mr( target_field, source_field, &
                         target_rho_sh_w3, source_rho_sh_w3 )
 
-    use inject_sh_w3_to_wt_kernel_mod, only: inject_sh_w3_to_wt_kernel_type
-    use inject_wt_to_sh_w3_kernel_mod, only: inject_wt_to_sh_w3_kernel_type
-
     implicit none
 
     type(field_type),    intent(inout) :: target_field
@@ -668,18 +658,14 @@ contains
     call source_field_sh_w3%initialise( source_sh_w3_fs )
     call target_field_sh_w3%initialise( target_sh_w3_fs )
 
-    ! Convert source field to to density in shifted W3 (needs separate invokes)
-    call invoke( setval_c(source_field_sh_w3, 0.0_r_def))
-    call invoke( inject_wt_to_sh_w3_kernel_type(source_field_sh_w3, source_field ) )
-    call invoke( X_times_Y(rho_X_source, source_rho_sh_w3, source_field_sh_w3) )
+    ! Convert source field to to density in shifted W3
+    call invoke( X_times_Y(rho_X_source, source_rho_sh_w3, source_field) )
 
     ! Mass-conservative injection using the density
     call inject_rho(rho_X_target, rho_X_source)
 
-    ! Convert back to mixing ratio (needs to be separate invokes)
-    call invoke( setval_c(target_field, 0.0_r_def))
-    call invoke( X_divideby_Y(target_field_sh_w3, rho_X_target, target_rho_sh_w3) )
-    call invoke( inject_sh_w3_to_wt_kernel_type(target_field, target_field_sh_w3) )
+    ! Convert back to mixing ratio
+    call invoke( X_divideby_Y(target_field, rho_X_target, target_rho_sh_w3) )
 
   end subroutine inject_mr
 

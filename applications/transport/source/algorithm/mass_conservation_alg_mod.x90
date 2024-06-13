@@ -60,7 +60,7 @@ contains
     type(mesh_type),            pointer :: shifted_mesh => null()
     type(mesh_type),            pointer :: coarse_mesh => null()
 
-    type(field_type) :: mr_shifted, rho_X_shifted, rho_d_shifted
+    type(field_type) :: rho_X_shifted, rho_d_shifted
     type(field_type) :: coarse_rho_d, rho_X, aerosol_shifted
     real(kind=r_def) :: total_dry_mass, total_water_mass
     real(kind=r_def) :: total_w3_aerosol_mass, total_wt_aerosol_mass
@@ -77,12 +77,10 @@ contains
     ! Compute moist mass by converting into moisture density on shifted mesh
     shifted_mesh => mesh_collection%get_mesh(mesh, SHIFTED)
     w3_sh_fs => function_space_collection%get_fs( shifted_mesh, 0, W3 )
-    call mr_shifted%initialise( vector_space = w3_sh_fs )
     call rho_X_shifted%initialise( vector_space = w3_sh_fs )
 
     call obtain_shifted_rho(rho_d_shifted, rho_d)
-    call invoke( inject_wt_to_sh_w3_kernel_type( mr_shifted, mr(1) ),        &
-                  X_times_Y( rho_X_shifted, mr_shifted, rho_d_shifted ) )
+    call invoke( X_times_Y(rho_X_shifted, mr(1), rho_d_shifted) )
     call compute_total_mass_alg( total_water_mass, rho_X_shifted, &
                                  shifted_mesh, method=integral_method_fe )
 
