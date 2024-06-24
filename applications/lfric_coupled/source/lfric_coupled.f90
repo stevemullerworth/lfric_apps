@@ -46,7 +46,7 @@ program lfric_coupled
                     modeldb%configuration )
   call init_logger( modeldb%mpi%get_comm(), application_name )
   call init_collections()
-  call init_time( modeldb%clock, modeldb%calendar )
+  call init_time( modeldb )
   deallocate(filename)
 
   call modeldb%values%initialise( 'values', 5 )
@@ -66,7 +66,7 @@ program lfric_coupled
   end do
   call finalise( application_name, modeldb )
 
-  call final_time( modeldb%clock, modeldb%calendar )
+  call final_time( modeldb )
   call final_collections()
   call final_logger( application_name )
   call final_config()

@@ -61,7 +61,7 @@ program lfric_atm
   call init_logger( modeldb%mpi%get_comm(), application_name )
   call init_timers( application_name )
   call init_collections()
-  call init_time( modeldb%clock, modeldb%calendar )
+  call init_time( modeldb )
   call init_counters( application_name )
   deallocate( filename )
 
@@ -72,7 +72,7 @@ program lfric_atm
   call finalise( application_name, modeldb )
 
   call final_counters( application_name )
-  call final_time( modeldb%clock, modeldb%calendar )
+  call final_time( modeldb )
   call final_collections()
   call final_timers( application_name )
   call final_logger( application_name )

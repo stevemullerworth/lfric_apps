@@ -57,7 +57,7 @@ program linear_model
                     modeldb%configuration )
   call init_logger( modeldb%mpi%get_comm(), application_name )
   call init_collections()
-  call init_time( modeldb%clock, modeldb%calendar )
+  call init_time( modeldb )
   deallocate( filename )
 
   call initialise( application_name, modeldb )
@@ -71,7 +71,7 @@ program linear_model
   call log_event( 'Finalising '//application_name//' ...', log_level_trace )
   call finalise( application_name, modeldb )
 
-  call final_time( modeldb%clock, modeldb%calendar )
+  call final_time( modeldb )
   call final_collections()
   call final_logger( application_name )
   call final_config()

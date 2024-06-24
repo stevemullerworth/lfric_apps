@@ -60,7 +60,7 @@ program shallow_water
   call init_timers( program_name )
   call init_counters( program_name )
   call init_collections()
-  call init_time( modeldb%clock, modeldb%calendar )
+  call init_time( modeldb )
   deallocate( filename )
 
   call log_event( 'Initialising Infrastructure ...', log_level_trace )
@@ -74,7 +74,7 @@ program shallow_water
   call log_event( 'Finalising ' // program_name // ' ...', log_level_trace )
   call finalise( modeldb, program_name )
 
-  call final_time( modeldb%clock, modeldb%calendar )
+  call final_time( modeldb )
   call final_collections()
   call final_counters( program_name )
   call final_timers( program_name )
