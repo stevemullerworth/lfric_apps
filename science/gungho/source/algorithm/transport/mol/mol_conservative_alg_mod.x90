@@ -33,8 +33,8 @@ module mol_conservative_alg_mod
                                             LOG_LEVEL_INFO
   use transport_enumerated_types_mod, only: direction_3d, direction_h, &
                                             direction_v
-  use psykal_lite_mod,                only: invoke_dg_matrix_vector_rtran
   use end_of_transport_step_alg_mod,  only: end_of_conservative_step_alg
+  use dg_matrix_vector_kernel_mod,    only: dg_matrix_vector_kernel_type
 
   implicit none
 
@@ -184,7 +184,7 @@ module mol_conservative_alg_mod
                                     dt_substep, do_flux, do_advective)
         if ( do_flux ) then
           ! Compute flux increment
-          call invoke_dg_matrix_vector_rtran(rhs, flux_step, div)
+          call invoke( dg_matrix_vector_kernel_type(rhs, flux_step, div) )
         end if
         if ( do_advective ) then
           call invoke( X_minus_bY(field_np1, field_n, dt_substep, adv_inc) )

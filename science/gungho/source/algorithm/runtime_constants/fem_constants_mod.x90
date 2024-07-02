@@ -86,10 +86,9 @@ module fem_constants_mod
   use project_ws_to_w2_operator_kernel_mod,   only: project_ws_to_w2_operator_kernel_type
   use project_w3_to_w2b_operator_kernel_mod,  only: project_w3_to_w2b_operator_kernel_type
   use w2_normalisation_kernel_mod,            only: w2_normalisation_kernel_type
-  use psykal_lite_mod,           only: invoke_copy_to_rtran, &
-                                       invoke_operator_setval_x_rtran
-  use psykal_lite_transport_mod, only: invoke_extended_detj_at_w3_kernel_type
-  use sci_psykal_light_mod,      only: invoke_copy_to_rsolver
+  use psykal_lite_mod,                        only: invoke_copy_to_rtran
+  use psykal_lite_transport_mod,              only: invoke_extended_detj_at_w3_kernel_type
+  use sci_psykal_light_mod,                   only: invoke_copy_to_rsolver
 
   use compute_mass_matrix_kernel_w_scalar_mod, only: compute_mass_matrix_kernel_w_scalar_type
 
@@ -575,10 +574,10 @@ contains
           call mm_w3_r_tran_tmp%initialise( w3_fs, w3_fs )
           mm_w3_r_tran => mm_w3_r_tran_tmp
         end if
-        call invoke_operator_setval_x_rtran( mm_w3_r_tran, mm_w3 )
+        call invoke( operator_setval_x_kernel_type( mm_w3_r_tran, mm_w3 ) )
 
         call mm_w3_inv_r_tran_inventory%add_operator(mm_w3_inv_r_tran, w3_fs, w3_fs, mesh)
-        call invoke_operator_setval_x_rtran( mm_w3_inv_r_tran, mm_w3_inv )
+        call invoke( operator_setval_x_kernel_type( mm_w3_inv_r_tran, mm_w3_inv ) )
 
         call im3_div_inventory%add_operator(im3_div, w3_fs, w2_fs, mesh)
         call im3_div_h%initialise( w3_fs, w2h_fs )
@@ -587,13 +586,12 @@ contains
         call im3_div_h_r_tran_inventory%add_operator(im3_div_h_r_tran, w3_fs, w2h_fs, mesh)
         call im3_div_v_r_tran_inventory%add_operator(im3_div_v_r_tran, w3_fs, w2v_fs, mesh)
 
-        call invoke( operator_x_times_y_kernel_type( im3_div, mm_w3_inv, div ),  &
+        call invoke( operator_x_times_y_kernel_type( im3_div, mm_w3_inv, div ),     &
                      operator_x_times_y_kernel_type( im3_div_h, mm_w3_inv, div_h ), &
-                     operator_x_times_y_kernel_type( im3_div_v, mm_w3_inv, div_v )  )
-
-        call invoke_operator_setval_x_rtran( im3_div_r_tran, im3_div )
-        call invoke_operator_setval_x_rtran( im3_div_h_r_tran, im3_div_h )
-        call invoke_operator_setval_x_rtran( im3_div_v_r_tran, im3_div_v )
+                     operator_x_times_y_kernel_type( im3_div_v, mm_w3_inv, div_v ), &
+                     operator_setval_x_kernel_type( im3_div_r_tran, im3_div ),      &
+                     operator_setval_x_kernel_type( im3_div_h_r_tran, im3_div_h ),  &
+                     operator_setval_x_kernel_type( im3_div_v_r_tran, im3_div_v ) )
 
         call detj_at_w3_r_def_inventory%add_field(detj_at_w3_r_def, w3_fs, mesh)
         call detj_at_w3_r_tran_inventory%add_field(detj_at_w3_r_tran, w3_fs, mesh, &

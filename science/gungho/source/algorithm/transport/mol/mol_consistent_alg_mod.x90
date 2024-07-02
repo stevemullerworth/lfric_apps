@@ -35,7 +35,6 @@ module mol_consistent_alg_mod
   use boundaries_config_mod,          only: limited_area, transport_boundary_depth
   use limited_area_lbc_alg_mod,       only: overwrite_blending_zone_rtran
   use base_mesh_config_mod,           only: topology, topology_non_periodic
-  use psykal_lite_mod,                only: invoke_dg_matrix_vector_rtran
 
   implicit none
 

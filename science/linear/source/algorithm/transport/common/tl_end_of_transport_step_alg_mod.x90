@@ -22,7 +22,7 @@ module tl_end_of_transport_step_alg_mod
   use mesh_mod,                       only: mesh_type
   use mesh_collection_mod,            only: mesh_collection
   use operator_mod,                   only: operator_type
-  use psykal_lite_mod,                only: invoke_dg_matrix_vector_rtran
+  use dg_matrix_vector_kernel_mod,    only: dg_matrix_vector_kernel_type
   use r_tran_field_mod,               only: r_tran_field_type
   use r_tran_operator_mod,            only: r_tran_operator_type
   use transport_config_mod,           only: dry_field_name
@@ -161,8 +161,8 @@ contains
       else
         ! Compute updated field using flux for whole transport step
         ! dt is hidden inside flux
-        call invoke_dg_matrix_vector_rtran(increment, sum_flux, div)
-        call invoke( X_minus_Y(field_np1, field_start, increment) )
+        call invoke( dg_matrix_vector_kernel_type(increment, sum_flux, div), &
+                     X_minus_Y(field_np1, field_start, increment) )
       end if
 
     ! ------------------------------------------------------------------------ !
@@ -219,8 +219,8 @@ contains
         call conservative_field_np1%initialise(field_in%get_function_space())
         call increment%initialise(field_np1%get_function_space())
 
-        call invoke_dg_matrix_vector_rtran(increment, flux, div)
-        call invoke( X_minus_Y(conservative_field_np1, conservative_field_n, &
+        call invoke( dg_matrix_vector_kernel_type(increment, flux, div),     &
+                     X_minus_Y(conservative_field_np1, conservative_field_n, &
                                increment) )
 
         if ( limited_area .and. topology == topology_non_periodic ) then

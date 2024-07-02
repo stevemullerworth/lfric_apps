@@ -47,9 +47,6 @@ module end_of_transport_step_alg_mod
   use mesh_mod,                       only: mesh_type
   use mesh_collection_mod,            only: mesh_collection
   use operator_mod,                   only: operator_type
-  use psykal_lite_mod,                only: invoke_copy_rtran_to_rdef,     &
-                                            invoke_copy_to_rtran,          &
-                                            invoke_dg_matrix_vector_rtran
   use r_tran_field_mod,               only: r_tran_field_type
   use r_tran_operator_mod,            only: r_tran_operator_type
   use timer_mod,                      only: timer
@@ -72,6 +69,7 @@ module end_of_transport_step_alg_mod
   use transport_runtime_collection_mod,   &
                                       only: get_transport_runtime
   use field_minmax_alg_mod,           only: get_field_minmax
+  use dg_matrix_vector_kernel_mod,    only: dg_matrix_vector_kernel_type
 
   implicit none
 
@@ -253,12 +251,11 @@ contains
 
         ! Dynamic limiting -- limit until we are close to removing negative values
         do limit_iteration = 1, num_limiting_steps
-          call invoke( iterate_min_flux_kernel_type(field_start, sum_flux, &
-                                                    div_r_def, min_value, adv_dt) )
-
+          call invoke( iterate_min_flux_kernel_type(field_start, sum_flux,         &
+                                                    div_r_def, min_value, adv_dt), &
           ! Apply flux, and determine new minima
-          call invoke_dg_matrix_vector_rtran(increment, sum_flux, div)
-          call invoke( X_minus_Y(field_np1, field_start, increment) )
+                       dg_matrix_vector_kernel_type(increment, sum_flux, div),     &
+                       X_minus_Y(field_np1, field_start, increment) )
 
           call get_field_minmax( field_np1, field_min, field_max )
 
@@ -279,8 +276,8 @@ contains
       else if (operators == operators_fem) then
         ! Finite element transport, so need full divergence operator
         div => get_directional_im3_div_r_tran(mesh_id, direction_3d)
-        call invoke_dg_matrix_vector_rtran(increment, sum_flux, div)
-        call invoke( X_minus_Y(field_np1, field_start, increment) )
+        call invoke( dg_matrix_vector_kernel_type(increment, sum_flux, div), &
+                     X_minus_Y(field_np1, field_start, increment) )
 
       else
         ! Compute updated field using flux for whole transport step
@@ -348,8 +345,8 @@ contains
       if (operators == operators_fem) then
         ! Finite element transport, so need full divergence operator
         div => get_directional_im3_div_r_tran(mesh_id, direction)
-        call invoke_dg_matrix_vector_rtran(increment, flux, div)
-        call invoke( X_minus_Y(conservative_field_np1, conservative_field_n,   &
+        call invoke( dg_matrix_vector_kernel_type(increment, flux, div),       &
+                     X_minus_Y(conservative_field_np1, conservative_field_n,   &
                                increment) )
 
       else
@@ -670,12 +667,11 @@ contains
 
         ! Dynamic limiting -- limit until we are close to removing negative values
         do limit_iteration = 1, num_limiting_steps
-          call invoke( iterate_min_flux_kernel_type(rho_X_start, sum_flux, &
-                                                    div_r_def, min_value, adv_dt) )
-
+          call invoke( iterate_min_flux_kernel_type(rho_X_start, sum_flux,         &
+                                                    div_r_def, min_value, adv_dt), &
           ! Apply flux, and determine new minima
-          call invoke_dg_matrix_vector_rtran(increment, sum_flux, div)
-          call invoke( X_minus_Y(rho_X_np1, rho_X_start, increment) )
+                       dg_matrix_vector_kernel_type(increment, sum_flux, div),     &
+                       X_minus_Y(rho_X_np1, rho_X_start, increment) )
 
           call get_field_minmax( rho_X_np1, field_min, field_max )
 
