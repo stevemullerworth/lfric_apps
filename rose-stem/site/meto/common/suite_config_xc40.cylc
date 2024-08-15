@@ -30,9 +30,9 @@
                         'module load cray-snplauncher/$CRAY_MPICH2_VER' %}
 {% endif %}
 
-
 {% set xc40_compiler_perftools_intel = 'module load meto-environment/lfric-perftools/intel/17.0.0.098/2' %}
 
+{% set xc40_cray_vars = 'module load meto-cray-var/cray_runtime_vars' %}
 
     [[XC40_BASE]]
         platform = {{site_vars["meto_xc40"]}}
@@ -102,11 +102,11 @@
 
     [[XC40_RUN_INTEL]]
         inherit=XC40_BASE,XC40_RUN,XC40_INTEL
-        {{ generate_script("pre-script", [xc40_base, xc40_compiler_intel]) }}
+        {{ generate_script("pre-script", [xc40_base, xc40_compiler_intel, xc40_cray_vars]) }}
 
     [[XC40_RUN_PERFTOOLS-INTEL]]
         inherit=XC40_BASE,XC40_RUN,XC40_PERFTOOLS-INTEL
-        {{ generate_script("pre-script", [xc40_base, xc40_compiler_perftools_intel]) }}
+        {{ generate_script("pre-script", [xc40_base, xc40_compiler_perftools_intel, xc40_cray_vars]) }}
 
     [[XC40_RUN_CCE]]
         inherit=XC40_BASE,XC40_RUN,XC40_CCE
