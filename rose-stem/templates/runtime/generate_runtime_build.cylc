@@ -54,7 +54,7 @@
             PSYCLONE_TRANSFORMATION = {{psyclone_transformation}}
             UM_FCM_TARGET_PLATFORM  = {{SITE}}-{{task_ns.platform}}
             LFRIC_TARGET_PLATFORM   = {{SITE}}-{{task_ns.platform}}
-            MAKE_THREADS            = 4
+            MAKE_THREADS            = 6
             RDEF_PRECISION          = {{task_values["precision"]["rdef"]}}
             R_TRAN_PRECISION        = {{task_values["precision"]["rtran"]}}
             R_BL_PRECISION          = {{task_values["precision"]["rbl"]}}

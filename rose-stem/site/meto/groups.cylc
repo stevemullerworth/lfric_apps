@@ -54,6 +54,7 @@
     "spice_build": [],
     "xc40_build": [],
     "ex1a_build": [],
+    "ex1a_cce": [],
     "spice_unit_tests": [],
     "xc40_unit_tests": [],
     "ex1a_unit_tests": [],

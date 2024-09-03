@@ -249,7 +249,11 @@
     "gungho_model_ex1a_canned": [
         "gungho_model_canned_ex1a_gnu_fast-debug-64bit",
     ],
-  }) %}
+    "gungho_model_ex1a_cce_tests": [
+        "gungho_model_held-suarez-C24_MG_ex1a_cce_full-debug-64bit",
+        "gungho_model_held-suarez-C24_MG_ex1a_cce_fast-debug-64bit",
+    ],
+    }) %}
 
 {# Platform Generic Groups #}
 {% do site_groups.update({
@@ -310,5 +314,6 @@
 {% do site_groups.ex1a_developer.extend(site_groups.gungho_model_ex1a_developer) %}
 {% do site_groups.ex1a.extend(site_groups.gungho_model_ex1a) %}
 {% do site_groups.ex1a_build.extend(site_groups.gungho_model_ex1a_build) %}
+{% do site_groups.ex1a_cce.extend(site_groups.gungho_model_ex1a_cce_tests) %}
 
 {% do LOG.debug("Finished in site/meto/groups/groups_gungho_model.cylc") %}

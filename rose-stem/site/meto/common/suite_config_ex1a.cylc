@@ -11,6 +11,11 @@
                            'module load gcc/12.2.0 ; '~
                            'module load lfric-gnu/12.2.0' %}
 
+{% set ex1a_compiler_cce =  'module switch PrgEnv-cray PrgEnv-cray/8.4.0 ; ' ~
+                            'module load cpe/23.05 ; '~
+                            'module switch cce cce/15.0.0 ; '~
+                            'module load lfric-cray/15.0.0' %}
+
 {% set set_ulimit = 'ulimit -s unlimited -c unlimited; '~
                     'ulimit -a '%}
 
@@ -37,7 +42,7 @@
     [[EX1A_BUILD]]
         inherit=EX1A_SHARED_QUEUE
         [[[directives]]]
-            -l select=1:ncpus=16:mem=12GB:tmpsize=4GB
+            -l select=1:ncpus=24:mem=40GB:tmpsize=12GB
             -l walltime=01:00:00
             -q=shared
 
@@ -57,13 +62,27 @@
         [[[environment]]]
             COMPILER = 'gnu'
 
+    [[EX1A_CCE]]
+        [[[environment]]]
+            COMPILER = 'cce'
+
     [[EX1A_BUILD_GNU]]
         inherit=EX1A_BASE,EX1A_BUILD,EX1A_GNU
         {{ generate_script("pre-script", [ex1a_base, ex1a_compiler_gnu]) }}
 
+    [[EX1A_BUILD_CCE]]
+        inherit=EX1A_BASE,EX1A_BUILD,EX1A_CCE
+        {{ generate_script("pre-script", [ex1a_base, ex1a_compiler_cce]) }}
+        [[[directives]]]
+            -l walltime = 02:55:00
+
     [[EX1A_RUN_GNU]]
         inherit=EX1A_BASE,EX1A_RUN,EX1A_GNU
         {{ generate_script("pre-script", [ex1a_base, ex1a_compiler_gnu, set_ulimit]) }}
+
+    [[EX1A_RUN_CCE]]
+        inherit=EX1A_BASE,EX1A_RUN,EX1A_CCE
+        {{ generate_script("pre-script", [ex1a_base, ex1a_compiler_cce, set_ulimit]) }}
 
     [[EX1A_MESH]]
         inherit=EX1A_BASE,EX1A_SHARED_QUEUE
@@ -76,6 +95,13 @@
         inherit=EX1A_GNU,EX1A_MESH
         {{ generate_script("pre-script", [ex1a_base,
                                           ex1a_compiler_gnu,
+                                          ex1a_scitools,
+                                          ex1a_tech]) }}
+
+    [[EX1A_MESH_CCE]]
+        inherit=EX1A_CCE,EX1A_MESH
+        {{ generate_script("pre-script", [ex1a_base,
+                                          ex1a_compiler_cce,
                                           ex1a_scitools,
                                           ex1a_tech]) }}
 
@@ -92,6 +118,10 @@
     [[EX1A_TECH_TESTS_GNU]]
         inherit=EX1A_TECH_TESTS,EX1A_GNU
         {{ generate_script("pre-script", [ex1a_base, ex1a_compiler_gnu, ex1a_tech]) }}
+
+    [[EX1A_TECH_TESTS_CCE]]
+        inherit=EX1A_TECH_TESTS,EX1A_CCE
+        {{ generate_script("pre-script", [ex1a_base, ex1a_compiler_cce, ex1a_tech]) }}
 
     [[EX1A_TECH]]
         inherit=EX1A_TECH_BASE

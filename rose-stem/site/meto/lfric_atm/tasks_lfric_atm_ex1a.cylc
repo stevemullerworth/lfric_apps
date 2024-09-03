@@ -7,8 +7,8 @@
 
 {# Set default values #}
 {% if task_dict %}
-    {% if "full-debug" in task %}
-        {% if "wallclock" not in task_dict %}
+    {% if ("full-debug" in task) and ("build_lfric_atm" not in task) %}
+        {% if "wallclock" not in task_dict  %}
             {% do task_dict.update({"wallclock": 15}) %}
         {% else %}
             {% set val = 1.5 * task_dict["wallclock"] %}

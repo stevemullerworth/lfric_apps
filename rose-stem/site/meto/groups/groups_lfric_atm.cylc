@@ -223,7 +223,11 @@
     "lfric_atm_ex1a_canned": [
         "lfric_atm_canned_ex1a_gnu_fast-debug-64bit",
     ],
-  }) %}
+    "lfric_atm_ex1a_cce_tests": [
+        "lfric_atm_nwp_gal9_debug-C12_ex1a_cce_full-debug-64bit",
+        "lfric_atm_nwp_gal9_debug-C12_ex1a_cce_fast-debug-64bit",
+    ],
+    }) %}
 
 {# ###################################################################### #}
 {# Platform Generic Groups #}
@@ -275,5 +279,6 @@
 {% do site_groups.ex1a_developer.extend(site_groups.lfric_atm_ex1a_developer) %}
 {% do site_groups.ex1a.extend(site_groups.lfric_atm_ex1a) %}
 {% do site_groups.ex1a_build.extend(site_groups.lfric_atm_ex1a_build) %}
+{% do site_groups.ex1a_cce.extend(site_groups.lfric_atm_ex1a_cce_tests) %}
 
 {% do LOG.debug("Finished in site/meto/groups/groups_lfric_atm.cylc") %}
