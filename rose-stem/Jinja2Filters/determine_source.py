@@ -32,6 +32,13 @@ def determine_source(wc_loc, repo):
     result = subprocess.run(
         cat_command.split(), capture_output=True, text=True
     )
+    # Raise an error if the returncode is positive
+    if result.returncode:
+        raise RuntimeError(
+            f"An error occured while running the command '{cat_command}' "
+            "in order to read the dependencies file. The error message is:\n\n"
+            f"'{result.stderr}'"
+        )
     dependencies_file = result.stdout.split("\n")
     source = ''
     rev = ''

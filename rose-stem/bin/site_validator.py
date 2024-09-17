@@ -41,8 +41,8 @@ def generate_validate_command(source, site, group):
         "cylc validate --debug --check-circular "
         f"-S RUN_NAMES=['{group}'] "
         f"-S SITE='{site}' "
-        f"-S HOST_SOURCE_LFRIC_APPS='{source}' "
-        f"-S SOURCE_LFRIC_APPS='{source}' "
+        f"-S HOST_SOURCE_LFRIC_APPS='{source}/apps' "
+        f"-S SOURCE_LFRIC_APPS='{source}/apps' "
         f"-S SOURCE_LFRIC_APPS_REV=1 "
         f"{source}/apps/rose-stem"
     )
