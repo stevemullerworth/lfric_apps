@@ -302,6 +302,8 @@ subroutine create_model_data( modeldb,      &
     type(field_array_type), pointer      :: mr_array
     type(field_array_type)               :: moist_dyn_array_local
     type(field_array_type), pointer      :: moist_dyn_array
+    type(field_array_type)               :: moist_dyn_ref_array_local
+    type(field_array_type), pointer      :: moist_dyn_ref_array
     type(field_array_type)               :: ls_mr_array_local
     type(field_array_type)               :: ls_moist_dyn_array_local
     type(field_collection_type), pointer :: prognostic_fields
@@ -346,6 +348,13 @@ subroutine create_model_data( modeldb,      &
     call moisture_fields%add_field(moist_dyn_array_local)
     ! The array in the collection will be a copy - so get that version
     call moisture_fields%get_field("moist_dyn", moist_dyn_array)
+
+    ! Reference moist dynamics factors required if checkpointing fields for semi-implicit operator
+    ! recomputation
+    call moist_dyn_ref_array_local%initialise(num_moist_factors, name="moist_dyn_ref")
+    call moisture_fields%add_field(moist_dyn_ref_array_local)
+    ! The array in the collection will be a copy - so get that version
+    call moisture_fields%get_field("moist_dyn_ref", moist_dyn_ref_array)
 
     call mr_array_local%initialise(nummr, name="mr")
     call moisture_fields%add_field(mr_array_local)

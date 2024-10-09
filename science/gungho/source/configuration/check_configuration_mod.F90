@@ -151,7 +151,7 @@ contains
     use damping_layer_config_mod,    only: dl_base,                            &
                                            dl_str
     use extrusion_config_mod,        only: domain_top
-    use mixed_solver_config_mod,     only: reference_reset_freq
+    use mixed_solver_config_mod,     only: reference_reset_time
     use helmholtz_solver_config_mod, only:                                     &
                             helmholtz_solver_preconditioner => preconditioner, &
                             preconditioner_tridiagonal
@@ -543,13 +543,9 @@ contains
 
       if ( method == method_semi_implicit ) then
         ! Check the mixed solver namelist
-        if ( reference_reset_freq > outer_iterations*inner_iterations ) then
-          write( log_scratch_space, '(A)' ) 'reference_reset_freq greater than total number of si iterations'
+        if (reference_reset_time < dt ) then
+          write( log_scratch_space, '(A)' ) 'reference_reset_time must be greater than or equal to time step size dt'
           call log_event( log_scratch_space, LOG_LEVEL_ERROR )
-        end if
-        if ( mod(outer_iterations*inner_iterations,reference_reset_freq) /= 0_i_def ) then
-          write( log_scratch_space, '(A)' ) 'reference_reset_freq not a divsor of total number of si iterations'
-          call log_event( log_scratch_space, LOG_LEVEL_WARNING )
         end if
       end if
 

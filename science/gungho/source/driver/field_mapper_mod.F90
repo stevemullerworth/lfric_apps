@@ -371,6 +371,8 @@ end subroutine init
       call self%moisture%get_field("mr", arr)
     case (moist_arr_dict%moist_dyn)
       call self%moisture%get_field("moist_dyn", arr)
+    case (moist_arr_dict%moist_dyn_ref)
+      call self%moisture%get_field("moist_dyn_ref", arr)
     case (moist_arr_dict%none)
       arr => null()
     case default

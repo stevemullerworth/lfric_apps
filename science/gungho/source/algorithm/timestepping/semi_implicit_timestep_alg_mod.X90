@@ -53,8 +53,7 @@ module semi_implicit_timestep_alg_mod
   use io_config_mod,              only: subroutine_timers,                    &
                                         write_conservation_diag, write_diag,  &
                                         use_xios_io, diagnostic_frequency
-  use mixed_solver_config_mod,    only: guess_np1,                            &
-                                        reference_reset_freq
+  use mixed_solver_config_mod,    only: guess_np1, reference_reset_time
   use timestepping_config_mod,    only: alpha,                                &
                                         outer_iterations, inner_iterations,   &
                                         spinup_alpha
@@ -211,7 +210,11 @@ contains
     type( field_type), pointer :: exner
     type( field_array_type ),     pointer :: mr_array
     type( field_type ),           pointer :: mr(:)
+    class(model_clock_type), pointer :: model_clock
 
+    ! Get pointer to clock to use downstream
+    model_clock => modeldb%clock
+  
     ! Get pointers to field collections for use downstream
     prognostic_fields => modeldb%fields%get_field_collection("prognostic_fields")
 
@@ -225,11 +228,11 @@ contains
     moisture_fields => modeldb%fields%get_field_collection("moisture_fields")
     call moisture_fields%get_field("mr", mr_array)
     mr => mr_array%bundle
-
+    
     ! Run the initialisation process
-    call run_init(self, u, rho, theta, exner, mr)
+    call run_init(self, u, rho, theta, exner, mr, prognostic_fields, moisture_fields, model_clock )
 
-    nullify ( prognostic_fields, moisture_fields, mr_array, &
+    nullify ( prognostic_fields, moisture_fields, mr_array, model_clock, &
               u, rho, theta, exner, mr )
 
   end function semi_implicit_alg_init
@@ -248,7 +251,7 @@ contains
     type(mesh_type),                 pointer :: twod_mesh
 
     type(model_data_type), pointer  :: model_data
-    type(model_clock_type), pointer :: model_clock
+    class(model_clock_type), pointer :: model_clock
 
     type( field_collection_type ), pointer :: prognostic_fields
     type( field_collection_type ), pointer :: moisture_fields
@@ -296,6 +299,10 @@ contains
     call prognostic_fields%get_field('u', u)
     call prognostic_fields%get_field('rho', rho)
     call prognostic_fields%get_field('exner', exner)
+
+    ! Get timestep parameters from clock
+    dt = real(model_clock%get_seconds_per_step(), r_def)
+
     moisture_fields => modeldb%fields%get_field_collection("moisture_fields")
     call moisture_fields%get_field("mr", mr_array)
     mr => mr_array%bundle
@@ -326,9 +333,6 @@ contains
     stph_fields => model_data%stph_fields
     lbc_fields => model_data%lbc_fields
 
-    ! Get timestep parameters from clock
-    dt = real(model_clock%get_seconds_per_step(), r_def)
-
     temp_corr_io_value => get_io_value( modeldb%values, 'temperature_correction_io_value')
     ! Get temperature increment for energy correction
     dtemp_encorr = dt * temp_corr_io_value%data(1)
@@ -337,6 +341,7 @@ contains
     call run_step(self, u, rho, theta, exner, mr, moist_dyn,  &
                   adv_tracer_all_outer,adv_tracer_last_outer, &
                   con_tracer_all_outer,con_tracer_last_outer, &
+                  prognostic_fields, moisture_fields,         &
                   derived_fields, radiation_fields,           &
                   microphysics_fields, electric_fields,       &
                   orography_fields,                           &
@@ -359,18 +364,21 @@ contains
                   snow_fields, chemistry_fields,              &
                   aerosol_fields, stph_fields, lbc_fields,    &
                   temp_corr_io_value,                         &
-                  mr_array,moist_dyn_array)
+                  mr_array, moist_dyn_array)
 
   end subroutine semi_implicit_alg_step
 
   !> @details Initialisation procedure for the timestepping algorithm
   !>          Initialises various internal fields
-  !> @param[in,out] u     3D wind field
-  !> @param[in,out] rho   Density
-  !> @param[in,out] theta Potential temperature
-  !> @param[in,out] exner Exner pressure
-  !> @param[in,out] mr    Mixing ratios
-  subroutine run_init( self, u, rho, theta, exner, mr)
+  !> @param[in,out] u                 3D wind field
+  !> @param[in,out] rho               Density
+  !> @param[in,out] theta             Potential temperature
+  !> @param[in,out] exner             Exner pressure
+  !> @param[in,out] mr                Mixing ratios
+  !> @param[in,out] prognostic_fields Prognostic field collection
+  !> @param[in,out] moisture_fields   Moisture field collection
+  !> @param[in]     model_clock       Time in the model.
+  subroutine run_init( self, u, rho, theta, exner, mr, prognostic_fields, moisture_fields, model_clock)
 
     implicit none
 
@@ -380,8 +388,29 @@ contains
     type( field_type ), intent( in ) :: u, rho, theta, exner
     type( field_type ), intent( in ), optional :: mr(:)
 
+    ! field groups
+    type( field_collection_type ), intent( inout ) :: prognostic_fields
+    type( field_collection_type ), intent( inout ) :: moisture_fields
+
+    ! Clock
+    class(model_clock_type), intent(in) :: model_clock
+
     ! Mesh
     type(mesh_type), pointer :: mesh
+
+    ! Reference fields
+    type( field_type ),       pointer :: rho_ref, theta_ref, exner_ref
+    
+    ! Reference moist dynamics factors
+    type( field_array_type ),      pointer :: moist_dyn_ref_array
+    type( field_type ),            pointer :: moist_dyn_ref(:)
+    
+
+    ! Timestep
+    real(kind=r_def) :: cast_dt
+
+    ! Reset frequency of semi-implicit operators
+    integer(kind=i_def) :: reference_reset_freq
 
     ! Get the mesh from one of the fields
     mesh => theta%get_mesh()
@@ -460,6 +489,20 @@ contains
     ! Operators for si solves
     !--------------------------------------------------------------------
     call create_si_operators( mesh )
+    
+    ! If using checkpointed reference state, then calculate semi-implicit
+    ! operators using the checkpointed reference state 
+    cast_dt = real(model_clock%get_seconds_per_step(), r_def)
+    reference_reset_freq = int(reference_reset_time / cast_dt, i_def)
+    if (mod(model_clock%get_first_step()-1, reference_reset_freq) /= 0) then
+      call moisture_fields%get_field("moist_dyn_ref", moist_dyn_ref_array)
+      moist_dyn_ref => moist_dyn_ref_array%bundle
+      call prognostic_fields%get_field('theta_ref', theta_ref)
+      call prognostic_fields%get_field('rho_ref', rho_ref)
+      call prognostic_fields%get_field('exner_ref', exner_ref)
+      call compute_si_operators(theta_ref, rho_ref, exner_ref, cast_dt, moist_dyn_ref)
+      nullify(theta_ref, rho_ref, exner_ref, moist_dyn_ref, moist_dyn_ref_array)
+    end if
 
     if (use_wavedynamics) then
       call gungho_transport_control_alg_init( mesh )
@@ -495,6 +538,8 @@ contains
   !> @param[in,out] adv_tracer_last_outer  Group of fields to be advected
   !> @param[in,out] con_tracer_all_outer   Second group of fields to be advected
   !> @param[in,out] con_tracer_last_outer  Second group of fields to be advected
+  !> @param[in,out] prognostic_fields      Prognostic field collection
+  !> @param[in,out] moisture_fields        Moisture field collection
   !> @param[in,out] derived_fields         Group of derived fields
   !> @param[in,out] radition_fields        Fields for radiation scheme
   !> @param[in,out] microphysics_fields    Fields for mphys scheme
@@ -518,6 +563,7 @@ contains
   subroutine run_step(self, u, rho, theta, exner, mr, moist_dyn,  &
                       adv_tracer_all_outer,adv_tracer_last_outer, &
                       con_tracer_all_outer,con_tracer_last_outer, &
+                      prognostic_fields, moisture_fields,         &
                       derived_fields, radiation_fields,           &
                       microphysics_fields, electric_fields,       &
                       orography_fields,                           &
@@ -540,6 +586,8 @@ contains
     type( field_collection_type ), intent( inout ) :: adv_tracer_last_outer
     type( field_collection_type ), intent( inout ) :: con_tracer_all_outer
     type( field_collection_type ), intent( inout ) :: con_tracer_last_outer
+    type( field_collection_type ), intent( inout ) :: prognostic_fields
+    type( field_collection_type ), intent( inout ) :: moisture_fields
     type( field_collection_type ), intent( inout ) :: derived_fields
     type( field_collection_type ), intent( inout ) :: radiation_fields
     type( field_collection_type ), intent( inout ) :: microphysics_fields
@@ -563,6 +611,14 @@ contains
     type(mesh_type), intent(in), pointer :: mesh
     type(mesh_type), intent(in), pointer :: twod_mesh
 
+    ! Reference fields
+    type( field_type ),       pointer :: rho_ref
+    type( field_type ),       pointer :: theta_ref
+    type( field_type ),       pointer :: exner_ref
+    type( field_type ),       pointer :: moist_dyn_ref(:)
+    type( field_array_type ), pointer :: moist_dyn_ref_array
+    
+
     real(kind=r_def) :: cast_dt
 
     type(field_type), pointer :: ageofair
@@ -573,7 +629,7 @@ contains
     type(operator_type), pointer :: mm_wt
     type(operator_type), pointer :: mm_vel
 
-    integer(kind=i_def) :: outer, inner, reset_ref_state
+    integer(kind=i_def) :: outer, inner, reference_reset_freq
     real(kind=r_def)    :: varalpha, varbeta ! alpha, beta weight to use
                                              ! these may differ from input values
                                              ! during the spinup period
@@ -588,6 +644,9 @@ contains
     type( field_collection_type ) :: con_tracer_last_outer_after_slow
     ! Cloud fields after advection / before fast physics updates
     type( field_collection_type ) :: cloud_fields_after_adv
+
+    ! Reference fields are checkpointed
+    logical(kind=l_def) :: checkpoint_reference_fields
 
     if ( subroutine_timers ) call timer('semi_implicit_timestep_alg')
 
@@ -606,6 +665,36 @@ contains
                  setval_X(self%state(igh_t), theta), &
                  setval_X(self%state(igh_d), rho  ), &
                  setval_X(self%state(igh_p), exner) )
+    
+    !--------------------------------------------------------------------
+    ! Compute the semi-implicit operators
+    !--------------------------------------------------------------------
+    ! Reset the reference state in the semi-implicit operators using the latest state guess.
+    ! This occurs every n timesteps, where n is calculated as reference_reset_time divided by dt.
+    ! The reference_reset_time is specified in the configuration namelist.
+    ! Note that this reset can only occur at most once per timestep.
+    reference_reset_freq = int(reference_reset_time / cast_dt, i_def)
+    checkpoint_reference_fields =  mod(model_clock%get_first_step()-1, reference_reset_freq) /= 0 .or.  &
+                                      mod(model_clock%get_last_step(),    reference_reset_freq) /= 0
+  
+    if ( mod(model_clock%get_step() - 1_i_def, reference_reset_freq) == 0_i_def ) then
+      ! Compute semi-implicit operators with current model state
+      call compute_si_operators(self%state(igh_t), self%state(igh_d), self%state(igh_p), cast_dt, moist_dyn)
+      
+      ! Copy over model state for checkpointing if required
+      if (checkpoint_reference_fields) then
+        call prognostic_fields%get_field('theta_ref', theta_ref)
+        call prognostic_fields%get_field('rho_ref', rho_ref)
+        call prognostic_fields%get_field('exner_ref', exner_ref)
+        call moisture_fields%get_field("moist_dyn_ref", moist_dyn_ref_array)
+        moist_dyn_ref => moist_dyn_ref_array%bundle
+        call copy_bundle(moist_dyn, moist_dyn_ref, num_moist_factors)
+        call invoke( setval_X(theta_ref, self%state(igh_t)), &
+                     setval_X(rho_ref, self%state(igh_d)),   &
+                     setval_X(exner_ref, self%state(igh_p))  )
+        nullify(moist_dyn_ref_array, moist_dyn_ref, theta_ref, rho_ref, exner_ref)
+      end if
+    end if
 
     !--------------------------------------------------------------------
     ! If off-centring is being spun up then modify the alpha value
@@ -809,12 +898,6 @@ contains
           write( log_scratch_space, '(A,2I3)' ) 'loop indices (o, i): ', &
                                                 outer, inner
           call log_event( log_scratch_space, LOG_LEVEL_INFO )
-
-          ! Reset reference state using latest guess of state
-          reset_ref_state = mod(inner + (outer-1)*inner_iterations - 1_i_def, &
-                                reference_reset_freq)
-          if ( reset_ref_state == 0_i_def ) &
-            call compute_si_operators(self%state, cast_dt)
 
           !--------------------------------------------------------------------
           ! Compute the time-level n+1 dynamics terms

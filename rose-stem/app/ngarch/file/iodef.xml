@@ -28,6 +28,9 @@
         <field id="checkpoint_theta" name="theta" long_name="air_potential_temperature" standard_name="air_potential_temperature" unit="K" domain_ref="checkpoint_Wtheta" />
         <field id="checkpoint_rho" name="rho" long_name="air_density" standard_name="air_density" unit="kg m-3" domain_ref="checkpoint_W3" />
         <field id="checkpoint_exner" name="exner" long_name="exner_pressure" unit="1" domain_ref="checkpoint_W3" />
+        <field id="checkpoint_theta_ref" name="theta_ref" long_name="air_potential_temperature_ref" standard_name="air_potential_temperature_ref" unit="K" domain_ref="checkpoint_Wtheta" />
+        <field id="checkpoint_rho_ref" name="rho_ref" long_name="air_density_ref" standard_name="air_density_ref" unit="kg m-3" domain_ref="checkpoint_W3" />
+        <field id="checkpoint_exner_ref" name="exner_ref" long_name="exner_pressure_ref" unit="1" domain_ref="checkpoint_W3" />
         <field id="checkpoint_u" name="u" long_name="U" unit="m s-1" domain_ref="checkpoint_W2" />
         <field id="checkpoint_m_v" name="m_v" long_name="m_v" unit="kg kg-1" domain_ref="checkpoint_Wtheta" />
         <field id="checkpoint_m_cl" name="m_cl" long_name="m_cl" unit="kg kg-1" domain_ref="checkpoint_Wtheta" />
@@ -35,6 +38,9 @@
         <field id="checkpoint_m_ci" name="m_ci" long_name="m_ci" unit="kg kg-1" domain_ref="checkpoint_Wtheta" />
         <field id="checkpoint_m_s" name="m_s" long_name="m_s" unit="kg kg-1" domain_ref="checkpoint_Wtheta" />
         <field id="checkpoint_m_g" name="m_g" long_name="m_g" unit="kg kg-1" domain_ref="checkpoint_Wtheta" />
+        <field id="checkpoint_moist_dyn_gas_law_ref" name="moist_dyn_gas_law_ref" long_name="moist_dyn_gas_law_ref" unit="1" domain_ref="checkpoint_Wtheta" />
+        <field id="checkpoint_moist_dyn_total_mass_ref" name="moist_dyn_total_mass_ref" long_name="moist_dyn_total_mass_ref" unit="1" domain_ref="checkpoint_Wtheta" />
+        <field id="checkpoint_moist_dyn_water_ref" name="moist_dyn_water_ref" long_name="moist_dyn_water_ref" unit="1" domain_ref="checkpoint_Wtheta" />
         <field id="checkpoint_ageofair" name="ageofair" long_name="ageofair" unit="s" domain_ref="checkpoint_W3" />
       </field_group>
 
@@ -43,6 +49,9 @@
         <field id="restart_theta" name="theta" long_name="air_potential_temperature" standard_name="air_potential_temperature" unit="K" domain_ref="restart_Wtheta" />
         <field id="restart_rho" name="rho" long_name="air_density" standard_name="air_density" unit="kg m-3" domain_ref="restart_W3" />
         <field id="restart_exner" name="exner" long_name="exner_pressure" unit="1" domain_ref="restart_W3" />
+        <field id="restart_theta_ref" name="theta_ref" long_name="air_potential_temperature_ref" standard_name="air_potential_temperature_ref" unit="K" domain_ref="restart_Wtheta" />
+        <field id="restart_rho_ref" name="rho_ref" long_name="air_density_ref" standard_name="air_density_ref" unit="kg m-3" domain_ref="restart_W3" />
+        <field id="restart_exner_ref" name="exner_ref" long_name="exner_pressure_ref" unit="1" domain_ref="restart_W3" />
         <field id="restart_u" name="u" long_name="U" unit="m s-1" domain_ref="restart_W2" />
         <field id="restart_m_v" name="m_v" long_name="m_v" unit="kg kg-1" domain_ref="restart_Wtheta" />
         <field id="restart_m_cl" name="m_cl" long_name="m_cl" unit="kg kg-1" domain_ref="restart_Wtheta" />
@@ -50,6 +59,9 @@
         <field id="restart_m_ci" name="m_ci" long_name="m_ci" unit="kg kg-1" domain_ref="restart_Wtheta" />
         <field id="restart_m_s" name="m_s" long_name="m_s" unit="kg kg-1" domain_ref="restart_Wtheta" />
         <field id="restart_m_g" name="m_g" long_name="m_g" unit="kg kg-1" domain_ref="restart_Wtheta" />
+        <field id="restart_moist_dyn_gas_law_ref" name="moist_dyn_gas_law_ref" long_name="moist_dyn_gas_law_ref" unit="1" domain_ref="restart_Wtheta" />
+        <field id="restart_moist_dyn_total_mass_ref" name="moist_dyn_total_mass_ref" long_name="moist_dyn_total_mass_ref" unit="1" domain_ref="restart_Wtheta" />
+        <field id="restart_moist_dyn_water_ref" name="moist_dyn_water_ref" long_name="moist_dyn_water_ref" unit="1" domain_ref="restart_Wtheta" />
         <field id="restart_ageofair" name="ageofair" long_name="ageofair" unit="s" domain_ref="restart_W3" />
         <field id="restart_conv_prog_dtheta" name="conv_prog_dtheta" long_name="convective_prognostic_dtheta" unit="K" grid_ref="restart_Wtheta" />
       </field_group>

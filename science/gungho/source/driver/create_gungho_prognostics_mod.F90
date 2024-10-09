@@ -13,7 +13,7 @@
 !>          a 'prognostic_fields' field collection
 module create_gungho_prognostics_mod
 
-  use constants_mod,                  only : i_def, l_def
+  use constants_mod,                  only : i_def, l_def, r_def
   use field_mod,                      only : field_type
   use field_parent_mod,               only : write_interface, read_interface, &
                                              checkpoint_write_interface, &
@@ -32,6 +32,7 @@ module create_gungho_prognostics_mod
   use log_mod,                        only : log_event,         &
                                              LOG_LEVEL_INFO
   use mesh_mod,                       only : mesh_type
+  use mixed_solver_config_mod,        only : reference_reset_time
   use mr_indices_mod,                 only : nummr, &
                                              mr_names
   use moist_dyn_mod,                  only : num_moist_factors, &
@@ -61,8 +62,14 @@ contains
     implicit none
 
     class(processor_type) :: proc
-    integer(i_def) :: imr
+    class(clock_type), pointer :: clock
+    integer(i_def) :: imr, reference_reset_freq
     logical(l_def) :: legacy
+    logical(l_def) :: checkpoint_flag
+    logical(l_def) :: is_empty
+    real(r_def)    :: dt
+
+    clock => proc%get_clock()
 
     ! enable/disable legacy checkpointing
     legacy = .true.
@@ -76,6 +83,18 @@ contains
     call proc%apply(make_spec('rho', main%none, W3, order=ord, ckp=.true., legacy=legacy))
     call proc%apply(make_spec('exner', main%none, W3, order=ord, ckp=.true., legacy=legacy))
 
+    ! Create reference fields for solver. They are only created and checkpointed if either the first or
+    ! final steps are not semi-implicit operator recalculation timesteps
+    dt = real(clock%get_seconds_per_step(), r_def)
+    reference_reset_freq = int(reference_reset_time / dt, i_def)
+    checkpoint_flag =                                                &
+      mod(clock%get_first_step()-1, reference_reset_freq) /= 0 .or.  &
+      mod(clock%get_last_step(),    reference_reset_freq) /= 0
+    is_empty = .not. checkpoint_flag
+    call proc%apply(make_spec('theta_ref', main%none, Wtheta, empty=is_empty, order=ord, ckp=checkpoint_flag))
+    call proc%apply(make_spec('rho_ref', main%none, W3, empty=is_empty, order=ord, ckp=checkpoint_flag))
+    call proc%apply(make_spec('exner_ref', main%none, W3,  empty=is_empty, order=ord, ckp=checkpoint_flag))
+
     ! The moisture mixing ratio fields (mr) and moist dynamics fields
     ! (moist_dyn) are always passed into the timestep algorithm, so are
     ! always created here, even when moisture_formulation = 'dry'
@@ -84,10 +103,13 @@ contains
         Wtheta, moist_arr=moist_arr_dict%mr, moist_idx=imr, order=ord, ckp=.true., legacy=legacy))
     end do
 
-    ! Auxiliary fields holding moisture-dependent factors for dynamics
+    ! Auxiliary fields holding moisture-dependent factors for dynamics, including checkpointed versions for
+    ! semi-implicit operator recalculations
     do imr = 1, num_moist_factors
       call proc%apply(make_spec(trim(moist_dyn_names(imr)), main%none, &
         Wtheta, moist_arr=moist_arr_dict%moist_dyn, moist_idx=imr, order=ord))
+      call proc%apply(make_spec(trim('moist_dyn_'//trim(moist_dyn_names(imr))//'_ref'), main%none, &
+        Wtheta,  empty=is_empty, moist_arr=moist_arr_dict%moist_dyn_ref, moist_idx=imr, order=ord, ckp=checkpoint_flag))
     end do
 
     if (transport_ageofair) then

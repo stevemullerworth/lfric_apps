@@ -13,6 +13,10 @@ module si_operators_alg_mod
   use constants_mod,             only: i_def, r_def, r_solver
   use operator_mod,              only: operator_type, r_solver_operator_type
   use field_mod,                 only: field_type
+  use function_space_mod,        only: function_space_type
+  use finite_element_config_mod, only: element_order
+  use function_space_collection_mod, &
+                                 only: function_space_collection
   use r_solver_field_mod,        only: r_solver_field_type
   use fs_continuity_mod,         only: W2, W3
   use log_mod,                   only: log_event,      &
@@ -39,6 +43,7 @@ module si_operators_alg_mod
   use multigrid_config_mod,      only: multigrid_chain_nitems
   use mixed_solver_config_mod,   only: eliminate_variables, &
                                        eliminate_variables_analytic
+  use moist_dyn_mod,             only: num_moist_factors
 
   implicit none
   private
@@ -170,11 +175,7 @@ contains
   !>@param[in] mesh The mesh
   subroutine create_si_operators( mesh )
 
-    use function_space_mod,        only: function_space_type
-    use fs_continuity_mod,         only: W0, W2, W3, Wtheta
-    use finite_element_config_mod, only: element_order
-    use function_space_collection_mod, &
-                                   only: function_space_collection
+    use fs_continuity_mod,         only: W0, Wtheta
 
     implicit none
 
@@ -343,10 +344,13 @@ contains
 
   end subroutine final_si_operators
 
-  !>@brief Subroutine to compute the si operators
-  !>@param[in] state Bundle of states used to create linear operators
-  !>@param[in] dt    The model timestep length
-  subroutine compute_si_operators(state, dt)
+  !> @brief Subroutine to compute the si operators
+  !> @param[in] theta_ref     Reference Potential temperature
+  !> @param[in] rho_ref       Reference Density
+  !> @param[in] exner_ref     Reference Exner pressure
+  !> @param[in] dt            The model timestep length
+  !> @param[in] moist_dyn_ref Bundle of reference moist dynamics factors
+  subroutine compute_si_operators(theta_ref, rho_ref, exner_ref, dt, moist_dyn_ref)
 
     use quadrature_xyoz_mod,                  only: quadrature_xyoz_type
     use quadrature_face_mod,                  only: quadrature_face_type
@@ -365,9 +369,8 @@ contains
     use sci_compound_operator_kernel_mod,     only: compound_operator_kernel_type
     use mg_flux_kernel_mod,                   only: mg_flux_kernel_type
     use sample_flux_kernel_mod,               only: sample_flux_kernel_type
-    use finite_element_config_mod,            only: element_order, &
-                                                    nqp_exact
-    use function_space_mod,                   only: function_space_type
+    use finite_element_config_mod,            only: nqp_exact
+    use fs_continuity_mod,                    only: W2
     use geometric_constants_mod,              only: get_coordinates, &
                                                     get_panel_id, &
                                                     get_height
@@ -379,7 +382,6 @@ contains
                                                     get_detj_at_w3_r_solver, &
                                                     get_inverse_w3_mass_matrix_r_solver
     use limited_area_constants_mod,           only: get_mask
-    use derived_config_mod,                   only: bundle_size
     use sci_invert_local_operator_kernel_mod, only: invert_local_operator_kernel_type
     use field_indices_mod,                    only: igh_u, igh_t, igh_d, igh_p
     use planet_config_mod,                    only: kappa, cp, rd, p_zero
@@ -414,8 +416,9 @@ contains
 
     implicit none
 
-    type(field_type), intent(in)           :: state(bundle_size) ! (u, theta, rho, exner)
+    type(field_type), intent(in)           :: theta_ref, rho_ref, exner_ref
     real(kind=r_def), intent(in)           :: dt
+    type(field_type), intent(in)           :: moist_dyn_ref(num_moist_factors)
     type(quadrature_xyoz_type)             :: qr
     type(quadrature_face_type)             :: qrf
     type(quadrature_rule_gaussian_type)    :: quadrature_rule
@@ -460,17 +463,18 @@ contains
     if ( subroutine_timers ) call timer('si_operators_alg:compute')
     call log_event( "Gungho: computing si_operators", LOG_LEVEL_DEBUG )
 
-    w3_fs => state(igh_p)%get_function_space()
-    w2_fs => state(igh_u)%get_function_space()
-    wt_fs => state(igh_t)%get_function_space()
+    mesh  => exner_ref%get_mesh()
+    w3_fs => exner_ref%get_function_space()
+    w2_fs => function_space_collection%get_fs( mesh, element_order, W2 )
+    wt_fs => theta_ref%get_function_space()
 
     ! Create reference state (as r_solver fields)
     call exner%initialise( w3_fs, halo_depth = req_halo_depth )
     call rho%initialise( w3_fs, halo_depth = req_halo_depth )
     call theta%initialise( wt_fs, halo_depth = req_halo_depth )
-    call invoke_copy_to_rsolver(exner, state(igh_p))
-    call invoke_copy_to_rsolver(rho,   state(igh_d))
-    call invoke_copy_to_rsolver(theta, state(igh_t))
+    call invoke_copy_to_rsolver(exner, exner_ref)
+    call invoke_copy_to_rsolver(rho,   rho_ref)
+    call invoke_copy_to_rsolver(theta, theta_ref)
     if (dry_static_adjust) &
       call invoke( sort_ref_kernel_type(theta) )
 
@@ -482,7 +486,6 @@ contains
     end if
 
     ! quadrature rules set once outside MG loop
-    mesh => theta%get_mesh()
     reference_element => mesh%get_reference_element()
     qrf = quadrature_face_type(element_order+2, .true., .false., &
                                reference_element, quadrature_rule)

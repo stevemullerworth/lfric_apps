@@ -59,11 +59,12 @@ module field_spec_mod
     integer(i_def) :: none          ! field not part of a moisture array
     integer(i_def) :: mr            ! mr array
     integer(i_def) :: moist_dyn     ! moist_dyn array
+    integer(i_def) :: moist_dyn_ref ! moist_dyn_ref array
   end type moist_arr_dict_type
 
    !> @brief Map moisture array enumerators to moisture array.
   type(moist_arr_dict_type), parameter :: moist_arr_dict &
-    = moist_arr_dict_type(445,450,454)
+    = moist_arr_dict_type(445,450,454,461)
 
   !> @brief Dictionary of time axes
     type :: time_axis_dict_type
