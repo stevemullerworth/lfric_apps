@@ -17,11 +17,15 @@
                         threads=1,
                         xios_nodes=0,
                         ocean_nodes=0,
-                        river_nodes=0) %}
+                        river_nodes=0,
+                        ranks_per_node=0) %}
 
-    {% set lfric_nodes = ((mpi_ranks|float * threads|float) /
-                          (ex1a_cores_per_node|float))|round(0, 'ceil')|int %}
-
+    {% if (ranks_per_node > 0) and ((ranks_per_node|int * threads|int) <= ex1a_cores_per_node|int) %}
+        {% set lfric_nodes = (mpi_ranks|float / ranks_per_node|float)|round(0, 'ceil')|int %}
+    {% else %}
+        {% set lfric_nodes = ((mpi_ranks|float * threads|float) /
+                            (ex1a_cores_per_node|float))|round(0, 'ceil')|int %}
+    {% endif %}
             -l select={{ lfric_nodes +
                          ocean_nodes|int +
                          river_nodes|int +

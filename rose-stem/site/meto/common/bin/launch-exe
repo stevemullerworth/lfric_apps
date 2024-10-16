@@ -24,23 +24,116 @@ else
   LAUNCHER=${RUN_METHOD}
 fi
 
+# Only XC40 and EX are really using ranks per node / numa settings
+if [ "${TARGET_PLATFORM}" = "meto-xc40" ] || [ "${TARGET_PLATFORM}" = "meto-ex1a" ] ; then
+
+  # Check if there are threads
+  if [ -z "${OMP_NUM_THREADS+x}" ] ; then
+    # As no thread value is provided, we assume 1 thread (or none)
+    OMP_NUM_THREADS=1
+  fi
+
+  if [ -z "${CORES_PER_NODE_OVERRIDE+x}" ] ; then
+    CORES_PER_NODE_OVERRIDE=0
+  fi
+
+  # Set some default values based on cores per node, hyperthreads and OpenMP
+  DEFAULT_CORES_PER_NODE="$(( CORES_PER_NODE * HYPERTHREADS ))"
+  DEFAULT_CORES_PER_NODE="$(( DEFAULT_CORES_PER_NODE / OMP_NUM_THREADS ))"
+  SET_CORES_PER_NODE="${DEFAULT_CORES_PER_NODE}"
+
+  CHECK_LOCAL_CPUS_USED="$(( TOTAL_RANKS * OMP_NUM_THREADS ))"
+  CORE_PER_NUMA="$(( CORES_PER_NODE * HYPERTHREADS ))"
+  CORE_PER_NUMA="$(( CORE_PER_NUMA / NUMA_REGIONS_PER_NODE ))"
+
+  # Set MPI ranks / PEs per Node from provided value
+  #===========================================
+  # If there is no override, or it is default to 0, set it to known CORES_PER_NODE
+  if (( "${CORES_PER_NODE_OVERRIDE}" > "0" )) ; then
+    echo "Override provided"
+    # we are checking a value is set, which times by threads comes out sensible
+    TMP_RANKS_PER_NODE="$(( CORES_PER_NODE_OVERRIDE * HYPERTHREADS ))"
+    CHECK_RANKS_PER_NODE="$(( TMP_RANKS_PER_NODE * OMP_NUM_THREADS ))"
+    SET_CORES_PER_NODE="${CORES_PER_NODE_OVERRIDE}"
+    # If we have an specified cores per node, do checks then set
+    # Check if this value is less than CPUs to a node
+    if (( "${CHECK_RANKS_PER_NODE}" <= "${CORES_PER_NODE}" )) ; then
+      echo "This is a valid value"
+    else
+    #If nothing appropriate can be set, fall back on the default
+      SET_CORES_PER_NODE="${DEFAULT_CORES_PER_NODE}"
+      echo "Note, ranks per node has defaulted to standard value of maximum ranks per node".
+    fi
+  fi
+  # Set the cores per node to the same as the total ranks provided if too few
+  if (( "${TOTAL_RANKS}" < "${SET_CORES_PER_NODE}" )) ; then
+      SET_CORES_PER_NODE="${TOTAL_RANKS}"
+  fi
+  # Set Numa region values per Node - currently not provided - set automatically
+  #===========================================
+  if [ "${TARGET_PLATFORM}" = "meto-xc40" ] ; then
+    if (( "${SET_CORES_PER_NODE}" > 1 )) ; then
+        WRK_CORES_PER_NUMA_REGION="$(( SET_CORES_PER_NODE / NUMA_REGIONS_PER_NODE ))"
+        SET_MPI_TASKS_PER_NUMA_REGION="${WRK_CORES_PER_NUMA_REGION}"
+        #Check if total tasks are exceeding the numa size
+        if (( "${CHECK_LOCAL_CPUS_USED}" > "${WRK_CORES_PER_NUMA_REGION}" )) ; then
+            SET_MPI_TASKS_PER_NUMA_REGION="${WRK_CORES_PER_NUMA_REGION}"
+        fi
+        # If its not a clean division, ensure more end up on a numa so we still fit sensible quantities to a node
+        while [ $((SET_CORES_PER_NODE / SET_MPI_TASKS_PER_NUMA_REGION)) -gt "$NUMA_REGIONS_PER_NODE" ] || \
+            [ $((SET_MPI_TASKS_PER_NUMA_REGION * NUMA_REGIONS_PER_NODE)) -lt "$SET_CORES_PER_NODE" ] ; do
+            SET_MPI_TASKS_PER_NUMA_REGION="$(( SET_MPI_TASKS_PER_NUMA_REGION + 1 ))" 
+        done
+        # If there is an override, we need numa s it to be a multiple of N
+        if (( "${CORES_PER_NODE_OVERRIDE}" > "0" )) ; then
+            if [ $((SET_CORES_PER_NODE / SET_MPI_TASKS_PER_NUMA_REGION)) -lt "$NUMA_REGIONS_PER_NODE" ] || \
+                [ $((SET_MPI_TASKS_PER_NUMA_REGION * NUMA_REGIONS_PER_NODE)) -gt "$SET_CORES_PER_NODE" ] ; then
+                CHECK_VALUE="$(( CORE_PER_NUMA ))"
+                FOUND_MULTIPLIER="false"
+                while [ "$FOUND_MULTIPLIER" == "false" ] && [ ${CHECK_VALUE} -gt 0 ]  ; do
+                    if [ $((SET_CORES_PER_NODE % CHECK_VALUE)) -eq 0 ] ; then
+                        FOUND_MULTIPLIER="true"
+                        SET_MPI_TASKS_PER_NUMA_REGION=$CHECK_VALUE
+                    fi
+                    CHECK_VALUE="$(( CHECK_VALUE - 1 ))"
+                done
+                # If we cannot find a sensible multipler, set it to itself, or 1
+                if [ "$FOUND_MULTIPLIER" == "false" ] ; then
+                    if (( "${SET_CORES_PER_NODE}" <= "${CORE_PER_NUMA}" )) ; then
+                        SET_MPI_TASKS_PER_NUMA_REGION="${SET_CORES_PER_NODE}"
+                    else
+                        SET_MPI_TASKS_PER_NUMA_REGION="1"
+                    fi
+                fi
+            fi
+        fi
+    else
+        SET_MPI_TASKS_PER_NUMA_REGION="1"
+    fi
+  fi
+fi
 
 # Construct launcher options
 #===========================================
 LAUNCHER_OPTS=""
 if [ "${RUN_METHOD}" = "aprun" ] ; then
-  if [ "${TARGET_PLATFORM}" = "meto-spice" ] ; then
-    echo Launcher \"aprun\" is specific to Cray platforms.
+  if [ "${TARGET_PLATFORM}" = "meto-spice" ] || [ "${TARGET_PLATFORM}" = "meto-ex1a" ] ; then
+    echo Launcher \"aprun\" is specific to Cray XC40 platforms.
     exit 1
   else
-    CORES_PER_NUMA_REGION="$(( CORES_PER_NODE / NUMA_REGIONS_PER_NODE ))"
-    POTENTIAL_MPI_TASKS_PER_NUMA_REGION="$(( ( CORES_PER_NUMA_REGION * HYPERTHREADS ) / OMP_NUM_THREADS ))"
-    MPI_TASKS_PER_NUMA_REGION="$(( POTENTIAL_MPI_TASKS_PER_NUMA_REGION > TOTAL_RANKS?TOTAL_RANKS:POTENTIAL_MPI_TASKS_PER_NUMA_REGION ))"
-    LAUNCHER_OPTS="-cc depth -n ${TOTAL_RANKS} -S ${MPI_TASKS_PER_NUMA_REGION} -d ${OMP_NUM_THREADS} -j ${HYPERTHREADS}"
+    if (( "${CORES_PER_NODE_OVERRIDE}" == "0" )) ; then
+      LAUNCHER_OPTS="-cc depth -n ${TOTAL_RANKS} -S ${SET_MPI_TASKS_PER_NUMA_REGION} -d ${OMP_NUM_THREADS} -j ${HYPERTHREADS}"
+    else
+      LAUNCHER_OPTS="-cc depth -n ${TOTAL_RANKS} -N ${SET_CORES_PER_NODE} -S ${SET_MPI_TASKS_PER_NUMA_REGION} -d ${OMP_NUM_THREADS} -j ${HYPERTHREADS}"
+    fi
   fi
 elif [ "${RUN_METHOD}" = "mpiexec" ] ; then
   if [ "${TARGET_PLATFORM}" = "meto-ex1a" ] ; then
-    LAUNCHER_OPTS="--cpu-bind=depth --np ${TOTAL_RANKS} --ppn ${CORES_PER_NODE} --depth ${OMP_NUM_THREADS}"
+    if (( "${CORES_PER_NODE_OVERRIDE}" == "0" )) && (( "${CHECK_LOCAL_CPUS_USED}" <= "${SET_CORES_PER_NODE}" )) ; then
+      LAUNCHER_OPTS="--cpu-bind=depth --np ${TOTAL_RANKS} --depth ${OMP_NUM_THREADS}"
+    else
+      LAUNCHER_OPTS="--cpu-bind=depth --np ${TOTAL_RANKS} --ppn ${SET_CORES_PER_NODE} --depth ${OMP_NUM_THREADS}"
+    fi
   elif [ "${SITE_MPI_LAUNCHER_OPTS}" != "" ] ; then
     LAUNCHER_OPTS=${SITE_MPI_LAUNCHER_OPTS}
   else

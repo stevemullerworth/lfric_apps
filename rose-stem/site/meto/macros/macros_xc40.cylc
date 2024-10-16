@@ -6,6 +6,10 @@
 {% do LOG.debug("Entered site/meto/macros/macros_xc40.cylc") %}
 
 {% set xc40_cores_per_node = 36 %}
+{% set xc40_numa_per_node = 2 %}
+
+{% set xc40_cpu_per_numa = (xc40_cores_per_node|int / xc40_numa_per_node|int)|int %}
+
 
 {% macro set_wallclock(time) %}
 {# macro to set wallclock - input is in minutes #}
@@ -17,10 +21,46 @@
                         threads=1,
                         xios_nodes=0,
                         ocean_nodes=0,
-                        river_nodes=0) %}
+                        river_nodes=0,
+                        ranks_per_node=0) %}
 
-    {% set lfric_nodes = ((mpi_ranks|float * threads|float) /
-                          (xc40_cores_per_node|float))|round(0, 'ceil')|int %}
+{# If an override is set, on xc40 -s (Numas) needs to be a multiple of -N #}
+    {% if (ranks_per_node > 0) and ((ranks_per_node|int * threads|int) <= xc40_cores_per_node|int) %}
+{# Check if ranks per node can divide cleanly over the numas #}
+        {% if (ranks_per_node|int % xc40_numa_per_node|int == 0) %}
+            {% set cores_per_numa = (ranks_per_node|float / xc40_numa_per_node|float)|round(0, 'ceil')|int %}
+        {% else %}
+{# Otherwise find something that will #}
+            {% set found_multiplier = false %}
+            {% set check_mod_ranks_per_node = xc40_cpu_per_numa %}
+            {% for check_iterator in range(1, check_mod_ranks_per_node|int)|reverse %}
+                {% if (ranks_per_node|int % check_iterator|int == 0) %}
+                    {% set found_multiplier = true %}
+                    {% set cores_per_numa = check_mod_ranks_per_node %}
+                {% endif %}
+            {% endfor %}
+{# If nothing was found, set it to be the ranks per node override, unless this exceeds cpus in a numa #}
+            {% if not found_multiplier %}
+                {% if ranks_per_node <= xc40_cpu_per_numa %}
+                    {% set cores_per_numa = ranks_per_node %}
+                {% else %}
+                    {% set cores_per_numa = 1 %}
+                {% endif %}
+            {% endif %}
+        {% endif %}
+
+        {% set numas_needed = (mpi_ranks|float / cores_per_numa|float)|round(0, 'ceil')|int %}
+        {% if cores_per_numa == ranks_per_node %}
+            {% set lfric_nodes = numas_needed|int %}
+        {% else %}
+            {% set lfric_nodes = (numas_needed|float / xc40_numa_per_node|float)|round(0, 'ceil')|int %}
+        {% endif %}
+
+        {# If no override is set, use ranks, threads and cores per node to work out how many nodes to select #}
+    {% else %}
+        {% set lfric_nodes = ((mpi_ranks|float * threads|float) /
+                            (xc40_cores_per_node|float))|round(0, 'ceil')|int %}
+    {% endif %}
 
             -l select={{ lfric_nodes +
                          ocean_nodes|int +

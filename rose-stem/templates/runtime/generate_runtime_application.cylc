@@ -80,42 +80,43 @@
         script = {{script_str.name}}
         {{ generate_script("post-script", post_script_commands) }}
         [[[environment]]]
-            DESTINATION_DIRECTORY = {{destination_dir}}
-            APPS_ROOT_DIR         = $SOURCE_ROOT/apps
-            CORE_ROOT_DIR         = $SOURCE_ROOT/core
-            SOURCE_DIRECTORY      = $SOURCE_ROOT/{{task_values["application_dir"]}}
-            METADATA              = $SOURCE_ROOT/apps/applications/lfric_atm/metadata
-            BIN_DIR               = {{bin_dir}}
-            LIB_DIR               = {{lib_dir}}
-            MOD_DIR               = {{mod_dir}}
-            MESH_DIR              = {{mesh_dir}}
-            TASK_OUTPUT_DIR       = {{task_output_dir}}
-            APP_NAME              = {{task_values["app_name"]}}
-            APPLICATION           = {{task_ns.application}}
-            LOG_LEVEL             = {{task_values["log_level"]}}
-            RESOLUTION            = {{task_values["resolution"]|replace("_MG","")}}
-            DT                    = {{task_values["DT"]}}
-            USE_XIOS_IO           = {{task_values["use_xios_io"]}}
-            NODAL_OUTPUT_ON_W3    = {{task_values["nodal_output_on_w3"]}}
-            OMP_NUM_THREADS       = {{task_values["threads"]}}
-            TOTAL_RANKS           = {{task_values["mpi_parts"]}}
-            XPROC                 = {{task_values["xproc"]}}
-            YPROC                 = {{task_values["yproc"]}}
-            PANEL_DECOMP          = {{panel_decomp}}
-            RESTART_NTS           = {{task_values["tsteps"]}}
-            RESTART_NO            = {{task_values["restart_no"]}}
-            RESTART               = {{task_values["restart"]}}
-            RESTART_START         = {{task_values["init_tstep"]}}
-            RESTART_STOP          = {{task_values["last_tstep"]}}
-            RESTART_READ          = {{task_values["restart_read"]}}
-            RESTART_WRITE         = {{task_values["restart_write"]}}
-            CHECKPOINT_STEM_FILE  = {{restart_stem_name}}
-            CANNED_PRESCRIPT      = {{canned_prescript}}
-            XIOS_SERVER_MODE      = {{task_values["xios_server_mode"]}}
-            XIOS_SERVER_RANKS     = {{task_values["xios_server_ranks"]}}
-            xios_nodes            = {{task_values["xios_nodes"]}}
-            mpi_parts_xios        = {{task_values["mpi_parts_xios"]}}
-            PAT_EXE_EXTEN         = {{PAT_EXE_EXTEN}}
+            DESTINATION_DIRECTORY   = {{destination_dir}}
+            APPS_ROOT_DIR           = $SOURCE_ROOT/apps
+            CORE_ROOT_DIR           = $SOURCE_ROOT/core
+            SOURCE_DIRECTORY        = $SOURCE_ROOT/{{task_values["application_dir"]}}
+            METADATA                = $SOURCE_ROOT/apps/applications/lfric_atm/metadata
+            BIN_DIR                 = {{bin_dir}}
+            LIB_DIR                 = {{lib_dir}}
+            MOD_DIR                 = {{mod_dir}}
+            MESH_DIR                = {{mesh_dir}}
+            TASK_OUTPUT_DIR         = {{task_output_dir}}
+            APP_NAME                = {{task_values["app_name"]}}
+            APPLICATION             = {{task_ns.application}}
+            LOG_LEVEL               = {{task_values["log_level"]}}
+            RESOLUTION              = {{task_values["resolution"]|replace("_MG","")}}
+            DT                      = {{task_values["DT"]}}
+            USE_XIOS_IO             = {{task_values["use_xios_io"]}}
+            NODAL_OUTPUT_ON_W3      = {{task_values["nodal_output_on_w3"]}}
+            OMP_NUM_THREADS         = {{task_values["threads"]}}
+            TOTAL_RANKS             = {{task_values["mpi_parts"]}}
+            XPROC                   = {{task_values["xproc"]}}
+            YPROC                   = {{task_values["yproc"]}}
+            PANEL_DECOMP            = {{panel_decomp}}
+            RESTART_NTS             = {{task_values["tsteps"]}}
+            RESTART_NO              = {{task_values["restart_no"]}}
+            RESTART                 = {{task_values["restart"]}}
+            RESTART_START           = {{task_values["init_tstep"]}}
+            RESTART_STOP            = {{task_values["last_tstep"]}}
+            RESTART_READ            = {{task_values["restart_read"]}}
+            RESTART_WRITE           = {{task_values["restart_write"]}}
+            CHECKPOINT_STEM_FILE    = {{restart_stem_name}}
+            CANNED_PRESCRIPT        = {{canned_prescript}}
+            XIOS_SERVER_MODE        = {{task_values["xios_server_mode"]}}
+            XIOS_SERVER_RANKS       = {{task_values["xios_server_ranks"]}}
+            xios_nodes              = {{task_values["xios_nodes"]}}
+            mpi_parts_xios          = {{task_values["mpi_parts_xios"]}}
+            PAT_EXE_EXTEN           = {{PAT_EXE_EXTEN}}
+            CORES_PER_NODE_OVERRIDE = {{task_values["task_ranks_per_node"]}}
 
 {% if task_ns.application == "lfric_coupled" %}
     {% include "templates/runtime/coupled_task_environment.cylc" %}
@@ -129,11 +130,13 @@
                       threads=task_values["threads"],
                       xios_nodes=task_values["xios_nodes"],
                       ocean_nodes=task_values["ocean_nodes"],
-                      river_nodes=task_values["river_nodes"]) }}
+                      river_nodes=task_values["river_nodes"],
+                      ranks_per_node=task_values["task_ranks_per_node"]) }}
 {% else %}
     {{ set_task_cores(task_values["mpi_parts"],
                       threads=task_values["threads"],
-                      xios_nodes=task_values["xios_nodes"]) }}
+                      xios_nodes=task_values["xios_nodes"],
+                      ranks_per_node=task_values["task_ranks_per_node"]) }}
 {% endif %}
 
 

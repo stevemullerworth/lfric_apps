@@ -78,6 +78,7 @@
         "DT": 3600,
         "threads": 4,
         "mpi_parts": 6,
+        "task_ranks_per_node": 3,
         "tsteps": 24,
         "use_xios": false,
         "kgo_checks": [],
