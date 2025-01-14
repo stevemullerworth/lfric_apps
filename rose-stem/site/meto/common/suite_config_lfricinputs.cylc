@@ -67,7 +67,7 @@
                          module purge
                          module use /project/extrasoftware/modulefiles.rhel7
                          module use /data/users/lfric/software/modulefiles.rhel7
-                         module load environment/lfric/gcc/6.1.0/10
+                         module load environment/lfric/gcc/11.2.0/9
                          module list 2>&1
                          """
         post-script = """
