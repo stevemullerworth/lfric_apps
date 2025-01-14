@@ -23,6 +23,9 @@ project[2]="scintelapi"
 # Base of extracted source directory
 BASE_SRC_DIR=$CYLC_SUITE_SHARE_DIR/$BUILD_NAME/extract/
 
+# Psyclone.cfg path
+PSYCLONE_CFG_PATH=$BASE_SRC_DIR/lfric_core/etc/psyclone.cfg
+
 # Declare project source directories
 declare -a project_src_dir
 project_src_dir[0]="${BASE_SRC_DIR}lfric_apps"
@@ -82,9 +85,8 @@ for i in "${!project[@]}"; do
     fi
     PROJ_DIR="${project_src_dir[$i]}"
 
-    # TODO: Use '--config=path/to/psyclone.cfg' instead of the centrally installed default version
-    echo $PSYCLONE -api $PSYCLONE_API -l all $FLAG_KERNEL_DIR -opsy $PROJ_DIR/$psyname -oalg $PROJ_DIR/$algname $x90file
-    $PSYCLONE -api $PSYCLONE_API -l all $FLAG_KERNEL_DIR -opsy $PROJ_DIR/$psyname -oalg $PROJ_DIR/$algname $x90file
+    echo $PSYCLONE -api $PSYCLONE_API -l all $FLAG_KERNEL_DIR --config $PSYCLONE_CFG_PATH -opsy $PROJ_DIR/$psyname -oalg $PROJ_DIR/$algname $x90file
+    $PSYCLONE -api $PSYCLONE_API -l all $FLAG_KERNEL_DIR --config $PSYCLONE_CFG_PATH -opsy $PROJ_DIR/$psyname -oalg $PROJ_DIR/$algname $x90file
 
   done
 
