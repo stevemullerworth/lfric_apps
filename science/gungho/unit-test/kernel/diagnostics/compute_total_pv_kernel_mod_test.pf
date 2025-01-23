@@ -33,7 +33,8 @@ module compute_total_pv_kernel_mod_test
   private
   public :: set_up, tear_Down, test_all
 
-  integer(i_def), parameter :: element_order = 0
+  integer(i_def), parameter :: element_order_h = 0
+  integer(i_def), parameter :: element_order_v = 0
 
   real(r_def), parameter :: planet_radius = 6000000.0_r_def
 
@@ -75,7 +76,8 @@ contains
              cellshape=cellshape_quadrilateral, &
              coord_order=0_i_def,               &
              coord_system=coord_system_xyz,     &
-             element_order=0_i_def,             &
+             element_order_h=0_i_def,           &
+             element_order_v=0_i_def,           &
              rehabilitate=.true.,               &
              vorticity_in_w1=.false. )
 

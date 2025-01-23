@@ -33,7 +33,7 @@ contains
     use sci_fem_constants_mod,          only: get_qr, &
                                               get_inverse_mass_matrix, &
                                               get_rmultiplicity
-    use finite_element_config_mod,      only: element_order
+    use finite_element_config_mod,      only: element_order_h, element_order_v
     use fs_continuity_mod,              only: W0, W1, W3
     use function_space_collection_mod,  only: function_space_collection
     use function_space_mod,             only: function_space_type
@@ -71,12 +71,12 @@ contains
     qr => get_qr( )
     m3_inv => get_inverse_mass_matrix(W3, mesh%get_id())
     call xi%initialise( vector_space = &
-    function_space_collection%get_fs(mesh, element_order, W1) )
+    function_space_collection%get_fs(mesh, element_order_h, element_order_v, W1) )
     call compute_vorticity_alg(xi, u, .false., w1_flag=.true.)
 
     w0_rmultiplicity => get_rmultiplicity(W0, mesh%get_id())
     call theta_in_w0%initialise(vector_space = &
-    function_space_collection%get_fs(mesh, element_order, W0) )
+    function_space_collection%get_fs(mesh, element_order_h, element_order_v, W0) )
     call invoke( setval_c(theta_in_w0, 0.0_r_def), &
                  sample_field_kernel_type(theta_in_w0, w0_rmultiplicity, theta) )
     call pv%copy_field_properties(r_pv)

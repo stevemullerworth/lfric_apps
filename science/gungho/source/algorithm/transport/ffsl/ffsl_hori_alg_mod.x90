@@ -63,7 +63,7 @@ module ffsl_hori_alg_mod
 
   ! Configuration options
   use io_config_mod,                    only: subroutine_timers
-  use finite_element_config_mod,        only: element_order
+  use finite_element_config_mod,        only: element_order_h, element_order_v
   use transport_config_mod,             only: extended_mesh, &
                                               special_edges_treatment,  &
                                               special_edges_high_order, &
@@ -155,7 +155,8 @@ contains
 
     ! Function spaces
     field_fs => field_n%get_function_space()
-    w2h_fs => function_space_collection%get_fs( mesh, element_order, W2H )
+    w2h_fs => function_space_collection%get_fs( mesh, element_order_h, &
+                                                element_order_v, W2H )
 
     if (present(compute_field_np1)) then
       to_compute_field_np1 = compute_field_np1
@@ -408,7 +409,8 @@ contains
     ! fluxes may need unifying to guarantee a unique flux for each face --------
     if ( extended_mesh ) then
       if ( subroutine_timers ) call timer('transport.ffsl_flux_unify')
-      w2b_fs => function_space_collection%get_fs(mesh, element_order, W2Hbroken)
+      w2b_fs => function_space_collection%get_fs(mesh, element_order_h, &
+                                                 element_order_v, W2Hbroken)
       call flux_broken%initialise( w2b_fs )
       call invoke( average_w2_to_w2b_kernel_type(flux_broken, flux),           &
                    ffsl_unify_flux_kernel_type(flux, flux_broken,              &
@@ -770,7 +772,8 @@ contains
     ! fluxes may need unifying to guarantee a unique flux for each face --------
     if ( extended_mesh ) then
       if ( subroutine_timers ) call timer('transport.ffsl_flux_unify')
-      w2b_fs => function_space_collection%get_fs(mesh, element_order, W2Hbroken)
+      w2b_fs => function_space_collection%get_fs(mesh, element_order_h, &
+                                                 element_order_v, W2Hbroken)
       call flux_broken%initialise( w2b_fs )
       call invoke( average_w2_to_w2b_kernel_type(flux_broken, flux),           &
                    ffsl_unify_flux_kernel_type(flux, flux_broken,              &
@@ -1132,7 +1135,8 @@ contains
     ! fluxes may need unifying to guarantee a unique flux for each face --------
     if ( extended_mesh ) then
       if ( subroutine_timers ) call timer('transport.ffsl_flux_unify')
-      w2b_fs => function_space_collection%get_fs(mesh, element_order, W2Hbroken)
+      w2b_fs => function_space_collection%get_fs(mesh, element_order_h, &
+                                                 element_order_v, W2Hbroken)
       call flux_broken%initialise( w2b_fs )
       call invoke( average_w2_to_w2b_kernel_type(flux_broken, flux),           &
                    ffsl_unify_flux_kernel_type(flux, flux_broken,              &

@@ -148,7 +148,7 @@ contains
     type(r_solver_field_type)             :: x_uvw, y_uvw
     type(function_space_type), pointer    :: u_fs, &
                                              t_fs
-    integer(i_def)                        :: p
+    integer(i_def)                        :: p_h, p_v
     type(r_solver_field_type), pointer    :: w2_mask, &
                                              w3_mask
     type(r_solver_field_type)             :: x_t
@@ -225,16 +225,18 @@ contains
          end if
 
          ! Check if we can use the optimised operator setup
-         optimised_operator = ( p2theta_vert                      .and. &
-                                split_w                           .and. &
-                                eliminate_variables                     &
-                                  == eliminate_variables_discrete .and. &
-                                yvec_uv%get_element_order() == 0 )
+         optimised_operator = ( p2theta_vert                        .and. &
+                                split_w                             .and. &
+                                eliminate_variables                       &
+                                  == eliminate_variables_discrete   .and. &
+                                yvec_uv%get_element_order_h() == 0  .and. &
+                                yvec_uv%get_element_order_v() == 0 )
 
          if ( .not. optimised_operator ) then
            ! Create fields in 3D W2 space
-           p = y%vector(isol_u)%get_element_order()
-           u_fs => function_space_collection%get_fs( mesh, p, W2 )
+           p_h = y%vector(isol_u)%get_element_order_h()
+           p_v = y%vector(isol_u)%get_element_order_v()
+           u_fs => function_space_collection%get_fs( mesh, p_h, p_v, W2 )
 
            call x_uvw%initialise( vector_space = u_fs )
            call y_uvw%initialise( vector_space = u_fs )
@@ -262,7 +264,7 @@ contains
                                                             m3_exner_star, q32_op, p3theta )  )
            else
            ! Create theta' field
-           t_fs => function_space_collection%get_fs( mesh, p, Wtheta )
+           t_fs => function_space_collection%get_fs( mesh, p_h, p_v, Wtheta )
            call x_t%initialise( vector_space = t_fs )
            ! theta' = x_t = -mt_lumped_inv*Ptheta2*u'
            ! then P2theta*theta' = Q22*u' (in the formulation)
@@ -288,7 +290,7 @@ contains
 
          case ( eliminate_variables_analytic )
            ! Create theta' field
-           t_fs => function_space_collection%get_fs( mesh, p, Wtheta )
+           t_fs => function_space_collection%get_fs( mesh, p_h, p_v, Wtheta )
            call x_t%initialise( vector_space = t_fs )
            ! For analytic elimination:
            ! Q32 = tau*dt*M3^rho * D * rho^ref + <v,k * dpi/dz * dtheta/dz * k.v>

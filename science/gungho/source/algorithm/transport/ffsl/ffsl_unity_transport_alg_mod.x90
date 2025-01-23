@@ -135,7 +135,7 @@ contains
     ! Get function space
     ! To get compilers to be happy, need to pass a pointer as the mesh
     mesh_ptr => mesh_collection%get_mesh(mesh_id)
-    field_fs => function_space_collection%get_fs(mesh_ptr, 0, W3)
+    field_fs => function_space_collection%get_fs(mesh_ptr, 0, 0, W3)
 
     ! Check which unity transport directions are needed
     any_horz_dep_pts = check_horz_dep_pts()
@@ -326,7 +326,7 @@ contains
     field_fs => adv_unity_xy%get_function_space()
 
   ! Check if we need increment of unity in x and y directions ----------------
-    w2h_fs => function_space_collection%get_fs(mesh, 0, W2H)
+    w2h_fs => function_space_collection%get_fs(mesh, 0, 0, W2H)
 
     call increment%initialise( vector_space = field_fs )
     call hori_flux%initialise( vector_space = w2h_fs )

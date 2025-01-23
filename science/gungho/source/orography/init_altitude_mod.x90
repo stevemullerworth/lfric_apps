@@ -57,7 +57,8 @@ module init_altitude_mod
 
     ! Set the function space order to be 0 - ancil files currently store data
     ! on 2D face centres
-    integer(i_def), parameter :: surface_order = 0
+    integer(i_def), parameter :: surface_order_h = 0
+    integer(i_def), parameter :: surface_order_v = 0
     integer(i_def) :: i
 
     write(log_scratch_space,'(A,A)') "Initialise surface altitude: "// &
@@ -66,7 +67,8 @@ module init_altitude_mod
 
     ! Here we create the 2D surface altitude field
     vector_space => function_space_collection%get_fs( twod_mesh, &
-                                                      surface_order, W3)
+                                                      surface_order_h, &
+                                                      surface_order_v, W3)
 
     call surface_altitude%initialise(vector_space, name=trim('surface_altitude'), &
                                      halo_depth = twod_mesh%get_halo_depth())

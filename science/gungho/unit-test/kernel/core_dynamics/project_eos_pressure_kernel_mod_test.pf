@@ -68,7 +68,8 @@ contains
                                  stretching_height=1.0_r_def )
     call feign_finite_element_config( cellshape=cellshape_quadrilateral, &
                                       coord_order=0_i_def,               &
-                                      element_order=0_i_def,             &
+                                      element_order_h=0_i_def,           &
+                                      element_order_v=0_i_def,           &
                                       rehabilitate=.true.,               &
                                       coord_system=coord_system_xyz,     &
                                       vorticity_in_w1=.false. )

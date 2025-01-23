@@ -17,7 +17,8 @@ module tl_rhs_alg_mod
                                                  get_w2_mass_matrix, &
                                                  w2_damping_layer_matrix
   use field_mod,                           only: field_type
-  use finite_element_config_mod,           only: element_order, &
+  use finite_element_config_mod,           only: element_order_h, &
+                                                 element_order_v, &
                                                  vorticity_in_w1
   use formulation_config_mod,              only: rotating,             &
                                                  si_momentum_equation, &
@@ -170,21 +171,26 @@ subroutine tl_rhs_alg(rhs, alpha_dt, base_state, state, moist_dyn,        &
     end if
 
     call vorticity%initialise( vector_space =                                &
-                    function_space_collection%get_fs(mesh, element_order, &
+                    function_space_collection%get_fs(mesh, element_order_h,  &
+                                                     element_order_v,        &
                                                       vorticity_fs) )
     call ls_vorticity%initialise( vector_space =                             &
-                    function_space_collection%get_fs(mesh, element_order, &
+                    function_space_collection%get_fs(mesh, element_order_h,  &
+                                                     element_order_v,        &
                                                      vorticity_fs) )
     call compute_vorticity_alg(ls_vorticity, ls_u, .false.)
 
     call rhs_tmp%initialise( vector_space=rhs(igh_u)%get_function_space() )
     call rhs_eos%initialise( vector_space=rhs(igh_p)%get_function_space() )
-    qr       = quadrature_xyoz_type(element_order+2, gaussian_quadrature)
-    qr_exact = quadrature_xyoz_type(element_order+3, gaussian_quadrature)
+    qr       = quadrature_xyoz_type(MAX(element_order_h, element_order_v)+2,   &
+                                    gaussian_quadrature)
+    qr_exact = quadrature_xyoz_type(MAX(element_order_h, element_order_v)+3,   &
+                                    gaussian_quadrature)
     mesh              => theta%get_mesh()
     reference_element => mesh%get_reference_element()
-    qrf = quadrature_face_type(element_order+2, .true., .false., &
-                               reference_element, gaussian_quadrature)
+    qrf = quadrature_face_type(MAX(element_order_h, element_order_v)+2,        &
+                               .true., .false., reference_element,             &
+                               gaussian_quadrature)
 
     ! Initialise RHS u and theta fields
     call invoke( name = "initialise_rhs_u_and_theta_fields", &

@@ -21,7 +21,6 @@ module create_physics_prognostics_mod
   use field_mapper_mod,               only : field_mapper_type
   use field_maker_mod,                only : field_maker_type
   use lfric_xios_diag_mod,            only : field_is_enabled
-  use finite_element_config_mod,      only : element_order
   use function_space_collection_mod,  only : function_space_collection
   use field_collection_mod,           only : field_collection_type
   use fs_continuity_mod,              only : W2, W3, Wtheta, W2H
@@ -420,11 +419,11 @@ contains
       checkpoint_flag = .false.
     end if
 
-    ! vector_space=>function_space_collection%get_fs(mesh,0,Wtheta,
+    ! vector_space=>function_space_collection%get_fs(mesh,0,0,Wtheta,
     !     get_ndata_val('aero_modes') )
     call processor%apply(make_spec('aer_mix_ratio', main%radiation,             &
          ckp=checkpoint_flag))
-    ! vector_space=>function_space_collection%get_fs(mesh,0,Wtheta,
+    ! vector_space=>function_space_collection%get_fs(mesh,0,0,Wtheta,
     !     get_ndata_val('sw_bands_aero_modes') )
     call processor%apply(make_spec('aer_sw_absorption', main%radiation,         &
          ckp=checkpoint_flag))
@@ -432,7 +431,7 @@ contains
          ckp=checkpoint_flag))
     call processor%apply(make_spec('aer_sw_asymmetry', main%radiation,          &
          ckp=checkpoint_flag))
-    ! vector_space=>function_space_collection%get_fs(mesh,0,Wtheta,
+    ! vector_space=>function_space_collection%get_fs(mesh,0,0,Wtheta,
     !     get_ndata_val('lw_bands_aero_modes') )
     call processor%apply(make_spec('aer_lw_absorption', main%radiation,         &
          ckp=checkpoint_flag))
@@ -560,7 +559,7 @@ contains
         is_int=.true.))
 
     ! Space for the 7 BL types
-    ! vector_space => function_space_collection%get_fs(twod_mesh, 0, W3,
+    ! vector_space => function_space_collection%get_fs(twod_mesh, 0, 0, W3,
     !     get_ndata_val('boundary_layer_types'))
     call processor%apply(make_spec('bl_type_ind', main%turbulence, W3,          &
         mult='boundary_layer_types', twod=.true., is_int=.true.))
@@ -591,7 +590,7 @@ contains
     call processor%apply(make_spec('tau_w2', main%turbulence, W2))
 
     ! Fields on entrainment levels, don't need checkpointing
-    ! vector_space => function_space_collection%get_fs(twod_mesh, 0, W3,
+    ! vector_space => function_space_collection%get_fs(twod_mesh, 0, 0, W3,
     !     get_ndata_val('entrainment_levels'))
     call processor%apply(make_spec('ent_we_lim', main%turbulence, W3,           &
         mult='entrainment_levels', twod=.true.))
@@ -781,7 +780,7 @@ contains
     call processor%apply(make_spec('tile_lw_grey_albedo', main%surface,         &
           ckp=checkpoint_flag))
 
-    ! vector_space=>function_space_collection%get_fs(twod_mesh, 0, W3,
+    ! vector_space=>function_space_collection%get_fs(twod_mesh, 0, 0, W3,
     !     get_ndata_val('land_tile_rad_band'))
     call processor%apply(make_spec('albedo_obs_scaling', main%surface,          &
         ckp=(checkpoint_flag .and. albedo_obs)))
@@ -882,7 +881,7 @@ contains
                                    ckp=l_urban2t))
 
     ! Space for variables required for regridding to cell faces
-    ! vector_space => function_space_collection%get_fs(twod_mesh, 0, W2,
+    ! vector_space => function_space_collection%get_fs(twod_mesh, 0, 0, W2,
     !     get_ndata_val('surface_regrid_vars'))
     call processor%apply(make_spec('surf_interp_w2', main%surface, W2,          &
         mult='surface_regrid_vars', twod=.true.))
@@ -890,13 +889,13 @@ contains
         mult='surface_regrid_vars', twod=.true.))
 
     ! 2D fields at W2 points
-    ! vector_space => function_space_collection%get_fs(twod_mesh, 0,
+    ! vector_space => function_space_collection%get_fs(twod_mesh, 0, 0,
     !     W2)
     call processor%apply(make_spec('tau_land_w2', main%surface, W2, twod=.true.))
     call processor%apply(make_spec('tau_ssi_w2', main%surface, W2, twod=.true.))
 
     ! Field on soil levels and land tiles
-    ! vector_space => function_space_collection%get_fs(twod_mesh, 0, W3,
+    ! vector_space => function_space_collection%get_fs(twod_mesh, 0, 0, W3,
     !     get_ndata_val('soil_levels_and_tiles'))
     call processor%apply(make_spec('tile_water_extract', main%surface, W3,      &
         mult='soil_levels_and_tiles', twod=.true.))
@@ -1688,7 +1687,7 @@ contains
     end if
 
     ! Fields on dust space, might need checkpointing
-    ! vector_space => function_space_collection%get_fs(twod_mesh, 0, W3,
+    ! vector_space => function_space_collection%get_fs(twod_mesh, 0, 0, W3,
     !     get_ndata_val('dust_divisions'))
     call processor%apply(make_spec('dust_mrel', main%aerosol,                   &
           ckp=checkpoint_flag))

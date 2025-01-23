@@ -43,7 +43,8 @@ module linear_state_trajectory_test
     procedure test_linear_state_trajectory
   end type linear_state_trajectory_test_type
 
-  integer(i_def), parameter    :: element_order = 0
+  integer(i_def), parameter    :: element_order_h = 0
+  integer(i_def), parameter    :: element_order_v = 0
 
 contains
 
@@ -136,7 +137,8 @@ contains
 
       call field%initialise( &
              vector_space = function_space_collection%get_fs             &
-                    ( mesh, element_order, variable_function_spaces(i)), &
+                    ( mesh, element_order_h, element_order_v,            &
+                      variable_function_spaces(i)), &
              name = variable_names(i) )
 
       field_proxy = field%get_proxy()

@@ -41,7 +41,7 @@ module transport_runtime_alg_mod
   use field_mod,                      only: field_type
   use sci_field_minmax_alg_mod,       only: get_field_minmax, &
                                             log_field_minmax
-  use finite_element_config_mod,      only: element_order
+  use finite_element_config_mod,      only: element_order_h, element_order_v
   use fs_continuity_mod,              only: W2, W2h, W2v, W3, Wtheta
   use function_space_mod,             only: function_space_type
   use function_space_collection_mod,  only: function_space_collection
@@ -568,13 +568,17 @@ contains
       ! TODO #3008: only initialise these if they will be used
       ! For now we need to initialise them for copying the transport runtime
       call shifted_wind_n_rdef%initialise( vector_space = &
-              function_space_collection%get_fs(shifted_mesh, element_order, W2) )
+              function_space_collection%get_fs(shifted_mesh, element_order_h, &
+                                               element_order_v, W2) )
       call shifted_wind_np1_rdef%initialise( vector_space = &
-              function_space_collection%get_fs(shifted_mesh, element_order, W2) )
+              function_space_collection%get_fs(shifted_mesh, element_order_h, &
+                                               element_order_v, W2) )
       call shifted_wind_n%initialise( vector_space = &
-              function_space_collection%get_fs(shifted_mesh, element_order, W2) )
+              function_space_collection%get_fs(shifted_mesh, element_order_h, &
+                                               element_order_v, W2) )
       call shifted_wind_np1%initialise( vector_space = &
-              function_space_collection%get_fs(shifted_mesh, element_order, W2) )
+              function_space_collection%get_fs(shifted_mesh, element_order_h, &
+                                               element_order_v, W2) )
 
       if (num_compute_meshes == 2) then
         ! Rather than duplicating a lot of mapping code for different field types,
@@ -595,11 +599,16 @@ contains
     do mesh_idx = 1, num_compute_meshes
       tmp_mesh => mesh_collection%get_mesh(self%mesh_ids(mesh_idx))
       twod_mesh => mesh_collection%get_mesh(tmp_mesh, TWOD)
-      w2_fs => function_space_collection%get_fs(tmp_mesh, element_order, W2)
-      w2h_fs => function_space_collection%get_fs(tmp_mesh, element_order, W2h)
-      w2v_fs => function_space_collection%get_fs(tmp_mesh, element_order, W2v)
-      w3_fs => function_space_collection%get_fs(tmp_mesh, element_order, W3)
-      w3_2d_fs => function_space_collection%get_fs(twod_mesh, element_order, W3)
+      w2_fs => function_space_collection%get_fs(tmp_mesh, element_order_h, &
+                                                element_order_v, W2)
+      w2h_fs => function_space_collection%get_fs(tmp_mesh, element_order_h, &
+                                                 element_order_v, W2h)
+      w2v_fs => function_space_collection%get_fs(tmp_mesh, element_order_h, &
+                                                 element_order_v, W2v)
+      w3_fs => function_space_collection%get_fs(tmp_mesh, element_order_h, &
+                                                element_order_v, W3)
+      w3_2d_fs => function_space_collection%get_fs(twod_mesh, element_order_h, &
+                                                   element_order_v, W3)
 
       if (.not. self%advecting_wind(mesh_idx)%is_initialised()) then
         call self%advecting_wind(mesh_idx)%initialise( w2_fs )
@@ -749,8 +758,10 @@ contains
 
       ! If any vertical scheme is ffsl/sl compute vertical departure points
       if (any_vert_dep_dist) then
-        w2v_fs => function_space_collection%get_fs(tmp_mesh, element_order, W2v)
-        w2_fs => function_space_collection%get_fs(tmp_mesh, element_order, W2)
+        w2v_fs => function_space_collection%get_fs(tmp_mesh, element_order_h, &
+                                                   element_order_v, W2v)
+        w2_fs => function_space_collection%get_fs(tmp_mesh, element_order_h, &
+                                                   element_order_v, W2)
 
         call cfl_dep%initialise( w2_fs )
 
@@ -790,7 +801,8 @@ contains
       if (any_horz_dep_dist) then
         ! TODO #4160: this assumes that if any_splitting_hvh =.true.
         ! then all transport uses HVH splitting
-        w2h_fs => function_space_collection%get_fs(tmp_mesh, element_order, W2h)
+        w2h_fs => function_space_collection%get_fs(tmp_mesh, element_order_h, &
+                                                   element_order_v, W2h)
 
         if (any_splitting_hvh) then
           ! If any splitting is VHV then compute departure points with half time step
@@ -822,12 +834,15 @@ contains
         call horizontal_cfl%initialise( self%horizontal_advecting_wind(mesh_idx)%get_function_space() )
         call vertical_cfl%initialise( self%vertical_advecting_wind(mesh_idx)%get_function_space() )
         call sum_horizontal_cfl%initialise( vector_space = &
-                  function_space_collection%get_fs(tmp_mesh, element_order, W3) )
+                  function_space_collection%get_fs(tmp_mesh, element_order_h, &
+                                                   element_order_v, W3) )
         call sum_cfl%initialise( vector_space = &
-                  function_space_collection%get_fs(tmp_mesh, element_order, W3) )
+                  function_space_collection%get_fs(tmp_mesh, element_order_h, &
+                                                   element_order_v, W3) )
 
         ! Get detj_at_w2 using wind_n
-        w2_fs => function_space_collection%get_fs(tmp_mesh, element_order, W2)
+        w2_fs => function_space_collection%get_fs(tmp_mesh, element_order_h, &
+                                                  element_order_v, W2)
         call detj_at_w2_transport%initialise( w2_fs )
         call select_detj_at_w2( wind_n, detj_at_w2_transport )
 
@@ -858,8 +873,8 @@ contains
           call log_event(log_scratch_space, LOG_LEVEL_ERROR)
         end select
 
-        ! Get the total CFL at each cell - this only works for element_order = 0
-        if (element_order == 0_i_def) then
+        ! Get the total CFL at each cell - this only works if both element orders = 0
+        if (element_order_h == 0_i_def .and. element_order_v == 0_i_def) then
           call invoke( calc_max_cfl_kernel_type(sum_cfl, sum_horizontal_cfl, &
                                                 horizontal_cfl, vertical_cfl) )
           call get_field_minmax( sum_horizontal_cfl, h_cfl_min, h_cfl_max )
@@ -1041,8 +1056,10 @@ contains
         if ( mesh_idx == 1 .OR. any_scheme_slice ) then
 
           ! Get W3 and Wtheta function space
-          w3_fs => function_space_collection%get_fs(tmp_mesh, element_order, W3)
-          wt_fs => function_space_collection%get_fs(tmp_mesh, element_order, Wtheta)
+          w3_fs => function_space_collection%get_fs(tmp_mesh, element_order_h, &
+                                                    element_order_v, W3)
+          wt_fs => function_space_collection%get_fs(tmp_mesh, element_order_h, &
+                                                    element_order_v, Wtheta)
 
           ! Initialise linear coefficients
           if (.not. self%vert_linear_coef(mesh_idx,1,1)%is_initialised()) then
@@ -1234,9 +1251,12 @@ contains
     if (ffsl_unity_3d .and. any_scheme_split_ffsl) then
       do mesh_idx = 1, num_compute_meshes
         tmp_mesh => mesh_collection%get_mesh(self%mesh_ids(mesh_idx))
-        w3_fs => function_space_collection%get_fs(tmp_mesh, element_order, W3)
-        w2h_fs => function_space_collection%get_fs(tmp_mesh, element_order, W2h)
-        w2v_fs => function_space_collection%get_fs(tmp_mesh, element_order, W2v)
+        w3_fs => function_space_collection%get_fs(tmp_mesh, element_order_h, &
+                                                  element_order_v, W3)
+        w2h_fs => function_space_collection%get_fs(tmp_mesh, element_order_h, &
+                                                   element_order_v, W2h)
+        w2v_fs => function_space_collection%get_fs(tmp_mesh, element_order_h, &
+                                                   element_order_v, W2v)
         detj_at_w3 => get_detj_at_w3_r_tran(tmp_mesh%get_id())
         panel_id => get_panel_id(tmp_mesh%get_id())
 
@@ -1865,7 +1885,7 @@ contains
           source_rho_d => source_transport_runtime%get_rho_d(source_mesh_id, &
                                                              step_with_substep)
           weights_w3 => get_intermesh_weights_w3_rtran(source_mesh, target_mesh)
-          w3_fs => function_space_collection%get_fs(target_mesh, 0, W3)
+          w3_fs => function_space_collection%get_fs(target_mesh, 0, 0, W3)
 
           if (.not. self%rho_d(1,step_with_substep)%is_initialised()) then
             call self%rho_d(1,step_with_substep)%initialise(  &
@@ -2013,7 +2033,7 @@ contains
 
             fs_idx = source_dry_flux%which_function_space()
             if (.not. self%dry_flux(1,step_with_substep)%is_initialised()) then
-              w2_fs => function_space_collection%get_fs(target_mesh, 0, fs_idx)
+              w2_fs => function_space_collection%get_fs(target_mesh, 0, 0, fs_idx)
               call self%dry_flux(1,step_with_substep)%initialise( vector_space = w2_fs )
             end if
 
@@ -2101,7 +2121,7 @@ contains
 
       detj_shifted => get_detj_at_w3_r_tran(shifted_mesh%get_id())
       detj_prime => get_detj_at_w3_r_tran(prime_mesh_id)
-      w3_fs => function_space_collection%get_fs(shifted_mesh, 0, W3)
+      w3_fs => function_space_collection%get_fs(shifted_mesh, 0, 0, W3)
 
       face_selector_ew => get_face_selector_ew(prime_mesh_id)
       face_selector_ns => get_face_selector_ns(prime_mesh_id)
@@ -2214,7 +2234,7 @@ contains
             fs_idx = self%dry_flux(1,step_with_substep)%which_function_space()
 
             if (.not. self%dry_flux(2,step_with_substep)%is_initialised()) then
-              w2_fs => function_space_collection%get_fs(shifted_mesh, 0, fs_idx)
+              w2_fs => function_space_collection%get_fs(shifted_mesh, 0, 0, fs_idx)
               call self%dry_flux(2,step_with_substep)%initialise( vector_space = w2_fs )
             end if
 
@@ -2368,7 +2388,7 @@ contains
             if (.not. self%tracer_dep_dist_ixy(i,step_with_substep)%is_initialised()) then
               w2_fs => dry_flux%get_function_space()
               twod_mesh => mesh_collection%get_mesh(mesh, TWOD)
-              w3_2d_fs => function_space_collection%get_fs(twod_mesh, 0, W3)
+              w3_2d_fs => function_space_collection%get_fs(twod_mesh, 0, 0, W3)
               call self%tracer_dep_dist_ixy(i,step_with_substep)%initialise( w2_fs )
               call self%dry_frac_flux_ixy(i,step_with_substep)%initialise( w2_fs )
             end if
@@ -2387,7 +2407,7 @@ contains
               if (.not. self%tracer_dep_dist_oxy(i,step_with_substep)%is_initialised()) then
                 w2_fs => dry_flux%get_function_space()
                 twod_mesh => mesh_collection%get_mesh(mesh, TWOD)
-                w3_2d_fs => function_space_collection%get_fs(twod_mesh, 0, W3)
+                w3_2d_fs => function_space_collection%get_fs(twod_mesh, 0, 0, W3)
                 call self%tracer_dep_dist_oxy(i,step_with_substep)%initialise( w2_fs )
                 call self%dry_frac_flux_oxy(i,step_with_substep)%initialise( w2_fs )
               end if

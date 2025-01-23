@@ -82,8 +82,8 @@ module accumulate_send_fields_2d_mod
     fld_name = fld%get_name()
 
     mesh => fld%get_mesh()
-    cpl_fs => function_space_collection%get_fs(mesh, 0, W3)
-    sice_fs => function_space_collection%get_fs(mesh, 0, W3, &
+    cpl_fs => function_space_collection%get_fs(mesh, 0, 0, W3)
+    sice_fs => function_space_collection%get_fs(mesh, 0, 0, W3, &
                                            ndata=n_sea_ice_tile)
 
     ! Extract the depository version of the field

@@ -27,7 +27,7 @@ module swe_init_fields_alg_mod
   use sci_field_vector_mod,               only: field_vector_type
 
   ! Configuration options
-  use finite_element_config_mod,          only: element_order
+  use finite_element_config_mod,          only: element_order_h, element_order_v
   use shallow_water_settings_config_mod,  only: swe_test,              &
                                                 swe_test_swe_galewsky, &
                                                 swe_test_swe_geostr_balance
@@ -115,8 +115,8 @@ contains
     ! Get coordinates and set up quadrature
     chi => get_coordinates(mesh%get_id())
     panel_id => get_panel_id(mesh%get_id())
-    qr  = quadrature_xyoz_type(element_order+3, quadrature_rule)
-    w1_fs => function_space_collection%get_fs(mesh, element_order, W1)
+    qr  = quadrature_xyoz_type(MAX(element_order_h, element_order_v)+3, quadrature_rule)
+    w1_fs => function_space_collection%get_fs(mesh, element_order_h, element_order_v, W1)
 
     domain = mesh%get_domain()
     if ( domain%is_lonlat() ) then
@@ -218,8 +218,9 @@ contains
 
     chi => get_coordinates(mesh_id)
     panel_id => get_panel_id(mesh_id)
-    qr  = quadrature_xyoz_type(element_order+3, quadrature_rule)
-    w1_fs => function_space_collection%get_fs(geopot%get_mesh(), element_order, W1)
+    qr  = quadrature_xyoz_type(MAX(element_order_h, element_order_v)+3, quadrature_rule)
+    w1_fs => function_space_collection%get_fs(geopot%get_mesh(), element_order_h, &
+                                              element_order_v, W1)
 
     ! Initialise vorticity using velocity and geopotential
     q_fs => q%get_function_space()

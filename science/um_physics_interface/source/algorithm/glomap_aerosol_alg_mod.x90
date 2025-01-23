@@ -26,7 +26,7 @@ module glomap_aerosol_alg_mod
   use sci_enforce_lower_bound_kernel_mod, &
                                        only: enforce_lower_bound_kernel_type
   use mesh_mod,                        only: mesh_type
-  use finite_element_config_mod,       only: element_order
+  use finite_element_config_mod,       only: element_order_h, element_order_v
   use fs_continuity_mod,               only: Wtheta
   use intermesh_mappings_alg_mod,      only: map_scalar_intermesh
 
@@ -222,7 +222,9 @@ contains
       call aerosol_fields%get_field('cloud_drop_no_conc', cloud_drop_no_conc)
       ! Initialise coarse aerosol fields
       aerosol_mesh => exner_in_wth%get_mesh()
-      wth_aero => function_space_collection%get_fs( aerosol_mesh, element_order, WTHETA )
+      wth_aero => function_space_collection%get_fs( aerosol_mesh,              &
+                                                    element_order_h,           &
+                                                    element_order_v, WTHETA )
       call cf_bulk_coarse%initialise(vector_space = wth_aero)
       call cf_liquid_coarse%initialise(vector_space = wth_aero)
       call rh_crit_coarse%initialise(vector_space = wth_aero)

@@ -17,7 +17,7 @@ module gravity_wave_alg_mod
                                             LOG_LEVEL_TRACE
 
   ! Configuration options
-  use finite_element_config_mod,      only: element_order
+  use finite_element_config_mod,      only: element_order_h, element_order_v
   use timestepping_config_mod,        only: dt, alpha
   use sci_fem_constants_mod,          only: get_div,         &
                                             get_mass_matrix, &
@@ -209,7 +209,8 @@ contains
 
     ! Create Q operator
     call Q%initialise( u_fs, b_fs)
-    qr = quadrature_xyoz_type(element_order+2, quadrature_rule)
+    qr = quadrature_xyoz_type(MAX(element_order_h, element_order_v)+2, &
+                              quadrature_rule)
     nlayers = mesh%get_nlayers()
     allocate ( dz(nlayers) )
     call mesh%get_dz(dz)

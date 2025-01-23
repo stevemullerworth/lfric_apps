@@ -119,7 +119,8 @@ contains
     use sci_fem_constants_mod,                  only : get_qr
     use solver_constants_mod,                   only : get_inverse_mass_matrix_r_solver
     use field_mod,                              only : field_type
-    use finite_element_config_mod,              only : element_order
+    use finite_element_config_mod,              only : element_order_h, &
+                                                       element_order_v
     use fs_continuity_mod,                      only : W3, W2h, W2v
     use function_space_mod,                     only : function_space_type
     use function_space_collection_mod,          only : function_space_collection
@@ -194,9 +195,12 @@ contains
     ! Set pointers to vertical operators
     mesh => mesh_collection%get_mesh(mesh_id)
     qr => get_qr()
-    w3_fs => function_space_collection%get_fs( mesh, element_order, W3 )
-    w2v_fs => function_space_collection%get_fs( mesh, element_order, W2V )
-    w2h_fs => function_space_collection%get_fs( mesh, element_order, W2H )
+    w3_fs => function_space_collection%get_fs( mesh, element_order_h, &
+                                               element_order_v, W3 )
+    w2v_fs => function_space_collection%get_fs( mesh, element_order_h, &
+                                                element_order_v, W2V )
+    w2h_fs => function_space_collection%get_fs( mesh, element_order_h, &
+                                                element_order_v, W2H )
     chi => get_coordinates(mesh_id)
     panel_id => get_panel_id(mesh_id)
     call div_v_r_def%initialise( w3_fs, w2v_fs )

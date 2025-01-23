@@ -13,7 +13,7 @@ module create_tl_prognostics_mod
                                              write_interface
   use lfric_xios_read_mod,            only : read_field_generic
   use lfric_xios_write_mod,           only : write_field_generic
-  use finite_element_config_mod,      only : element_order
+  use finite_element_config_mod,      only : element_order_h, element_order_v
   use function_space_collection_mod,  only : function_space_collection
   use field_collection_mod,           only : field_collection_type
   use fs_continuity_mod,              only : W3, Wtheta, W2H
@@ -68,7 +68,7 @@ contains
     call log_event( 'Creating Tangent linear initial perturbation prognostics...', &
                     LOG_LEVEL_INFO )
 
-    if ( element_order > 0 ) then
+    if ( element_order_h > 0 .or. element_order_v > 0) then
       call log_event( 'Finite diff prognostics: requires lowest order elements', &
                        LOG_LEVEL_ERROR )
     end if
@@ -82,7 +82,8 @@ contains
 
        ! In this case we read in directly onto the W2H dofs
        call h_wind_in_w2h%initialise( vector_space =                   &
-         function_space_collection%get_fs( mesh, element_order, W2H ), &
+         function_space_collection%get_fs( mesh, element_order_h,      &
+                                           element_order_v, W2H ), &
          name='h_u')
        call h_wind_in_w2h%set_read_behaviour(tmp_read_ptr)
        call h_wind_in_w2h%set_write_behaviour(tmp_write_ptr)
@@ -97,14 +98,16 @@ contains
       !========================================================================
 
       call ew_wind_in_w3%initialise( vector_space =                  &
-        function_space_collection%get_fs( mesh, element_order, W3 ), &
+        function_space_collection%get_fs( mesh, element_order_h,     &
+                                          element_order_v, W3 ),     &
         name='ew_wind_in_w3')
       call ew_wind_in_w3%set_read_behaviour(tmp_read_ptr)
       call ew_wind_in_w3%set_write_behaviour(tmp_write_ptr)
       call fd_field_collection%add_field(ew_wind_in_w3)
 
       call ns_wind_in_w3%initialise( vector_space =                  &
-        function_space_collection%get_fs( mesh, element_order, W3 ), &
+        function_space_collection%get_fs( mesh, element_order_h,     &
+                                          element_order_v, W3 ),     &
         name='ns_wind_in_w3')
       call ns_wind_in_w3%set_read_behaviour(tmp_read_ptr)
       call ns_wind_in_w3%set_write_behaviour(tmp_write_ptr)
@@ -113,14 +116,16 @@ contains
     end if
 
     call dry_rho_in_w3%initialise( vector_space =                     &
-         function_space_collection%get_fs( mesh, element_order, W3 ), &
+         function_space_collection%get_fs( mesh, element_order_h,     &
+                                           element_order_v, W3 ),     &
          name='rho')
     call dry_rho_in_w3%set_read_behaviour(tmp_read_ptr)
     call dry_rho_in_w3%set_write_behaviour(tmp_write_ptr)
     call fd_field_collection%add_field(dry_rho_in_w3)
 
     call exner_in_w3%initialise( vector_space =                       &
-         function_space_collection%get_fs( mesh, element_order, W3 ), &
+         function_space_collection%get_fs( mesh, element_order_h,     &
+                                           element_order_v, W3 ),     &
          name='exner')
     call exner_in_w3%set_read_behaviour(tmp_read_ptr)
     call exner_in_w3%set_write_behaviour(tmp_write_ptr)
@@ -131,42 +136,48 @@ contains
     !========================================================================
 
     call upward_wind_in_wtheta%initialise( vector_space =                 &
-         function_space_collection%get_fs( mesh, element_order, Wtheta ), &
+         function_space_collection%get_fs( mesh, element_order_h,         &
+                                           element_order_v, Wtheta ),     &
          name='v_u')
     call upward_wind_in_wtheta%set_read_behaviour(tmp_read_ptr)
     call upward_wind_in_wtheta%set_write_behaviour(tmp_write_ptr)
     call fd_field_collection%add_field(upward_wind_in_wtheta)
 
     call theta_in_wtheta%initialise( vector_space =                       &
-         function_space_collection%get_fs( mesh, element_order, Wtheta ), &
+         function_space_collection%get_fs( mesh, element_order_h,         &
+                                           element_order_v, Wtheta ),     &
          name='theta')
     call theta_in_wtheta%set_read_behaviour(tmp_read_ptr)
     call theta_in_wtheta%set_write_behaviour(tmp_write_ptr)
     call fd_field_collection%add_field(theta_in_wtheta)
 
     call mv_in_wtheta%initialise( vector_space =                          &
-         function_space_collection%get_fs( mesh, element_order, Wtheta ), &
+         function_space_collection%get_fs( mesh, element_order_h,         &
+                                           element_order_v, Wtheta ),     &
          name='m_v')
     call mv_in_wtheta%set_read_behaviour(tmp_read_ptr)
     call mv_in_wtheta%set_write_behaviour(tmp_write_ptr)
     call fd_field_collection%add_field(mv_in_wtheta)
 
     call mcl_in_wtheta%initialise( vector_space =                         &
-         function_space_collection%get_fs( mesh, element_order, Wtheta ), &
+         function_space_collection%get_fs( mesh, element_order_h,         &
+                                           element_order_v, Wtheta ),     &
          name='m_cl')
     call mcl_in_wtheta%set_read_behaviour(tmp_read_ptr)
     call mcl_in_wtheta%set_write_behaviour(tmp_write_ptr)
     call fd_field_collection%add_field(mcl_in_wtheta)
 
     call mcf_in_wtheta%initialise( vector_space =                         &
-         function_space_collection%get_fs( mesh, element_order, Wtheta ), &
+         function_space_collection%get_fs( mesh, element_order_h,         &
+                                           element_order_v, Wtheta ),     &
          name='m_ci')
     call mcf_in_wtheta%set_read_behaviour(tmp_read_ptr)
     call mcf_in_wtheta%set_write_behaviour(tmp_write_ptr)
     call fd_field_collection%add_field(mcf_in_wtheta)
 
     call mr_in_wtheta%initialise( vector_space =                          &
-         function_space_collection%get_fs( mesh, element_order, Wtheta ), &
+         function_space_collection%get_fs( mesh, element_order_h,         &
+                                           element_order_v, Wtheta ),     &
          name='m_r')
     call mr_in_wtheta%set_read_behaviour(tmp_read_ptr)
     call mr_in_wtheta%set_write_behaviour(tmp_write_ptr)

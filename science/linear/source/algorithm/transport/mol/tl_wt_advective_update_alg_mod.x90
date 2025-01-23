@@ -23,7 +23,6 @@ module tl_wt_advective_update_alg_mod
   use constants_mod,                      only: r_def, i_def, l_def
   use sci_fem_constants_mod,              only: get_inverse_lumped_mass_matrix
   use field_mod,                          only: field_type
-  use finite_element_config_mod,          only: element_order
   use fs_continuity_mod,                  only: W1, Wtheta
   use function_space_mod,                 only: function_space_type
   use function_space_collection_mod,      only: function_space_collection

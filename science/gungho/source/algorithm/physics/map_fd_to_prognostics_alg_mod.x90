@@ -53,7 +53,7 @@ module map_fd_to_prognostics_alg_mod
                                        geometry_spherical, &
                                        topology,           &
                                        topology_fully_periodic
-  use finite_element_config_mod, only: element_order
+  use finite_element_config_mod, only: element_order_h, element_order_v
   use formulation_config_mod,    only: rotating
   use io_config_mod,             only: subroutine_timers
   use physics_config_mod,        only: sample_physics_winds, &
@@ -287,7 +287,8 @@ contains
 
     else if (sample_physics_winds) then
 
-      w2b_fs => function_space_collection%get_fs(mesh, element_order, W2broken)
+      w2b_fs => function_space_collection%get_fs(mesh, element_order_h, &
+                                                 element_order_v, W2broken)
       rmultiplicity_w2 => get_rmultiplicity(W2, mesh%get_id())
       u_lon_map => get_u_lon_sample(mesh%get_id())
       u_lat_map => get_u_lat_sample(mesh%get_id())

@@ -42,7 +42,8 @@ module agnesi_orography_cartesian_mod_test
   real(r_def),        parameter   :: surface_pressure      = 1000.0e2_r_def
 
   integer(i_def),     parameter   :: nlayers               = 1_i_def
-  integer(i_def),     parameter   :: element_order         = 0_i_def
+  integer(i_def),     parameter   :: element_order_h       = 0_i_def
+  integer(i_def),     parameter   :: element_order_v       = 0_i_def
   integer(i_def),     parameter   :: total_ranks           = 1_i_def
   integer(i_def),     parameter   :: local_rank            = 0_i_def
   integer(i_def),     parameter   :: xproc                 = 1_i_def

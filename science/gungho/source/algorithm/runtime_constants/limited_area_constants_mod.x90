@@ -42,7 +42,8 @@ module limited_area_constants_mod
   use base_mesh_config_mod,              only: geometry, geometry_spherical
   use boundaries_config_mod,             only: normal_only, lbc_method, &
                                                lbc_method_coordinate_based
-  use finite_element_config_mod,         only: element_order
+  use finite_element_config_mod,         only: element_order_h, &
+                                               element_order_v
   use logging_config_mod,                only: run_log_level, &
                                                run_log_level_debug
 
@@ -162,9 +163,12 @@ contains
 
     mesh_id = mesh%get_id()
     chi => get_coordinates(mesh_id)
-    w2_fs => function_space_collection%get_fs( mesh, element_order, W2 )
-    w3_fs => function_space_collection%get_fs( mesh, element_order, W3 )
-    wtheta_fs => function_space_collection%get_fs( mesh, element_order, Wtheta )
+    w2_fs => function_space_collection%get_fs( mesh, element_order_h, &
+                                               element_order_v, W2 )
+    w3_fs => function_space_collection%get_fs( mesh, element_order_h, &
+                                               element_order_v, W3 )
+    wtheta_fs => function_space_collection%get_fs( mesh, element_order_h, &
+                                                   element_order_v, Wtheta )
     onion_layers => get_onion_layers(mesh_id)
 
     ! Add fields to inventory
@@ -276,7 +280,8 @@ contains
       ! Obtain the next mesh level, and get the function spaces for this mesh
       w3_fs => multigrid_function_space_chain%get_next()
       coarse_mesh => w3_fs%get_mesh()
-      w2_fs => function_space_collection%get_fs(coarse_mesh, element_order, W2)
+      w2_fs => function_space_collection%get_fs(coarse_mesh, element_order_h, &
+                                                element_order_v, W2)
 
       ! Create new masks
       call mask_w2_inventory%add_field(mask_w2, w2_fs, coarse_mesh)
@@ -524,7 +529,8 @@ contains
 
       if ( subroutine_timers ) call timer('runtime_constants.limited_area')
 
-      fs => function_space_collection%get_fs(mesh, element_order, space)
+      fs => function_space_collection%get_fs(mesh, element_order_h, &
+                                             element_order_v, space)
       call inventory%add_field(mask_r_solver, fs, mesh)
       call copy_field(mask_r_def, mask_r_solver)
 
@@ -648,7 +654,8 @@ contains
 
       if ( subroutine_timers ) call timer('runtime_constants.limited_area')
 
-      fs => function_space_collection%get_fs(mesh, element_order, space)
+      fs => function_space_collection%get_fs(mesh, element_order_h, &
+                                             element_order_v, space)
       call inventory%add_field(mask_ptr, fs, mesh, name=inventory_name)
       call create_lbc_mask(mask_ptr, onion_layers, chi)
 
@@ -697,7 +704,8 @@ contains
 
         if ( subroutine_timers ) call timer('runtime_constants.limited_area')
 
-        w3_fs => function_space_collection%get_fs( mesh, element_order, W3 )
+        w3_fs => function_space_collection%get_fs( mesh, element_order_h, &
+                                                   element_order_v, W3 )
 
         call onion_layers_inventory%add_field(                                 &
                 onion_layers, w3_fs, mesh, name='onion_layers', halo_depth=2   &
@@ -775,7 +783,8 @@ contains
 
       if ( subroutine_timers ) call timer('runtime_constants.limited_area')
 
-      fs => function_space_collection%get_fs(mesh, element_order, space)
+      fs => function_space_collection%get_fs(mesh, element_order_h, &
+                                             element_order_v, space)
       call inventory%add_field(mask_ptr, fs, mesh, name=inventory_name)
       call create_blend_mask(mask_ptr, onion_layers, chi)
 

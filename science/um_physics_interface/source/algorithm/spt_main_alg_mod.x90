@@ -422,7 +422,7 @@ module spt_main_alg_mod
   if (spt_n_smoothing_iters>0) then
 
     ! Initiate field_w0
-    vector_space_w0 => function_space_collection%get_fs( mesh, 0, W0 )
+    vector_space_w0 => function_space_collection%get_fs( mesh, 0, 0, W0 )
     call field_w0%initialise(vector_space_w0)
     rmultiplicity_w0 => get_rmultiplicity( W0, mesh%get_id()) ! 1/multiplicity of w0
 

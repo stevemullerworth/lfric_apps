@@ -95,7 +95,7 @@ contains
   !> @return     self  Instance of the shallow water mixed operator
   function swe_mixed_operator_constructor(state) result(self)
 
-    use finite_element_config_mod,       only: element_order
+    use finite_element_config_mod,       only: element_order_h, element_order_v
     use function_space_mod,              only: function_space_type
     use function_space_collection_mod,   only: function_space_collection
     use mesh_mod,                        only: mesh_type
@@ -110,10 +110,12 @@ contains
     ! Get mesh
     mesh => state%vector(isw_u)%get_mesh()
     ! Extract function spaces
-    u_fs => function_space_collection%get_fs ( mesh, element_order, &
+    u_fs => function_space_collection%get_fs ( mesh, element_order_h, &
+                               element_order_v,                       &
                                state%vector(isw_u)%which_function_space() )
 
-    g_fs => function_space_collection%get_fs ( mesh, element_order, &
+    g_fs => function_space_collection%get_fs ( mesh, element_order_h, &
+                               element_order_v,                       &
                                state%vector(isw_g)%which_function_space() )
     call self%lhs_u%initialise( vector_space = u_fs )
     call self%lhs_g%initialise( vector_space = g_fs )

@@ -92,7 +92,8 @@ contains
     select case (field_n_rdef%which_function_space())
     case (W3)
       ! field is in the same space as density
-      w3_fs => function_space_collection%get_fs(primary_mesh, 0_i_def, W3)
+      w3_fs => function_space_collection%get_fs(primary_mesh, 0_i_def, &
+                                                0_i_def, W3)
 
       ! Create local fields
       call rho_field_n%initialise( vector_space=w3_fs)
@@ -115,7 +116,8 @@ contains
 
     case (Wtheta)
       ! field is in the shifted space
-      w3_shifted_fs => function_space_collection%get_fs(shifted_mesh, 0_i_def, W3)
+      w3_shifted_fs => function_space_collection%get_fs(shifted_mesh, 0_i_def, &
+                                                        0_i_def, W3)
 
       ! Create some shifted fields
       call field_n_sh_w3%initialise( vector_space=w3_shifted_fs)

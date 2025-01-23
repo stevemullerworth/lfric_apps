@@ -20,7 +20,7 @@ module gw_init_fields_alg_mod
                                                get_panel_id
 
   ! Configuration options
-  use finite_element_config_mod,         only: element_order
+  use finite_element_config_mod,         only: element_order_h, element_order_v
   use io_mod,                            only: ts_fname
 
   ! PsyKAl PSYClone kernels
@@ -86,7 +86,8 @@ contains
     panel_id => get_panel_id(mesh_id)
 
     domain = mesh%get_domain()
-    qr     = quadrature_xyoz_type(element_order+3, quadrature_rule)
+    qr     = quadrature_xyoz_type(MAX(element_order_h, element_order_v)+3, &
+                                  quadrature_rule)
 
     !=== Initialise global prognostic fields ==================================!
 

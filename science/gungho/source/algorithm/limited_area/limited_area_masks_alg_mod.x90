@@ -69,7 +69,7 @@ contains
                                          rim_width_ns, rim_width_ew,   &
                                          normal_only
     use extrusion_config_mod,      only: number_of_layers
-    use finite_element_config_mod, only: element_order
+    use finite_element_config_mod, only: element_order_h, element_order_v
 
     implicit none
 
@@ -79,7 +79,7 @@ contains
     real(r_def)                  :: total_edges
     real(r_def), parameter       :: tol = 1.0e-8_r_def
 
-    if ( element_order /= 0 ) then
+    if ( element_order_h /= 0 .or. element_order_v /= 0 ) then
     ! Although we are able to create the masks for higher order, this check
     ! only works for zero order. Therefore, this check needs to be modified to
     ! work for higher order finite elements.

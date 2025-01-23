@@ -113,9 +113,9 @@ contains
 
       ! Get mesh and function spaces
       mesh => wind%get_mesh()
-      w3_fs => function_space_collection%get_fs(mesh, 0, W3)
-      w2h_fs => function_space_collection%get_fs(mesh, 0, W2H)
-      w2v_fs => function_space_collection%get_fs(mesh, 0, W2V)
+      w3_fs => function_space_collection%get_fs(mesh, 0, 0, W3)
+      w2h_fs => function_space_collection%get_fs(mesh, 0, 0, W2H)
+      w2v_fs => function_space_collection%get_fs(mesh, 0, 0, W2V)
 
       ! Initialise fields
       detj_at_w3 => get_detj_at_w3_r_tran(mesh%get_id())

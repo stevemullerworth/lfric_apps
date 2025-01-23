@@ -77,7 +77,8 @@ INTEGER(i_def), OPTIONAL, INTENT(IN)        :: ndata
 ! Local variables
 TYPE(field_type)           :: new_field
 INTEGER(i_def)             :: ndat
-INTEGER(i_def), PARAMETER  :: fs_order = 0
+INTEGER(i_def), PARAMETER  :: fs_order_h = 0
+INTEGER(i_def), PARAMETER  :: fs_order_v = 0
 
 ! Pointers
 TYPE(function_space_type),       POINTER  :: w3_space => NULL()
@@ -94,10 +95,10 @@ ELSE
 END IF
 
 ! Set up function spaces for field initialisation
-w3_space   => function_space_collection%get_fs( mesh, fs_order, &
-              W3, ndat )
-twod_space => function_space_collection%get_fs( twod_mesh, fs_order, &
-               W3, ndat )
+w3_space   => function_space_collection%get_fs( mesh, fs_order_h, &
+              fs_order_v, W3, ndat )
+twod_space => function_space_collection%get_fs( twod_mesh, fs_order_h, &
+               fs_order_v, W3, ndat )
 
 ! Create field
 WRITE(log_scratch_space,'(3A,I6)') &

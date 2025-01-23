@@ -42,8 +42,6 @@ module jedi_lfric_utils_test
     procedure test_jedi_lfric_utils
   end type jedi_lfric_utils_test_type
 
-  integer(i_def), parameter    :: element_order = 0
-
 
 contains
 

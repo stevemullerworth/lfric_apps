@@ -347,7 +347,7 @@ module linear_data_algorithm_mod
 
     real( kind=r_def )    :: gamma_u, gamma_rho, gamma_exner, gamma_theta
     real( kind=r_def )    :: gamma_moist_dyn, gamma_mr
-    integer( kind=i_def ) :: element_order
+    integer( kind=i_def ) :: element_order_h, element_order_v
     integer( kind=i_def ) :: i
 
     type(field_collection_type), pointer :: prognostic_fields => null()
@@ -394,13 +394,16 @@ module linear_data_algorithm_mod
 
     ! Get mesh and element order from field
     mesh=>field%get_mesh()
-    element_order=field%get_element_order()
+    element_order_h=field%get_element_order_h()
+    element_order_v=field%get_element_order_v()
 
     ! Create local fields to apply randomization
-    vspace => function_space_collection%get_fs(mesh, element_order, W3)
+    vspace => function_space_collection%get_fs(mesh, element_order_h,          &
+                                               element_order_v, W3)
     call u_in_w3%initialise( vector_space = vspace )
     call v_in_w3%initialise( vector_space = vspace )
-    vspace => function_space_collection%get_fs(mesh, element_order, Wtheta)
+    vspace => function_space_collection%get_fs(mesh, element_order_h,          &
+                                               element_order_v, Wtheta)
     call w_in_wth%initialise( vector_space = vspace )
 
     ! Apply randomization to cell centre winds

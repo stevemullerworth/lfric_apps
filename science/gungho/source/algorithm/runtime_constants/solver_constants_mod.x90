@@ -35,7 +35,8 @@ module solver_constants_mod
   use timer_mod,                          only: timer
 
   ! Configuration
-  use finite_element_config_mod,          only: element_order
+  use finite_element_config_mod,          only: element_order_h, &
+                                                element_order_v
 
   ! Kernels
   use sci_operator_algebra_kernel_mod,    only: operator_setval_x_kernel_type
@@ -123,7 +124,8 @@ contains
       ! Create the object as it doesn't exist yet
       if ( subroutine_timers ) call timer('runtime_constants.solver')
 
-      w3_fs => function_space_collection%get_fs(mesh, element_order, W3)
+      w3_fs => function_space_collection%get_fs(mesh, element_order_h, &
+                                                element_order_v, W3)
       call detj_at_w3_r_solver_inventory%add_field(detj_r_solver, w3_fs, mesh)
 
       halo_depth = 0  ! No need to calculate into halos
@@ -189,7 +191,8 @@ contains
 
       if ( subroutine_timers ) call timer('runtime_constants.solver')
 
-      fs => function_space_collection%get_fs(mesh, element_order, space)
+      fs => function_space_collection%get_fs(mesh, element_order_h, &
+                                             element_order_v, space)
       call inventory%add_operator(mm_r_solver, fs, fs, mesh)
 
       call invoke( operator_setval_x_kernel_type(mm_r_solver, mm_r_def) )
@@ -246,7 +249,8 @@ contains
 
       if ( subroutine_timers ) call timer('runtime_constants.solver')
 
-      fs => function_space_collection%get_fs(mesh, element_order, space)
+      fs => function_space_collection%get_fs(mesh, element_order_h, &
+                                             element_order_v, space)
       call inventory%add_operator(mm_inv_r_solver, fs, fs, mesh)
 
       call invoke( operator_setval_x_kernel_type(mm_inv_r_solver, mm_inv_r_def) )
@@ -305,7 +309,8 @@ contains
 
       if ( subroutine_timers ) call timer('runtime_constants.solver')
 
-      fs => function_space_collection%get_fs(mesh, element_order, W2)
+      fs => function_space_collection%get_fs(mesh, element_order_h, &
+                                             element_order_v, W2)
       call inventory%add_operator(mm_r_solver, fs, fs, mesh)
 
       call invoke( operator_setval_x_kernel_type(mm_r_solver, mm_r_def) )
@@ -356,8 +361,10 @@ contains
       div => get_div(mesh_id)
       mm_w3_inv_r_solver => get_inverse_mass_matrix_r_solver(W3, mesh_id)
 
-      w2_fs => function_space_collection%get_fs( mesh, element_order, W2 )
-      w3_fs => function_space_collection%get_fs( mesh, element_order, W3 )
+      w2_fs => function_space_collection%get_fs( mesh, element_order_h, &
+                                                 element_order_v, W2 )
+      w3_fs => function_space_collection%get_fs( mesh, element_order_h, &
+                                                 element_order_v, W3 )
 
       if ( subroutine_timers ) call timer('runtime_constants.solver')
         call div_r_solver%initialise( w3_fs, w2_fs )
@@ -420,7 +427,8 @@ contains
         if (.not. constant_exists) then
           chi => get_coordinates(mesh_id)
           panel_id => get_panel_id(mesh_id)
-          fs => function_space_collection%get_fs(mesh, element_order, space)
+          fs => function_space_collection%get_fs(mesh, element_order_h, &
+                                                 element_order_v, space)
 
           if ( subroutine_timers ) call timer('runtime_constants.fem')
 
@@ -494,7 +502,8 @@ contains
 
       if ( subroutine_timers ) call timer('runtime_constants.solver')
 
-      fs => function_space_collection%get_fs(mesh, element_order, space)
+      fs => function_space_collection%get_fs(mesh, element_order_h, &
+                                             element_order_v, space)
       call inventory%add_field(normalisation_r_solver, fs, mesh)
 
       call copy_field(normalisation_r_def, normalisation_r_solver)

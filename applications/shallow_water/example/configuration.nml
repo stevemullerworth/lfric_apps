@@ -212,7 +212,7 @@ operators                = 'fv'
 profile_size             = 7
 reversible               = .false., .false., .false., .false., .false., .false., .false.
 runge_kutta_method       = 'ssp3'
-        ! 'ssp3' should be used with semi-implicit time stepping, 
+        ! 'ssp3' should be used with semi-implicit time stepping,
         ! 'forward_euler' should be used with explicit time stepping
 scheme                   = 7*1
 si_outer_transport       = 'none'
@@ -270,7 +270,8 @@ start_dump_directory = ''
 cellshape       = 'quadrilateral'
 coord_order     = 1
 coord_system    = 'native'
-element_order   = 0
+element_order_h = 0
+element_order_v = 0
 rehabilitate    = .true.
 vorticity_in_w1 = .true.
 /

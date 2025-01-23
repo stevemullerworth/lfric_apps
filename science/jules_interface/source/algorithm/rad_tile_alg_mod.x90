@@ -135,12 +135,12 @@ subroutine rad_tile_alg(tile_sw_direct_albedo, tile_sw_diffuse_albedo,       &
   if ( subroutine_timers ) call timer('rad_tile_alg')
 
   vector_space => function_space_collection%get_fs( &
-                    twod_mesh, 0, W3, n_sw_band * n_surf_tile )
+                    twod_mesh, 0, 0, W3, n_sw_band * n_surf_tile )
   call tile_sw_direct_albedo%initialise(vector_space)
   call tile_sw_diffuse_albedo%initialise(vector_space)
 
   vector_space => function_space_collection%get_fs( &
-                    twod_mesh, 0, W3, n_lw_band * n_surf_tile )
+                    twod_mesh, 0, 0, W3, n_lw_band * n_surf_tile )
   call tile_lw_albedo%initialise(vector_space)
 
   call surface_fields%get_field('tile_lw_grey_albedo', tile_lw_grey_albedo)
@@ -148,15 +148,15 @@ subroutine rad_tile_alg(tile_sw_direct_albedo, tile_sw_diffuse_albedo,       &
   if (l_inc_radstep) then
     ! Radiation increments use different spectral files with fewer bands
     vector_space => function_space_collection%get_fs( &
-                      twod_mesh, 0, W3, n_swinc_band * n_surf_tile )
+                      twod_mesh, 0, 0, W3, n_swinc_band * n_surf_tile )
     call tile_swinc_direct_albedo%initialise(vector_space)
     call tile_swinc_diffuse_albedo%initialise(vector_space)
 
     vector_space => function_space_collection%get_fs( &
-                      twod_mesh, 0, W3, n_lwinc_band * n_surf_tile )
+                      twod_mesh, 0, 0, W3, n_lwinc_band * n_surf_tile )
     call tile_lwinc_albedo%initialise(vector_space)
   else
-    vector_space => function_space_collection%get_fs( twod_mesh, 0, W3, 1)
+    vector_space => function_space_collection%get_fs( twod_mesh, 0, 0, W3, 1)
     call tile_swinc_direct_albedo%initialise( &
       vector_space, override_data = empty_real_data )
     call tile_swinc_diffuse_albedo%initialise( &

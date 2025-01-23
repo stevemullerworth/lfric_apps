@@ -18,7 +18,6 @@ module coupler_mod
   use field_parent_mod,               only: field_parent_type
   use pure_abstract_field_mod,        only: pure_abstract_field_type
   use function_space_mod,             only: function_space_type
-  use finite_element_config_mod,      only: element_order
   use fs_continuity_mod,              only: W3, Wtheta
   use psykal_lite_mod,                only: invoke_nodal_coordinates_kernel
   use function_space_collection_mod,  only: function_space_collection
@@ -164,11 +163,11 @@ module coupler_mod
     depository => modeldb%fields%get_field_collection("depository")
     prognostic_fields => modeldb%fields%get_field_collection("prognostic_fields")
 
-    vector_space=> function_space_collection%get_fs( twod_mesh, 0, W3 )
-    sice_space  => function_space_collection%get_fs( twod_mesh, 0, W3,  &
+   vector_space=> function_space_collection%get_fs( twod_mesh, 0, 0, W3 )
+   sice_space  => function_space_collection%get_fs( twod_mesh, 0, 0, W3,       &
                                                                n_sea_ice_tile )
-    threed_space => function_space_collection%get_fs(mesh, 0, W3 )
-    wtheta_space => function_space_collection%get_fs(mesh, 0, Wtheta)
+    threed_space => function_space_collection%get_fs(mesh, 0, 0, W3 )
+    wtheta_space => function_space_collection%get_fs(mesh, 0, 0, Wtheta)
 
     ! Coupling uses some sea-ice fractions from the previous step. These,
     ! therefore, need to be stored in the depository for later use.
@@ -254,7 +253,7 @@ module coupler_mod
          'lf_greenland', vector_space, .false.)
 
     !receiving - depository
-    vector_space => function_space_collection%get_fs( twod_mesh, 0, W3, ndata=1 )
+    vector_space => function_space_collection%get_fs( twod_mesh, 0, 0, W3, ndata=1 )
 
 
     ! These do not need to be in the restart file because they come FROM

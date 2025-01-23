@@ -164,7 +164,7 @@ module skeb_main_alg_mod
   use strong_curl_kernel_mod,             only: strong_curl_kernel_type
   use sci_enforce_bc_kernel_mod,          only: enforce_bc_kernel_type
   ! element order to create vector spaces
-  use finite_element_config_mod,          only: element_order
+  use finite_element_config_mod,          only: element_order_h, element_order_v
 
   ! Kernels for 1-2-1 Filtering W3 <-> W1V
   use sci_w3_to_w1_average_kernel_mod, only: w3_to_w1_average_kernel_type
@@ -310,7 +310,7 @@ module skeb_main_alg_mod
 
    ! Create mesh
   mesh => rho%get_mesh()
-  w1_fs => function_space_collection%get_fs( mesh, 0, W1 )
+  w1_fs => function_space_collection%get_fs( mesh, 0, 0, W1 )
 
   ! Initialize variables to 0.0 [NEEDED??]
   call invoke( setval_c(ndisp, 0.0_r_def),      &
@@ -520,8 +520,10 @@ module skeb_main_alg_mod
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   ! create vector spaces in W2
-  w2h_fs => function_space_collection%get_fs( mesh, element_order, W2H )
-  w2_fs => function_space_collection%get_fs( mesh, element_order, W2 )
+  w2h_fs => function_space_collection%get_fs( mesh, element_order_h,           &
+                                              element_order_v, W2H )
+  w2_fs => function_space_collection%get_fs( mesh, element_order_h,            &
+                                              element_order_v, W2 )
 
   ! Create wind forcing and set to 0.0
   call u%copy_field_properties(du_skeb)

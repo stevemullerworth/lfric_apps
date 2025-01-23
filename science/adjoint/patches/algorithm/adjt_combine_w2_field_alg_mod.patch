@@ -1,7 +1,9 @@
-@@ -11,10 +11,13 @@
+@@ -10,11 +10,14 @@
+     use function_space_collection_mod, only : function_space_collection
      use combine_w2_field_kernel_mod, only : combine_w2_field_kernel_type
      use adj_combine_w2_field_kernel_mod, only : adj_combine_w2_field_kernel_type
-     use finite_element_config_mod, only : element_order
+-    use finite_element_config_mod, only : element_order
++    use finite_element_config_mod, only : element_order_h,element_order_v
 -    use fs_continuity_mod, only : w2h, w2v, w3
 +    use fs_continuity_mod, only : w2h, w2v, w3, w2
      use constants_mod, only : i_def, r_def
@@ -13,7 +15,7 @@
      real(kind=r_def), parameter :: overall_tolerance = 1500.0_r_def
      type(mesh_type), pointer, intent(in) :: mesh
      type(field_type), dimension(3), intent(in), optional :: chi
-@@ -25,24 +28,19 @@
+@@ -25,75 +28,58 @@
      type(field_type) :: uvw
      type(field_type) :: uv
      type(field_type) :: w
@@ -41,14 +43,20 @@
      real(kind=r_def) :: inner2
      real(kind=r_def) :: MachineTol
      real(kind=r_def) :: relative_diff
-@@ -53,47 +51,35 @@
+ 
+-    vector_space_w2h_ptr => function_space_collection%get_fs(mesh,element_order,w2h)
+-    vector_space_w2v_ptr => function_space_collection%get_fs(mesh,element_order,w2v)
+-    vector_space_w3_ptr => function_space_collection%get_fs(mesh,element_order,w3)
++    vector_space_w2h_ptr => function_space_collection%get_fs(mesh,element_order_h,element_order_v,w2h)
++    vector_space_w2v_ptr => function_space_collection%get_fs(mesh,element_order_h,element_order_v,w2v)
++    vector_space_w3_ptr => function_space_collection%get_fs(mesh,element_order_h,element_order_v,w3)
      call uvw%initialise(vector_space=vector_space_w3_ptr, name='uvw')
      call uv%initialise(vector_space=vector_space_w2h_ptr, name='uv')
      call w%initialise(vector_space=vector_space_w2v_ptr, name='w')
 -    call face_selector_ew%initialise(vector_space=vector_space_w3_ptr, name='face_selector_ew')
 -    call face_selector_ns%initialise(vector_space=vector_space_w3_ptr, name='face_selector_ns')
 -    call uvw_input%initialise(vector_space=vector_space_w3_ptr, name='uvw_input')
-+    vector_space_w2_ptr => function_space_collection % get_fs(mesh, element_order, w2)
++    vector_space_w2_ptr => function_space_collection % get_fs(mesh, element_order_h, element_order_v, w2)
 +    call uvw%initialise(vector_space=vector_space_w2_ptr, name='uvw')
 +    call uvw_input%initialise(vector_space=vector_space_w2_ptr, name='uvw_input')
      call uv_input%initialise(vector_space=vector_space_w2h_ptr, name='uv_input')

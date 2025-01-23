@@ -12,7 +12,6 @@ module linear_model_data_mod
   use field_array_mod,                only : field_array_type
   use field_mod,                      only : field_type
   use field_collection_mod,           only : field_collection_type
-  use finite_element_config_mod,      only : element_order
   use function_space_mod,             only : function_space_type
   use function_space_collection_mod,  only : function_space_collection
   use fs_continuity_mod,              only : W2, W3, WTheta, W2h

@@ -315,7 +315,7 @@ module process_send_fields_2d_mod
     mesh => snow_mass_on_tiles%get_mesh()
 
     ! Initialsise temporary fields
-    tmp_fs => function_space_collection%get_fs(mesh, 0, W3)
+    tmp_fs => function_space_collection%get_fs(mesh, 0, 0, W3)
     call tmp_field1%initialise( vector_space=tmp_fs, name="tmp_field1_W3" )
     call tmp_field2%initialise( vector_space=tmp_fs, name="tmp_field2_W3" )
     call tmp_field3%initialise( vector_space=tmp_fs, name="tmp_field3_W3" )

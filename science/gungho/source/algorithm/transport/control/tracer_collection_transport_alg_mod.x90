@@ -170,7 +170,7 @@ contains
   subroutine coarse_collection_transport_alg(fields_out, fields_in, model_dt, &
                                              transport_metadata)
 
-    use finite_element_config_mod,     only: element_order
+    use finite_element_config_mod,     only: element_order_h, element_order_v
     use function_space_collection_mod, only: function_space_collection
     use function_space_mod,            only: function_space_type
     use intermesh_mappings_alg_mod,    only: map_scalar_intermesh
@@ -226,7 +226,8 @@ contains
                                 LOG_LEVEL_INFO)
 
         coarse_mesh => mesh_collection%get_mesh(aerosol_mesh_name)
-        coarse_fs => function_space_collection%get_fs(coarse_mesh, element_order, &
+        coarse_fs => function_space_collection%get_fs(coarse_mesh, element_order_h, &
+                                                        element_order_v,            &
                                                         single_field_in%which_function_space())
         call coarse_field_in%initialise(coarse_fs)
         call coarse_field_out%initialise(coarse_fs)

@@ -17,7 +17,7 @@ module create_gravity_wave_prognostics_mod
   use field_parent_mod,               only : write_interface, &
                                              checkpoint_write_interface, &
                                              checkpoint_read_interface
-  use finite_element_config_mod,      only : element_order
+  use finite_element_config_mod,      only : element_order_h, element_order_v
   use function_space_collection_mod,  only : function_space_collection
   use fs_continuity_mod,              only : W0, W2, W3, Wtheta
   use io_config_mod,                  only : write_diag, &
@@ -83,14 +83,17 @@ contains
         call log_event( 'gravity_wave: Invalid buoyancy space', LOG_LEVEL_ERROR )
     end select
 
-    call wind%initialise( vector_space = &
-                       function_space_collection%get_fs(mesh, element_order, W2), &
+    call wind%initialise( vector_space =                                       &
+                       function_space_collection%get_fs(mesh, element_order_h, &
+                                                        element_order_v, W2),  &
                        name="wind" )
-    call buoyancy%initialise( vector_space = &
-               function_space_collection%get_fs(mesh, element_order, buoyancy_space), &
+    call buoyancy%initialise( vector_space =                                      &
+               function_space_collection%get_fs(mesh, element_order_h,            &
+                                                element_order_v, buoyancy_space), &
                name="buoyancy" )
-    call pressure%initialise( vector_space = &
-                       function_space_collection%get_fs(mesh, element_order, W3), &
+    call pressure%initialise( vector_space =                                   &
+                       function_space_collection%get_fs(mesh, element_order_h, &
+                                                        element_order_v, W3),  &
                        name="pressure" )
 
 

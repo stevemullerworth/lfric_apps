@@ -963,7 +963,8 @@ contains
     integer(i_def)            :: ndat, time_ndat
     logical(l_def)            :: twod_field
     logical(l_def)            :: ndat_first
-    integer(i_def), parameter :: fs_order = 0
+    integer(i_def), parameter :: fs_order_h = 0
+    integer(i_def), parameter :: fs_order_v = 0
 
     ! Pointers
     type(function_space_type),       pointer :: vec_space => null()
@@ -996,10 +997,12 @@ contains
       call log_event(log_scratch_space,LOG_LEVEL_INFO)
       tmp_write_ptr => write_field_generic
       if (twod_field) then
-        vec_space => function_space_collection%get_fs( twod_mesh, fs_order, &
+        vec_space => function_space_collection%get_fs( twod_mesh, fs_order_h, &
+                                                       fs_order_v,            &
                                                        W3, ndat )
       else
-        vec_space => function_space_collection%get_fs( mesh, fs_order, &
+        vec_space => function_space_collection%get_fs( mesh, fs_order_h, &
+                                                       fs_order_v,       &
                                                        WTheta, ndat )
       end if
       call new_field%initialise( vec_space, name=trim(name))
@@ -1019,21 +1022,25 @@ contains
       time_ndat = ndat * time_axis%get_window_size()
       if (twod_field) then
         if ( present(alt_twod_mesh) ) then
-          vec_space => function_space_collection%get_fs( alt_twod_mesh, fs_order, &
-                                                         W3, time_ndat,        &
+          vec_space => function_space_collection%get_fs( alt_twod_mesh, fs_order_h, &
+                                                         fs_order_v,                &
+                                                         W3, time_ndat,             &
                                                          ndata_first )
         else
-          vec_space => function_space_collection%get_fs( twod_mesh, fs_order,  &
-                                                         W3, time_ndat,        &
+          vec_space => function_space_collection%get_fs( twod_mesh, fs_order_h, &
+                                                         fs_order_v,            &
+                                                         W3, time_ndat,         &
                                                          ndata_first )
         end if
       else
         if ( present(alt_mesh) ) then
-          vec_space => function_space_collection%get_fs( alt_mesh, fs_order,   &
+          vec_space => function_space_collection%get_fs( alt_mesh, fs_order_h, &
+                                                         fs_order_v,           &
                                                          Wtheta, time_ndat,    &
                                                          ndata_first )
         else
-          vec_space => function_space_collection%get_fs( mesh, fs_order,       &
+          vec_space => function_space_collection%get_fs( mesh, fs_order_h,     &
+                                                         fs_order_v,           &
                                                          Wtheta, time_ndat,    &
                                                          ndata_first )
         end if

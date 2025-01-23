@@ -34,9 +34,6 @@ module physics_constants_mod
   use model_clock_mod,                    only: model_clock_type
   use timer_mod,                          only: timer
 
-  ! Configuration
-  use finite_element_config_mod,          only: element_order
-
   implicit none
 
   private
@@ -150,10 +147,10 @@ contains
       call max_diff_wtheta_inventory%initialise(name='max_diff_wtheta')
     end if
 
-    w1_k0_fs => function_space_collection%get_fs( mesh, 0, W1 )
-    w2_k0_fs => function_space_collection%get_fs( mesh, 0, W2 )
-    w3_k0_fs => function_space_collection%get_fs( mesh, 0, W3 )
-    wtheta_k0_fs => function_space_collection%get_fs( mesh, 0, Wtheta )
+    w1_k0_fs => function_space_collection%get_fs( mesh, 0, 0, W1 )
+    w2_k0_fs => function_space_collection%get_fs( mesh, 0, 0, W2 )
+    w3_k0_fs => function_space_collection%get_fs( mesh, 0, 0, W3 )
+    wtheta_k0_fs => function_space_collection%get_fs( mesh, 0, 0, Wtheta )
 
     ! Calculate maximum diffusion coefficient allowed in this run for
     ! stability based on UMDP 28 equation 32: max_diff = dx^2/(8*dt)
@@ -426,7 +423,7 @@ contains
     if (.not. constant_exists) then
       twod_mesh => mesh_collection%get_mesh(mesh, TWOD)
       latitude => get_latitude(W3, mesh_id)
-      fs => function_space_collection%get_fs(twod_mesh, 0, W3, stph_spectral_dim)
+      fs => function_space_collection%get_fs(twod_mesh, 0, 0, W3, stph_spectral_dim)
 
       if ( subroutine_timers ) call timer('runtime_constants.physics')
 

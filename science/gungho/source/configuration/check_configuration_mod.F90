@@ -122,7 +122,8 @@ contains
                                            i_def
     use finite_element_config_mod,   only: cellshape,                          &
                                            cellshape_triangle,                 &
-                                           element_order,                      &
+                                           element_order_h,                    &
+                                           element_order_v,                    &
                                            rehabilitate,                       &
                                            coord_order,                        &
                                            coord_system,                       &
@@ -174,9 +175,14 @@ contains
         write( log_scratch_space, '(A)' ) 'Triangular elements are unsupported'
         call log_event( log_scratch_space, LOG_LEVEL_ERROR )
       end if
-      if ( element_order < 0 ) then
-        write( log_scratch_space, '(A,I4,A)' ) 'Invalid choice: element order ', &
-          element_order, ' must be non-negative'
+      if ( element_order_h < 0 ) then
+        write( log_scratch_space, '(A,I4,A)' ) 'Invalid choice: element_order_h ', &
+          element_order_h, ' must be non-negative'
+        call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+      end if
+      if ( element_order_v < 0 ) then
+        write( log_scratch_space, '(A,I4,A)' ) 'Invalid choice: element_order_v ', &
+          element_order_v, ' must be non-negative'
         call log_event( log_scratch_space, LOG_LEVEL_ERROR )
       end if
       if ( .not. rehabilitate ) then
@@ -542,17 +548,20 @@ contains
       end if
 
       ! Check for options that are invalid with higher order elements
-      if ( element_order > 0 ) then
+      if ( element_order_h > 0 .or. element_order_v > 0 ) then
         if ( operators == operators_fv ) then
-          write( log_scratch_space, '(A)' ) 'FV transport operators only valid for element_order = 0'
+          write( log_scratch_space, '(A)' ) &
+          'FV transport operators only valid for element_order_h = 0 and element_order_v = 0'
           call log_event( log_scratch_space, LOG_LEVEL_ERROR )
         end if
         if ( viscosity ) then
-          write( log_scratch_space, '(A)' ) 'Viscosity only valid for element_order = 0'
+          write( log_scratch_space, '(A)' ) &
+          'Viscosity only valid for element_order_h = 0 and element_order_v = 0'
           call log_event( log_scratch_space, LOG_LEVEL_ERROR )
         end if
         if ( helmholtz_solver_preconditioner == preconditioner_tridiagonal ) then
-          write( log_scratch_space, '(A)' ) 'Tridiagonal helmholtz preconditioner only valid for  element_order = 0'
+          write( log_scratch_space, '(A)' ) &
+          'Tridiagonal helmholtz preconditioner only valid for  element_order_h = 0 and element_order_v = 0'
           call log_event( log_scratch_space, LOG_LEVEL_ERROR )
         end if
         if ( use_xios_io ) then

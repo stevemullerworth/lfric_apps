@@ -68,7 +68,7 @@ contains
     type(mesh_type),  pointer          :: target_twod_mesh => null()
     type(mesh_type),  pointer          :: shifted_mesh => null()
     type(mesh_type),  pointer          :: double_level_mesh => null()
-    integer(kind=i_def)                :: i, surface_order
+    integer(kind=i_def)                :: i, surface_order_h, surface_order_v
     integer(kind=i_def)                :: num_meshes
     type(field_type), allocatable      :: surface_altitude_list(:)
     type(field_type), pointer          :: source_surface_altitude => null()
@@ -78,7 +78,8 @@ contains
 
     num_meshes = SIZE(all_mesh_names)
 
-    surface_order = surface_altitude%get_element_order()
+    surface_order_h = surface_altitude%get_element_order_h()
+    surface_order_v = surface_altitude%get_element_order_v()
 
     allocate(surface_altitude_list(num_meshes))
 
@@ -96,19 +97,22 @@ contains
 
     if (w0_orography_mapping) then
       fs_id = W0
-      call surface_altitude_list(1)%initialise( vector_space = &
-         function_space_collection%get_fs(source_twod_mesh, surface_order, fs_id), &
+      call surface_altitude_list(1)%initialise( vector_space =               &
+         function_space_collection%get_fs(source_twod_mesh, surface_order_h, &
+                                          surface_order_v, fs_id),           &
                                           halo_depth = source_twod_mesh%get_halo_depth() )
       call surface_altitude_alg(surface_altitude_list(1), surface_altitude)
     else
       fs_id = W3
-      call surface_altitude_list(1)%initialise( vector_space = &
-         function_space_collection%get_fs(source_twod_mesh, surface_order, fs_id), &
+      call surface_altitude_list(1)%initialise( vector_space =               &
+         function_space_collection%get_fs(source_twod_mesh, surface_order_h, &
+                                          surface_order_v, fs_id),           &
                                           halo_depth = source_twod_mesh%get_halo_depth() )
       call invoke( setval_X(surface_altitude_list(1), surface_altitude) )
     end if
 
-    fs  => function_space_collection%get_fs(source_twod_mesh, surface_order, fs_id)
+    fs  => function_space_collection%get_fs(source_twod_mesh, surface_order_h, &
+                                            surface_order_v, fs_id)
 
     call surface_altitude_inventory%copy_field(surface_altitude_list(1), source_twod_mesh)
 
@@ -141,7 +145,8 @@ contains
       !------------------------------------------------------------------------!
       ! Create the surface altitude fields on the meshes
       !------------------------------------------------------------------------!
-      fs  => function_space_collection%get_fs(target_twod_mesh, surface_order, fs_id)
+      fs  => function_space_collection%get_fs(target_twod_mesh, surface_order_h, &
+                                              surface_order_v, fs_id)
       call surface_altitude_inventory%get_field(source_twod_mesh, source_surface_altitude)
 
       call surface_altitude_list(i+1)%initialise(vector_space = fs, &

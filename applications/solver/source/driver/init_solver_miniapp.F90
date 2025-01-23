@@ -13,7 +13,7 @@ module init_solver_miniapp_mod
 
   use constants_mod,                  only : i_def, r_def
   use field_mod,                      only : field_type
-  use finite_element_config_mod,      only : element_order
+  use finite_element_config_mod,      only : element_order_h, element_order_v
   use function_space_collection_mod,  only : function_space_collection_type, &
                                              function_space_collection
   use fs_continuity_mod,              only : W0, W3
@@ -47,10 +47,12 @@ contains
     ! Create prognostic fields
     ! Create a field in the W0 function space (fully continuous field)
     call f1%initialise( vector_space = &
-         function_space_collection%get_fs(mesh, element_order, W0) )
+         function_space_collection%get_fs(mesh, element_order_h, &
+                                          element_order_v, W0) )
     ! Create a field in the W3 function space (fully discontinuous field)
     call f2%initialise( vector_space = &
-         function_space_collection%get_fs(mesh, element_order, W3) )
+         function_space_collection%get_fs(mesh, element_order_h, &
+                                          element_order_v, W3) )
 
     ! Initialise the fields
     call init_solver_fields_alg(f1, f2)

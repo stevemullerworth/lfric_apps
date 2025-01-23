@@ -62,7 +62,8 @@ contains
              cellshape=cellshape_quadrilateral, &
              coord_order=0_i_def,               &
              coord_system=coord_system_xyz,     &
-             element_order=0_i_def,             &
+             element_order_h=0_i_def,           &
+             element_order_v=0_i_def,           &
              rehabilitate=.true.,               &
              vorticity_in_w1=.false. )
 
@@ -103,7 +104,8 @@ contains
     real(r_def),    parameter :: radius=6000000.0_r_def
 
     integer(i_def), parameter :: nlayers = 3
-    integer(i_def), parameter :: element_order = 0
+    integer(i_def), parameter :: element_order_h = 0
+    integer(i_def), parameter :: element_order_v = 0
     integer(i_def), parameter :: dl_type = dl_type_standard
 
     integer(i_def) :: i, j, k, cell
@@ -172,7 +174,8 @@ contains
                                  dl_str,          &
                                  domain_height,   &
                                  radius,          &
-                                 element_order,   &
+                                 element_order_h, &
+                                 element_order_v, &
                                  dt,              &
                                  ndf_w2,          &
                                  basis_w2,        &

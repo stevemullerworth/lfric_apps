@@ -73,7 +73,8 @@ module atlas_field_interface_test
     procedure tearDown
   end type atlas_field_interface_test_type
 
-  integer( i_def ), parameter :: element_order = 0
+  integer( i_def ), parameter :: element_order_h = 0
+  integer( i_def ), parameter :: element_order_v = 0
 
 contains
 
@@ -117,9 +118,15 @@ contains
     this%atlas_field_name = "atlas_field_name"
 
     ! Get the required function space to use
-    this%fspace_w3 => function_space_collection%get_fs( this%mesh, element_order, W3 )
-    this%fspace_wth => function_space_collection%get_fs( this%mesh, element_order, Wtheta )
-    this%fspace_2d => function_space_collection%get_fs( this%twod_mesh, element_order, W3 )
+    this%fspace_w3 => function_space_collection%get_fs( this%mesh,             &
+                                                        element_order_h,       &
+                                                        element_order_v, W3 )
+    this%fspace_wth => function_space_collection%get_fs( this%mesh,            &
+                                                        element_order_h,       &
+                                                        element_order_v, Wtheta )
+    this%fspace_2d => function_space_collection%get_fs( this%twod_mesh,        &
+                                                        element_order_h,       &
+                                                        element_order_v, W3 )
 
     ! Get the number of cells
     this%ncells = this%fspace_2d%get_last_dof_owned()

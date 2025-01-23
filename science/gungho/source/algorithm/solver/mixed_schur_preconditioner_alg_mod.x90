@@ -179,11 +179,13 @@ contains
   !!          the pressure operator.
   !>
   !> @param [in] mesh            Mesh to create function spaces on
-  !> @param [in] p               Element order for function spaces
+  !> @param [in] element_order_h Horizontal element order for function spaces
+  !> @param [in] element_order_v Vertical element order for function spaces
   !> @param [in] pressure_solver Solver object for Helmholtz system
   !> @return self the constructed preconditioner object
-  function mixed_schur_preconditioner_constructor(mesh, p,      &
-                                                  pressure_solver) &
+  function mixed_schur_preconditioner_constructor(mesh, element_order_h, &
+                                                  element_order_v,       &
+                                                  pressure_solver)       &
                                                   result(self)
 
     use function_space_mod,            only: function_space_type
@@ -192,7 +194,8 @@ contains
 
     implicit none
 
-    integer(i_def),                                intent(in) :: p
+    integer(i_def),                                intent(in) :: element_order_h
+    integer(i_def),                                intent(in) :: element_order_v
     type(mesh_type),                       target, intent(in) :: mesh
     class(abstract_iterative_solver_type), target, intent(in) :: pressure_solver
 
@@ -205,7 +208,8 @@ contains
                     LOG_LEVEL_DEBUG )
 
     mesh_ptr => mesh
-    fs => function_space_collection%get_fs( mesh_ptr, p, W2 )
+    fs => function_space_collection%get_fs( mesh_ptr, element_order_h, &
+                                            element_order_v, W2 )
     call self%rhs_u%initialise( vector_space = fs  )
 
     ! right hand side (b) and solution (x) as a one-component
@@ -213,7 +217,8 @@ contains
     self%pressure_b = r_solver_field_vector_type(1)
     self%pressure_x = r_solver_field_vector_type(1)
 
-    fs => function_space_collection%get_fs( mesh_ptr, p, W3 )
+    fs => function_space_collection%get_fs( mesh_ptr, element_order_h, &
+                                            element_order_v, W3 )
     call self%pressure_b%initialise_field( 1, fs )
     call self%pressure_x%initialise_field( 1, fs )
 
@@ -298,7 +303,7 @@ contains
     use apply_variable_hx_kernel_mod,     only: apply_variable_hx_kernel_type
     use opt_apply_variable_hx_kernel_mod, only: opt_apply_variable_hx_kernel_type
     use operator_mod,                     only: r_solver_operator_type
-    use finite_element_config_mod,        only: element_order
+    use finite_element_config_mod,        only: element_order_h, element_order_v
     use helmholtz_solver_config_mod,      only: normalise
     use fs_continuity_mod,                only: W2, W2h, W2v
     use combine_w2_field_kernel_mod,      only: combine_w2_field_kernel_type
@@ -381,7 +386,7 @@ contains
       mt_lumped_inv => get_normalisation_r_solver(Wtheta, mesh_id)
       call rhs_d%initialise( rhs%get_function_space() )
       call invoke( setval_c( rhs_d, 0.0_r_solver ) )
-      if ( element_order == 0 ) then
+      if ( element_order_h == 0 .and. element_order_v == 0 ) then
         call invoke( name="schur_rhs",                                  &
                      opt_apply_variable_hx_kernel_type(                 &
                            rhs, self%rhs_u, mt_lumped_inv, rhs_d,       &

@@ -99,8 +99,8 @@ subroutine rad_cloud_alg(rand_seed, n_cloud_layer, &
   real(r_def), parameter :: cloud_fraction_min = 0.001_r_def
 
   mesh => temperature_in_wth%get_mesh()
-  wtheta_space => function_space_collection%get_fs( mesh, 0, Wtheta )
-  w3_2d_space => function_space_collection%get_fs( twod_mesh, 0, W3 )
+  wtheta_space => function_space_collection%get_fs( mesh, 0, 0, Wtheta )
+  w3_2d_space => function_space_collection%get_fs( twod_mesh, 0, 0, W3 )
 
   if (rad_this_tstep .or. rad_inc_this_tstep .or. cosp_this_tstep) then
 

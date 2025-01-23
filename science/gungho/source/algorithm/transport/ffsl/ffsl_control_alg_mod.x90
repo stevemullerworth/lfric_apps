@@ -41,9 +41,6 @@ module ffsl_control_alg_mod
   use sci_inject_sh_w3_to_wt_kernel_mod, only: inject_sh_w3_to_wt_kernel_type
   use sci_inject_wt_to_sh_w3_kernel_mod, only: inject_wt_to_sh_w3_kernel_type
 
-  ! Configs
-  use finite_element_config_mod,         only: element_order
-
   implicit none
 
   private
@@ -110,7 +107,8 @@ contains
     if (function_space == Wtheta) then
       ! If the variable is in Wtheta, move into shifted W3
       shifted_mesh => mesh_collection%get_mesh(mesh, SHIFTED)
-      w3_shifted_fs => function_space_collection%get_fs(shifted_mesh, 0_i_def, W3)
+      w3_shifted_fs => function_space_collection%get_fs(shifted_mesh, 0_i_def, &
+                                                        0_i_def, W3)
       call field_n_w3_shifted%initialise( vector_space = w3_shifted_fs )
       call field_np1_w3_shifted%initialise( vector_space = w3_shifted_fs )
       if (enforce_min_value) then

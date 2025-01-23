@@ -11,7 +11,8 @@ module adjt_sci_convert_hdiv_field_alg_mod
   use function_space_mod,                   only: function_space_type
   use mesh_mod,                             only: mesh_type
   use function_space_collection_mod,        only: function_space_collection
-  use finite_element_config_mod,            only: element_order
+  use finite_element_config_mod,            only: element_order_h, &
+                                                  element_order_v
   use fs_continuity_mod,                    only: W3, W2
   use constants_mod,                        only: i_def, r_def
   use setop_random_kernel_mod,              only: setop_random_kernel_type
@@ -71,8 +72,10 @@ module adjt_sci_convert_hdiv_field_alg_mod
     real(kind=r_def), parameter :: overall_tolerance = 1500.0_r_def
 
     ! Initialise arguments
-    vector_space_w3_ptr => function_space_collection % get_fs(mesh, element_order, W3)
-    vector_space_w2_ptr => function_space_collection % get_fs(mesh, element_order, W2)
+    vector_space_w3_ptr => function_space_collection % get_fs(mesh, element_order_h, &
+                                                              element_order_v, W3)
+    vector_space_w2_ptr => function_space_collection % get_fs(mesh, element_order_h, &
+                                                              element_order_v, W2)
     do idx = 1, 3
       call physical_field3(idx) % initialise(vector_space=vector_space_w3_ptr, name='physical_field3')
       call physical_field3_input(idx) % initialise(vector_space=vector_space_w3_ptr, name='physical_field3_input')

@@ -39,7 +39,6 @@ module analytic_orography_field_spherical_mod_test
   character(len=str_max_filename) :: file_prefix   = "data/mesh_C16"
   real(r_def),        parameter   :: domain_height         = 10000.0_r_def
   integer(i_def),     parameter   :: nlayers               = 10_i_def
-  integer(i_def),     parameter   :: element_order         = 0_i_def
   integer(i_def),     parameter   :: total_ranks           = 1_i_def
   integer(i_def),     parameter   :: local_rank            = 0_i_def
   integer(i_def),     parameter   :: xproc                 = 1_i_def
@@ -120,7 +119,8 @@ contains
     call feign_finite_element_config( cellshape=cellshape_quadrilateral, &
                                       coord_order=0_i_def,               &
                                       coord_system=coord_system_xyz,     &
-                                      element_order=0_i_def,             &
+                                      element_order_h=0_i_def,           &
+                                      element_order_v=0_i_def,           &
                                       rehabilitate=.true.,               &
                                       vorticity_in_w1=.false. )
 

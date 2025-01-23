@@ -104,7 +104,8 @@ contains
     use sci_geometric_constants_mod,        only: get_coordinates, get_panel_id
     use function_space_mod,                 only: function_space_type
     use fs_continuity_mod,                  only: W2, W0, W3, Wtheta
-    use finite_element_config_mod,          only: element_order
+    use finite_element_config_mod,          only: element_order_h, &
+                                                  element_order_v
     use quadrature_xyoz_mod,                only: quadrature_xyoz_type
     use quadrature_rule_gaussian_mod,       only: quadrature_rule_gaussian_type
     use compute_q_operator_kernel_mod,      only: compute_q_operator_type
@@ -132,7 +133,6 @@ contains
                                            wp => null()
     type(field_type), pointer           :: chi(:) => null()
     type(field_type), pointer           :: panel_id => null()
-    integer(kind=i_def)                 :: order
     type(mesh_type), pointer            :: mesh => null()
     real(kind=r_solver)                 :: const1
     type(r_solver_field_type)           :: ones, M_lumped, &
@@ -153,7 +153,6 @@ contains
     self%level = level
 
     ! Get needed function spaces
-    order =  element_order
     if ( level == 1 ) then
       ! Prime mesh
       mesh => mesh_collection%get_mesh( prime_mesh_name )
@@ -162,15 +161,20 @@ contains
       mesh => mesh_collection%get_mesh( chain_mesh_tags(level) )
     end if
 
-    wp => function_space_collection%get_fs( mesh, order, W3 )
-    wu => function_space_collection%get_fs( mesh, order, W2 )
+    wp => function_space_collection%get_fs( mesh, element_order_h, &
+                                            element_order_v, W3 )
+    wu => function_space_collection%get_fs( mesh, element_order_h, &
+                                            element_order_v, W2 )
     select case(b_space)
       case(b_space_w0)
-         wb => function_space_collection%get_fs( mesh, order, W0 )
+         wb => function_space_collection%get_fs( mesh, element_order_h, &
+                                                 element_order_v, W0 )
       case(b_space_w3)
-         wb => function_space_collection%get_fs( mesh, order, W3 )
+         wb => function_space_collection%get_fs( mesh, element_order_h, &
+                                                 element_order_v, W3 )
       case(b_space_wtheta)
-         wb => function_space_collection%get_fs( mesh, order, Wtheta )
+         wb => function_space_collection%get_fs( mesh, element_order_h, &
+                                                 element_order_v, Wtheta )
     end select
 
     ! Temporaries required in operator application
@@ -178,7 +182,8 @@ contains
     call self%div_grad_p%initialise( vector_space = wp )
 
     ! Compute inverse approximate \tilde{M}_b^{-1}
-    qr = quadrature_xyoz_type(element_order+2, quadrature_rule)
+    qr = quadrature_xyoz_type(MAX(element_order_h, element_order_v)+2, &
+                              quadrature_rule)
     chi => get_coordinates(mesh%get_id())
     panel_id => get_panel_id(mesh%get_id())
     extend_mesh = .false.

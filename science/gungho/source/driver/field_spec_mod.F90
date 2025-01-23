@@ -86,7 +86,8 @@ module field_spec_mod
     character(str_def) :: name      = ''                  ! Field name
     integer(i_def)     :: main_coll = imdi                ! Enumerator of main field collection
     integer(i_def)     :: space     = missing_fs          ! Function space enumerator
-    integer(i_def)     :: order     = 0                   ! Function space order
+    integer(i_def)     :: order_h   = 0                   ! Function space order in horizontal
+    integer(i_def)     :: order_v   = 0                   ! Function space order in vertical
     integer(i_def)     :: adv_coll  = adv_coll_dict%none  ! Enumerator of advected field collection
     integer(i_def)     :: moist_arr = moist_arr_dict%none ! Enumerator of moisture array
     integer(i_def)     :: moist_idx = 0                   ! Index into moisture array
@@ -186,7 +187,8 @@ contains
   !> @param[in] name               Field name
   !> @param[in] main_coll          Enumerator of main fields collection
   !> @param[in, optional] space    Function space enumerator
-  !> @param[in, optional] order    Function space order
+  !> @param[in, optional] order_h  Function space order in horizontal direction
+  !> @param[in, optional] order_v  Function space order in vertical direction
   !> @param[in, optional] adv_coll Enumerator of advected fields collection
   !> @param[in, optional] moist_arr  Moisture array enumerator
   !> @param[in, optional] moist_idx  Index into moisture array
@@ -199,14 +201,15 @@ contains
   !> @param[in, optional] is_int   Is it an integer field?
   !> @param[in, optional] legacy   Is it a field with legacy checkpointing?
   !> @return                       Specifier returned
-  function make_spec(name, main_coll, space, order, adv_coll, &
+  function make_spec(name, main_coll, space, order_h, order_v, adv_coll, &
     moist_arr, moist_idx, time_axis, &
     mult, ckp, twod, empty, coarse, is_int, legacy) result(field_spec)
     implicit none
     character(*), intent(in) :: name
     integer(i_def), intent(in) :: main_coll
     integer(i_def), optional, intent(in) :: space
-    integer(i_def), optional, intent(in) :: order
+    integer(i_def), optional, intent(in) :: order_h
+    integer(i_def), optional, intent(in) :: order_v
     integer(i_def), optional, intent(in) :: adv_coll
     integer(i_def), optional, intent(in) :: moist_arr
     integer(i_def), optional, intent(in) :: moist_idx
@@ -223,7 +226,8 @@ contains
     field_spec%name = name
     field_spec%main_coll = main_coll
     if (present(space)) field_spec%space=space
-    if (present(order)) field_spec%order=order
+    if (present(order_h)) field_spec%order_h=order_h
+    if (present(order_v)) field_spec%order_v=order_v
     if (present(adv_coll)) field_spec%adv_coll=adv_coll
     if (present(moist_arr)) field_spec%moist_arr = moist_arr
     if (present(moist_idx)) field_spec%moist_idx = moist_idx

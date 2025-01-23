@@ -46,7 +46,8 @@ contains
     call  feign_finite_element_config( cellshape = cellshape_quadrilateral, &
                                        coord_order = 1, &
                                        coord_system = coord_system_xyz, &
-                                       element_order = 0, &
+                                       element_order_h = 0, &
+                                       element_order_v = 0, &
                                        rehabilitate = .true., &
                                        vorticity_in_w1 = .true. )
     call init_chi_transforms()

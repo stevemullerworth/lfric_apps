@@ -16,7 +16,8 @@ module tl_rk_alg_timestep_mod
                                                 LOG_LEVEL_TRACE
 
   ! Configuration options
-  use finite_element_config_mod,          only: element_order, &
+  use finite_element_config_mod,          only: element_order_h, &
+                                                element_order_v, &
                                                 vorticity_in_w1
   use formulation_config_mod,             only: rotating
   use runge_kutta_init_mod,               only: get_rk_timestepping_weights
@@ -180,10 +181,12 @@ contains
       vorticity_fs = W2
     end if
     call vorticity%initialise( vector_space = &
-      function_space_collection%get_fs(mesh, element_order, vorticity_fs) )
+      function_space_collection%get_fs(mesh, element_order_h, element_order_v, &
+                                       vorticity_fs) )
     do stage = 1,num_rk_stage
       call ls_vorticity(stage)%initialise( vector_space = &
-        function_space_collection%get_fs(mesh, element_order, vorticity_fs) )
+        function_space_collection%get_fs(mesh, element_order_h, element_order_v,&
+                                         vorticity_fs) )
     end do
 
     call gungho_transport_control_alg_init( mesh )
@@ -260,8 +263,9 @@ contains
     qr => get_qr()
     mesh => theta%get_mesh()
     reference_element => mesh%get_reference_element()
-    qrf = quadrature_face_type(element_order+2, .true., .false., &
-                               reference_element,  gaussian_quadrature)
+    qrf = quadrature_face_type(MAX(element_order_h, element_order_v)+2,        &
+                               .true., .false., reference_element,             &
+                               gaussian_quadrature)
 
     ! Get mm operators from runtime_constants
     mesh_id = u%get_mesh_id()

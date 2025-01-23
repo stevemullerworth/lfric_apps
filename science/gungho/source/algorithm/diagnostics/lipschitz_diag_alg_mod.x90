@@ -18,7 +18,7 @@ module lipschitz_diag_alg_mod
   use integer_field_mod,               only: integer_field_type
   use r_tran_operator_mod,             only: r_tran_operator_type
 
-  use finite_element_config_mod,       only: element_order
+  use finite_element_config_mod,       only: element_order_h, element_order_v
   use sci_geometric_constants_mod,     only: get_face_selector_ew, &
                                              get_face_selector_ns
   use log_mod,                         only: LOG_LEVEL_INFO, log_event
@@ -79,9 +79,9 @@ contains
     type(r_tran_field_type),    pointer :: detj
 
     mesh => wind%get_mesh()
-    w3_fs => function_space_collection%get_fs(mesh, 0, W3)
-    w2v_fs => function_space_collection%get_fs(mesh, 0, W2V)
-    w2h_fs => function_space_collection%get_fs(mesh, 0, W2H)
+    w3_fs => function_space_collection%get_fs(mesh, 0, 0, W3)
+    w2v_fs => function_space_collection%get_fs(mesh, 0, 0, W2V)
+    w2h_fs => function_space_collection%get_fs(mesh, 0, 0, W2H)
 
     call wind_w2h%initialise( w2h_fs )
     call wind_w2v%initialise( w2v_fs )
@@ -131,7 +131,7 @@ contains
     ! Print stats for x, y and z Lipschitz numbers
     ! ------------------------------------------------------------------------ !
 
-    if (element_order == 0) then
+    if (element_order_h == 0 .and. element_order_v == 0) then
 
       ! Copy to r_def ----------------------------------------------------------
       call copy_field(lipschitz_x_r_tran, lipschitz_x_r_def)
@@ -208,8 +208,8 @@ contains
     type(r_tran_field_type),    pointer :: detj
 
     mesh => wind%get_mesh()
-    w2v_fs => function_space_collection%get_fs(mesh, 0, W2V)
-    w2h_fs => function_space_collection%get_fs(mesh, 0, W2H)
+    w2v_fs => function_space_collection%get_fs(mesh, 0, 0, W2V)
+    w2h_fs => function_space_collection%get_fs(mesh, 0, 0, W2H)
 
     call wind_w2h%initialise( w2h_fs )
     call wind_w2v%initialise( w2v_fs )
@@ -242,7 +242,7 @@ contains
     ! Calculate x, y and z Lipschitz numbers
     ! ------------------------------------------------------------------------ !
 
-    if (element_order == 0) then
+    if (element_order_h == 0 .or. element_order_v == 0) then
       call invoke( fv_divergence_x_kernel_type(lipschitz_x, wind_w2h,          &
                                                detj),                          &
                    fv_divergence_y_kernel_type(lipschitz_y, wind_w2h,          &
@@ -257,7 +257,8 @@ contains
       call invoke ( setval_c(lipschitz_x, 0.0_r_tran), &
                     setval_c(lipschitz_y, 0.0_r_tran), &
                     setval_c(lipschitz_z, 0.0_r_tran) )
-      call log_event( "Lipschitz number computation is only available for element_order 0", &
+      call log_event( "Lipschitz number computation is only available " // &
+                      "for element_order_h=0 and element_order_v=0", &
                        LOG_LEVEL_INFO )
     end if
 

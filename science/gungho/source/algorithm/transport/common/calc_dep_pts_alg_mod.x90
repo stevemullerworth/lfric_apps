@@ -48,7 +48,6 @@ module calc_dep_pts_alg_mod
                                                vertical_limit_boundary,        &
                                                vertical_limit_exponential,     &
                                                vertical_sorting
-  use finite_element_config_mod,         only: element_order
   use io_config_mod,                     only: subroutine_timers
   use transport_config_mod,              only: dep_pt_stencil_extent,   &
                                                calculate_detj,          &
@@ -468,7 +467,7 @@ contains
                                                   vert_wind,                   &
                                                   detj_at_w3) )
       if (compute_cfl) then
-        w2h_fs => function_space_collection%get_fs(mesh, 0, W2H)
+        w2h_fs => function_space_collection%get_fs(mesh, 0, 0, W2H)
         face_selector_ew => get_face_selector_ew(mesh%get_id())
         face_selector_ns => get_face_selector_ns(mesh%get_id())
         call zero_w2h%initialise( w2h_fs )

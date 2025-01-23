@@ -38,7 +38,7 @@ contains
     use sci_fem_constants_mod,          only: get_mass_matrix
     use fs_continuity_mod,              only: W3, Wtheta
     use field_mod,                      only: field_type
-    use finite_element_config_mod,      only: element_order
+    use finite_element_config_mod,      only: element_order_h, element_order_v
     use function_space_mod,             only: function_space_type
     use function_space_collection_mod,  only: function_space_collection
     use sci_geometric_constants_mod,    only: get_coordinates, &
@@ -89,7 +89,7 @@ contains
       dA         => get_da_msl_proj( twod_mesh%get_id() )
 
       call tot_col_mass%initialise( vector_space = &
-                                    function_space_collection%get_fs( twod_mesh, 0, W3 ) )
+                                    function_space_collection%get_fs( twod_mesh, 0, 0, W3 ) )
 
       total_mass = 0.0_r_def
 
@@ -103,7 +103,8 @@ contains
 
       nullify( height_w3, height_wth, twod_mesh, dA )
     case( integral_method_fe )
-      w3_fs => function_space_collection%get_fs( mesh, element_order, W3 )
+      w3_fs => function_space_collection%get_fs( mesh, element_order_h, &
+                                                 element_order_v, W3 )
       mm_w3 => get_mass_matrix( W3, mesh_id )
 
       ! Initialise Mass

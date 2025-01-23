@@ -6,7 +6,7 @@
 -    use adj_convert_hdiv_field_kernel_mod, only : adj_convert_hdiv_field_kernel_type
 +    use sci_convert_hdiv_field_kernel_mod, only : convert_hdiv_field_kernel_type
 +    use adj_sci_convert_hdiv_field_kernel_mod, only : adj_convert_hdiv_field_kernel_type
-     use finite_element_config_mod, only : element_order
+     use finite_element_config_mod, only : element_order_h, element_order_v
 -    use fs_continuity_mod, only : w0, w3
 +    use fs_continuity_mod, only : w0, w3, w2
      use constants_mod, only : i_def, r_def
@@ -51,7 +51,7 @@
 -    call chi3_input(2_i_def)%initialise(vector_space=vector_space_w0_ptr, name='chi3_input')
 -    call chi3_input(3_i_def)%initialise(vector_space=vector_space_w0_ptr, name='chi3_input')
 -    call panel_id_1_input%initialise(vector_space=vector_space_w3_ptr, name='panel_id_1_input')
-+    vector_space_w2_ptr => function_space_collection % get_fs(mesh, element_order, w2)
++    vector_space_w2_ptr => function_space_collection % get_fs(mesh, element_order_h, element_order_v, w2)
 +    call physical_field3(1_i_def)%initialise(vector_space=vector_space_w2_ptr, name='physical_field3')
 +    call physical_field3(2_i_def)%initialise(vector_space=vector_space_w2_ptr, name='physical_field3')
 +    call physical_field3(3_i_def)%initialise(vector_space=vector_space_w2_ptr, name='physical_field3')

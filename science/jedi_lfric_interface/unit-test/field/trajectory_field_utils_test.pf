@@ -54,7 +54,8 @@ module trajectory_field_utils_test
     procedure test_copy_create_fields_int
   end type trajectory_field_utils_type
 
-  integer(i_def), parameter    :: element_order = 0
+  integer(i_def), parameter    :: element_order_h = 0
+  integer(i_def), parameter    :: element_order_v = 0
 
 contains
 
@@ -158,7 +159,8 @@ contains
 
       call field%initialise( &
              vector_space = function_space_collection%get_fs             &
-                    ( mesh, element_order, variable_function_spaces(i)), &
+                    ( mesh, element_order_h, element_order_v,            &
+                      variable_function_spaces(i)), &
              name = variable_names(i) )
 
       field_proxy = field%get_proxy()
@@ -214,7 +216,8 @@ contains
 
       call field%initialise( &
              vector_space = function_space_collection%get_fs             &
-                    ( mesh, element_order, variable_function_spaces(i)), &
+                    ( mesh, element_order_h, element_order_v,            &
+                      variable_function_spaces(i)),                      &
              name = variable_names(i) )
 
       field_proxy = field%get_proxy()

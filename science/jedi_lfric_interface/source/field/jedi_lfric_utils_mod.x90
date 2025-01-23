@@ -82,12 +82,15 @@ module jedi_lfric_utils_mod
     procedure(read_interface), pointer    :: tmp_read_ptr
     procedure(write_interface), pointer   :: tmp_write_ptr
 
-    integer(i_def) :: element_order = 0
+    integer(i_def) :: element_order_h = 0
+    integer(i_def) :: element_order_v = 0
 
     allocate(field)
 
     call field%initialise( &
-      vector_space = function_space_collection%get_fs(mesh, element_order, fs_enumerator), &
+      vector_space = function_space_collection%get_fs(mesh, element_order_h,   &
+                                                      element_order_v,         &
+                                                      fs_enumerator),          &
       name = field_name )
 
     if (fs_enumerator == W3 .or. fs_enumerator == Wtheta) then

@@ -16,7 +16,7 @@ USE field_parent_mod,              ONLY :  read_interface, write_interface,    &
 USE lfric_xios_time_axis_mod,      ONLY : time_axis_type
 USE lfric_xios_read_mod,           ONLY : read_field_generic
 USE lfric_xios_write_mod,          ONLY : write_field_generic
-USE finite_element_config_mod,     ONLY : element_order
+USE finite_element_config_mod,     ONLY : element_order_h, element_order_v
 USE function_space_mod,            ONLY : function_space_type
 USE function_space_collection_mod, ONLY : function_space_collection
 USE field_collection_mod,          ONLY : field_collection_type
@@ -82,7 +82,8 @@ LOGICAL                       :: ndata_first
 
 CALL log_event('Creating lfric finite difference fields ...', LOG_LEVEL_INFO)
 
-IF (element_order > 0) CALL log_event('Finite difference fields requires ' //  &
+IF (element_order_h > 0 .or. element_order_v  > 0)        &
+  CALL log_event('Finite difference fields requires ' //  &
                                       'lowest order elements', LOG_LEVEL_ERROR)
 
 ! Create the field collection
@@ -149,7 +150,8 @@ DO i=1, SIZE(stash_list)
 
     vector_space => function_space_collection%get_fs(                          &
                                               type_mesh,                       &
-                                              element_order,                   &
+                                              element_order_h,                 &
+                                              element_order_v,                 &
                                               fs_id,                           &
                                               ndata=INT(ndata_64, KIND=i_def), &
                                               ndata_first=ndata_first          &

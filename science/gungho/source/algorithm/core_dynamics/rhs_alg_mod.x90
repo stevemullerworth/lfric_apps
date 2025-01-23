@@ -22,7 +22,8 @@ module rhs_alg_mod
                                                  get_w2_mass_matrix, &
                                                  w2_damping_layer_matrix
   use field_mod,                           only: field_type
-  use finite_element_config_mod,           only: element_order, &
+  use finite_element_config_mod,           only: element_order_h, &
+                                                 element_order_v, &
                                                  vorticity_in_w1
   use formulation_config_mod,              only: rotating,             &
                                                  si_momentum_equation, &
@@ -108,8 +109,9 @@ contains
     logical(kind=l_def),          intent(in)    :: compute_rhs_t_d
     class(model_clock_type),      intent(in)    :: model_clock
 
-    if (   (rhs(igh_u)%get_element_order() == 0) &
-     .and. (.not. si_momentum_equation)          &
+    if (   (rhs(igh_u)%get_element_order_h() == 0) &
+     .and. (rhs(igh_u)%get_element_order_v() == 0) &
+     .and. (.not. si_momentum_equation)            &
      .and. (eos_method == eos_method_sampled) ) then
       call rhs_default_alg( rhs, alpha_dt, base_state, state, moist_dyn, compute_eos, &
                             compute_rhs_t_d, dlayer_rhs, model_clock )
@@ -313,11 +315,14 @@ contains
     rho_base   => base_state(igh_d)
 
     call rhs_tmp%initialise( vector_space=rhs(igh_u)%get_function_space() )
-    qr       = quadrature_xyoz_type(element_order+2, gaussian_quadrature)
-    qr_exact = quadrature_xyoz_type(element_order+3, gaussian_quadrature)
+    qr       = quadrature_xyoz_type(MAX(element_order_h, element_order_v)+2, &
+                                    gaussian_quadrature)
+    qr_exact = quadrature_xyoz_type(MAX(element_order_h, element_order_v)+3, &
+                                    gaussian_quadrature)
     mesh              => theta%get_mesh()
     reference_element => mesh%get_reference_element()
-    qrf = quadrature_face_type(element_order+2, .true., .false., &
+    qrf = quadrature_face_type(MAX(element_order_h, element_order_v)+2, &
+                               .true., .false.,                         &
                                reference_element, gaussian_quadrature)
 
     ! Initialise RHS u and theta fields
@@ -341,7 +346,7 @@ contains
       ! Treat the momentum advection terms with the semi-implicit scheme
       if ( vector_invariant ) then
         ! Compute grad(K) + curl(u) x u
-        call invoke( kinetic_energy_gradient_kernel_type( rhs_tmp, u,             &
+        call invoke( kinetic_energy_gradient_kernel_type( rhs_tmp, u, &
                                                           chi, panel_id, qr ) )
         ! Compute the vorticity
         if ( vorticity_in_w1 ) then
@@ -349,12 +354,13 @@ contains
         else
           vorticity_fs = W2
         end if
-        call vorticity%initialise( vector_space =                               &
-                    function_space_collection%get_fs(mesh, element_order, &
-                                                      vorticity_fs) )
+        call vorticity%initialise( vector_space =                           &
+                    function_space_collection%get_fs(mesh, element_order_h, &
+                                                     element_order_v,       &
+                                                     vorticity_fs) )
         call compute_vorticity_alg(vorticity, u, .false.)
         if ( vorticity_in_w1 ) then
-          call invoke( vorticity_advection_kernel_type(rhs_tmp, u, vorticity,    &
+          call invoke( vorticity_advection_kernel_type(rhs_tmp, u, vorticity, &
                                                        chi, panel_id, qr_exact) )
         else
           call invoke( w2_vorticity_advection_kernel_type(rhs_tmp, u, vorticity, &
@@ -373,12 +379,12 @@ contains
       call invoke( matrix_vector_kernel_type( rhs_tmp, u, coriolis ) )
     end if
 
-    call invoke( name = "compute_rhs_u_evaluation",                 &
-                 inc_X_plus_bY( rhs(igh_u), alpha_dt, rhs_tmp ),    &
+    call invoke( name = "compute_rhs_u_evaluation",              &
+                 inc_X_plus_bY( rhs(igh_u), alpha_dt, rhs_tmp ), &
                  enforce_bc_kernel_type(rhs(igh_u)) )
 
     if ( compute_rhs_t_d ) then
-      call invoke( name = "compute_rhs_theta_and_rhs_rho",                    &
+      call invoke( name = "compute_rhs_theta_and_rhs_rho", &
       ! Compute rhs_theta
                    dg_inc_matrix_vector_kernel_type( rhs(igh_t), theta_base, mm_wtheta ), &
       ! Compute rhs_rho

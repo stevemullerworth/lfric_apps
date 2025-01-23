@@ -22,7 +22,7 @@ module end_of_transport_step_alg_mod
                                             get_rmultiplicity
   use field_mod,                      only: field_type
   use sci_field_minmax_alg_mod,       only: log_field_minmax
-  use finite_element_config_mod,      only: element_order
+  use finite_element_config_mod,      only: element_order_h, element_order_v
   use fs_continuity_mod,              only: W3, Wtheta, W2, W2H, W2V
   use function_space_mod,             only: function_space_type
   use function_space_collection_mod,  only: function_space_collection
@@ -234,7 +234,8 @@ contains
     if ( final_split_step ) then
 
       field_start => transport_runtime%get_field_n()
-      w2_fs => function_space_collection%get_fs(mesh, element_order, W2)
+      w2_fs => function_space_collection%get_fs(mesh, element_order_h, &
+                                                element_order_v, W2)
       field_fs => field_np1%get_function_space()
       call increment%initialise(field_fs)
       call sum_flux%initialise(w2_fs)
@@ -584,7 +585,7 @@ contains
       if ( subroutine_timers ) call timer('transport.theta_dispersion')
 
       shifted_mesh => mesh_collection%get_mesh(prime_extrusion_mesh, SHIFTED)
-      sh_w3_fs => function_space_collection%get_fs(shifted_mesh, 0, W3)
+      sh_w3_fs => function_space_collection%get_fs(shifted_mesh, 0, 0, W3)
       step = transport_runtime%get_tracer_step_ctr()
       step_with_substep = transport_runtime%get_substep_total_index(0)+step
       rmultiplicity_shifted => get_rmultiplicity(flux_function_space, shifted_mesh%get_id())
@@ -646,8 +647,8 @@ contains
 
       select case ( mr_function_space )
       case ( W3 )
-        w3_fs => function_space_collection%get_fs(prime_extrusion_mesh, 0, W3)
-        w2_fs => function_space_collection%get_fs(prime_extrusion_mesh, 0, W2)
+        w3_fs => function_space_collection%get_fs(prime_extrusion_mesh, 0, 0, W3)
+        w2_fs => function_space_collection%get_fs(prime_extrusion_mesh, 0, 0, W2)
         rho_d_start => transport_runtime%get_rho_d(prime_extrusion_mesh_id, start_step_with_substep)
         rho_d_np1 => transport_runtime%get_rho_d(prime_extrusion_mesh_id, final_step_with_substep+1)
         div => get_directional_im3_div_r_tran(prime_extrusion_mesh_id, direction_3d)
@@ -662,8 +663,8 @@ contains
 
       case ( Wtheta )
         shifted_mesh => mesh_collection%get_mesh(prime_extrusion_mesh, SHIFTED)
-        sh_w3_fs => function_space_collection%get_fs(shifted_mesh, 0, W3)
-        sh_w2_fs => function_space_collection%get_fs(shifted_mesh, 0, W2)
+        sh_w3_fs => function_space_collection%get_fs(shifted_mesh, 0, 0, W3)
+        sh_w2_fs => function_space_collection%get_fs(shifted_mesh, 0, 0, W2)
         rho_d_start => transport_runtime%get_rho_d(shifted_mesh%get_id(), start_step_with_substep)
         rho_d_np1 => transport_runtime%get_rho_d(shifted_mesh%get_id(), final_step_with_substep+1)
         div => get_directional_im3_div_r_tran(shifted_mesh%get_id(), direction_3d)
@@ -850,9 +851,9 @@ contains
     ! Don't know which function space the fluxes are in -- add up each
     mesh => sum_flux%get_mesh()
     mesh_id = mesh%get_id()
-    w2_fs => function_space_collection%get_fs(mesh, 0, W2)
-    w2h_fs => function_space_collection%get_fs(mesh, 0, W2H)
-    w2v_fs => function_space_collection%get_fs(mesh, 0, W2V)
+    w2_fs => function_space_collection%get_fs(mesh, 0, 0, W2)
+    w2h_fs => function_space_collection%get_fs(mesh, 0, 0, W2H)
+    w2v_fs => function_space_collection%get_fs(mesh, 0, 0, W2V)
     face_selector_ew => get_face_selector_ew(mesh_id)
     face_selector_ns => get_face_selector_ns(mesh_id)
 

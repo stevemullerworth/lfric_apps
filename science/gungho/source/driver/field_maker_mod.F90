@@ -164,15 +164,19 @@ end function has_xios_io
     else
       if (spec%coarse) then
         if (spec%twod) then
-          space => function_space_collection%get_fs(self%coarse_twod_mesh, spec%order, spec%space, ndata)
+          space => function_space_collection%get_fs(self%coarse_twod_mesh, spec%order_h, &
+                                                    spec%order_v, spec%space, ndata)
         else
-          space => function_space_collection%get_fs(self%coarse_mesh, spec%order, spec%space, ndata)
+          space => function_space_collection%get_fs(self%coarse_mesh, spec%order_h, &
+                                                    spec%order_v, spec%space, ndata)
         end if
       else
         if (spec%twod) then
-          space => function_space_collection%get_fs(self%twod_mesh, spec%order, spec%space, ndata)
+          space => function_space_collection%get_fs(self%twod_mesh, spec%order_h, &
+                                                    spec%order_v, spec%space, ndata)
         else
-          space => function_space_collection%get_fs(self%mesh, spec%order, spec%space, ndata)
+          space => function_space_collection%get_fs(self%mesh, spec%order_h, &
+                                                    spec%order_v, spec%space, ndata)
         end if
       end if
     end if
@@ -212,7 +216,8 @@ end function has_xios_io
         adv_coll, &
         spec%name, &
         space, &
-        spec%order, &
+        spec%order_h, &
+        spec%order_v, &
         spec%empty, &
         external_int_field, &
         time_axis, &
@@ -236,7 +241,8 @@ end function has_xios_io
         adv_coll, &
         spec%name, &
         space, &
-        spec%order, &
+        spec%order_h, &
+        spec%order_v, &
         spec%empty, &
         external_real_field, &
         time_axis, &
@@ -256,7 +262,8 @@ end function has_xios_io
   !> @param[in,out] advected_fields   Collection of fields to be advected
   !> @param[in]     name              Name of field to be added to collection
   !> @param[in]     vector_space      Function space of field to set behaviour for
-  !> @param[in]     order             Function space order (for space discovery)
+  !> @param[in]     order_h           Horizontal function space order (for space discovery)
+  !> @param[in]     order_v           Vertical function space order (for space discovery)
   !> @param[in]     empty             Flag whether this field is empty
   !> @param[in]     external_field    Pointer to external field or null
   !> @param[in]     time_axis         Pointer to time axis or null
@@ -266,7 +273,7 @@ end function has_xios_io
   !> @param[in]     advection_flag    Optional flag whether this field is to be advected
    subroutine add_real_field(field_collection, &
                               depository, prognostic_fields, advected_fields, &
-                              name, vector_space, order, empty, external_field, &
+                              name, vector_space, order_h, order_v, empty, external_field, &
                               time_axis, legacy, checkpoint_flag, advection_flag)
 
     use io_config_mod,           only : use_xios_io, &
@@ -288,7 +295,8 @@ end function has_xios_io
     type(field_collection_type), intent(inout)     :: prognostic_fields
     type(field_collection_type), intent(inout)     :: advected_fields
     type(function_space_type), pointer, intent(in) :: vector_space
-    integer(i_def), intent(in)                     :: order
+    integer(i_def), intent(in)                     :: order_h
+    integer(i_def), intent(in)                     :: order_v
     logical(l_def), intent(in)                     :: empty
     type(field_type), pointer, intent(in)          :: external_field
     type(time_axis_type), pointer, intent(in)      :: time_axis
@@ -324,10 +332,11 @@ end function has_xios_io
       if (associated(vector_space)) then
         ! re-create function space, overriding ndata with window size
         window_size_space => &
-          function_space_collection%get_fs(   &
-            vector_space%get_mesh(),          &
-            vector_space%get_element_order(), &
-            vector_space%which(),             &
+          function_space_collection%get_fs(     &
+            vector_space%get_mesh(),            &
+            vector_space%get_element_order_h(), &
+            vector_space%get_element_order_v(), &
+            vector_space%which(),               &
             time_axis%get_window_size())
         if (empty) then
           call new_field_ptr%initialise( window_size_space, name=trim(name), &
@@ -338,7 +347,7 @@ end function has_xios_io
       else
         ! discover space, overriding ndata with window size
         call init_field_from_metadata( &
-           new_field_ptr, trim(name), force_order=order, &
+           new_field_ptr, trim(name), force_order_h=order_h, force_order_v=order_v,&
             force_ndata = time_axis%get_window_size(), empty=empty )
       end if
       call time_axis%add_field(new_field_ptr)
@@ -354,7 +363,8 @@ end function has_xios_io
       end if
     else
       call init_field_from_metadata( &
-         new_field_ptr, trim(name), force_order=order, empty=empty )
+         new_field_ptr, trim(name), force_order_h=order_h, &
+         force_order_v=order_v, empty=empty )
     end if
 
     ! Set advection flag
@@ -419,7 +429,8 @@ end function has_xios_io
   !> @param[in,out] advected_fields   Collection of fields to be advected
   !> @param[in]     name              Name of field to be added to collection
   !> @param[in]     vector_space      Function space of field to set behaviour for
-  !> @param[in]     order             Function space order (for space discovery)
+  !> @param[in]     order_h           Horizontal function space order (for space discovery)
+  !> @param[in]     order_v           Vertitcal function space order (for space discovery)
   !> @param[in]     empty             Flag whether this field is empty
   !> @param[in]     external_field    Pointer to external field or null
   !> @param[in]     time_axis         Pointer to time axis or null
@@ -429,8 +440,9 @@ end function has_xios_io
   !> @param[in]     advection_flag    Optional flag whether this field is to be advected
   subroutine add_integer_field(field_collection, &
                               depository, prognostic_fields, advected_fields, &
-                              name, vector_space, order, empty, external_field, &
-                              time_axis, legacy, checkpoint_flag, advection_flag)
+                              name, vector_space, order_h, order_v, empty, &
+                              external_field, time_axis, legacy, &
+                              checkpoint_flag, advection_flag)
 
     use io_config_mod,           only : use_xios_io, &
                                         write_diag, checkpoint_write, &
@@ -451,7 +463,8 @@ end function has_xios_io
     type(field_collection_type), intent(inout)     :: prognostic_fields
     type(field_collection_type), intent(inout)     :: advected_fields
     type(function_space_type), pointer, intent(in) :: vector_space
-    integer(i_def), intent(in)                     :: order
+    integer(i_def), intent(in)                     :: order_h
+    integer(i_def), intent(in)                     :: order_v
     logical(l_def), intent(in)                     :: empty
     type(integer_field_type), pointer, intent(in)  :: external_field
     type(time_axis_type), pointer, intent(in)      :: time_axis
@@ -492,7 +505,8 @@ end function has_xios_io
       end if
     else
       call init_field_from_metadata( &
-        new_field_ptr, trim(name), force_order=order, empty=empty )
+        new_field_ptr, trim(name), force_order_h=order_h, &
+        force_order_v=order_v, empty=empty )
     end if
 
     ! Set advection flag

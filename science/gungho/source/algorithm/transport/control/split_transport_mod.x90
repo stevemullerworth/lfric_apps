@@ -312,7 +312,7 @@ contains
     use mesh_collection_mod,           only: mesh_collection
     use function_space_mod,            only: function_space_type
     use function_space_collection_mod, only: function_space_collection
-    use finite_element_config_mod,     only: element_order
+    use finite_element_config_mod,     only: element_order_h, element_order_v
     use fs_continuity_mod,             only: W2, W2H, W2V, Wtheta
 
     implicit none
@@ -344,9 +344,12 @@ contains
     prime_extrusion_mesh => field_np1%get_mesh()
     if (field_np1%which_function_space() == Wtheta) then
       shifted_mesh => mesh_collection%get_mesh(prime_extrusion_mesh, SHIFTED)
-      w2_fs => function_space_collection%get_fs(shifted_mesh, element_order, fs_idx)
+      w2_fs => function_space_collection%get_fs(shifted_mesh, element_order_h, &
+                                                element_order_v, fs_idx)
     else
-      w2_fs => function_space_collection%get_fs(prime_extrusion_mesh, element_order, fs_idx)
+      w2_fs => function_space_collection%get_fs(prime_extrusion_mesh, &
+                                                element_order_h, element_order_v, &
+                                                fs_idx)
     end if
 
     call flux%initialise( w2_fs )

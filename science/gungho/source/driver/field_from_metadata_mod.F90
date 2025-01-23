@@ -62,13 +62,15 @@ contains
   !> @param[in, optional] mesh_2d          Override derived 2D mesh
   !> @param[in, optional] force_mesh       Override derived mesh
   !> @param[in, optional] force_rad_levels Override derived radiation levels
-  !> @param[in, optional] force_order      Override derived order
+  !> @param[in, optional] force_order_h    Override derived order in horizontal
+  !> @param[in, optional] force_order_v    Override derived order in vertical
   !> @param[in, optional] force_ndata      Override derived ndata
   !> @param[in, optional] diag_status      Diagnostic enabling status
-  subroutine init_real_field_from_metadata(field, xios_id, empty,         &
-                                           mesh_3d, mesh_2d, force_mesh,  &
-                                           force_rad_levels, force_order, &
-                                           force_ndata, diag_status)
+  subroutine init_real_field_from_metadata(field, xios_id, empty,           &
+                                           mesh_3d, mesh_2d, force_mesh,    &
+                                           force_rad_levels, force_order_h, &
+                                           force_order_v, force_ndata,      &
+                                           diag_status)
 
     implicit none
 
@@ -79,7 +81,8 @@ contains
     type(mesh_type), pointer, optional, intent(in)  :: mesh_2d
     type(mesh_type), pointer, optional, intent(in)  :: force_mesh
     integer(kind=i_def), optional,      intent(in)  :: force_rad_levels
-    integer(kind=i_def), optional,      intent(in)  :: force_order
+    integer(kind=i_def), optional,      intent(in)  :: force_order_h
+    integer(kind=i_def), optional,      intent(in)  :: force_order_v
     integer(kind=i_def), optional,      intent(in)  :: force_ndata
     character(*), optional,             intent(in)  :: diag_status
 
@@ -94,10 +97,10 @@ contains
 
     status = trim(combined_status(make_empty, diag_status))
 
-    vector_space => space_from_metadata(xios_id, status,               &
-                                        mesh_3d, mesh_2d, force_mesh,  &
-                                        force_rad_levels, force_order, &
-                                        force_ndata)
+    vector_space => space_from_metadata(xios_id, status,                 &
+                                        mesh_3d, mesh_2d, force_mesh,    &
+                                        force_rad_levels, force_order_h, &
+                                        force_order_v, force_ndata)
 
     if (make_empty) then
       call field%initialise(                                                  &
@@ -129,13 +132,15 @@ contains
   !> @param[in, optional] mesh_2d          Override derived 2D mesh
   !> @param[in, optional] force_mesh       Override derived mesh
   !> @param[in, optional] force_rad_levels Override derived radiation levels
-  !> @param[in, optional] force_order      Override derived order
+  !> @param[in, optional] force_order_h    Override derived order in horizontal
+  !> @param[in, optional] force_order_v    Override derived order in vertical
   !> @param[in, optional] force_ndata      Override derived ndata
   !> @param[in, optional] diag_status      Diagnostic enabling status
-  subroutine init_integer_field_from_metadata(field, xios_id, empty,         &
-                                              mesh_3d, mesh_2d, force_mesh,  &
-                                              force_rad_levels, force_order, &
-                                              force_ndata, diag_status)
+  subroutine init_integer_field_from_metadata(field, xios_id, empty,           &
+                                              mesh_3d, mesh_2d, force_mesh,    &
+                                              force_rad_levels, force_order_h, &
+                                              force_order_v, force_ndata,      &
+                                              diag_status)
 
     implicit none
 
@@ -146,7 +151,8 @@ contains
     type(mesh_type), pointer, optional, intent(in)  :: mesh_2d
     type(mesh_type), pointer, optional, intent(in)  :: force_mesh
     integer(kind=i_def), optional,      intent(in)  :: force_rad_levels
-    integer(kind=i_def), optional,      intent(in)  :: force_order
+    integer(kind=i_def), optional,      intent(in)  :: force_order_h
+    integer(kind=i_def), optional,      intent(in)  :: force_order_v
     integer(kind=i_def), optional,      intent(in)  :: force_ndata
     character(*), optional,             intent(in)  :: diag_status
 
@@ -161,10 +167,10 @@ contains
 
     status = combined_status(make_empty, diag_status)
 
-    vector_space => space_from_metadata(xios_id, status,               &
-                                        mesh_3d, mesh_2d, force_mesh,  &
-                                        force_rad_levels, force_order, &
-                                        force_ndata)
+    vector_space => space_from_metadata(xios_id, status,                 &
+                                        mesh_3d, mesh_2d, force_mesh,    &
+                                        force_rad_levels, force_order_h, &
+                                        force_order_v, force_ndata)
 
     if (make_empty) then
       call field%initialise(                                                  &

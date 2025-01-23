@@ -61,7 +61,7 @@ contains
     use vertical_mass_flux_kernel_mod,   only: vertical_mass_flux_kernel_type
     use fs_continuity_mod,               only: W3, W2, W2h, W2v, Wtheta
     use mesh_mod,                        only: mesh_type
-    use finite_element_config_mod,       only: element_order
+    use finite_element_config_mod,       only: element_order_h, element_order_v
     use sci_fem_constants_mod,           only: get_rmultiplicity
     use sample_field_kernel_mod,         only: sample_field_kernel_type
     use transport_config_mod,            only: operators,     &
@@ -119,7 +119,10 @@ contains
               case default
                 call log_event('W3 reconstruction at W2: direction not recognised', LOG_LEVEL_ERROR)
             end select
-            recon_fs => function_space_collection%get_fs( mesh, element_order, recon_space, ndata_first = .false. )
+            recon_fs => function_space_collection%get_fs( mesh, element_order_h, &
+                                                          element_order_v,       &
+                                                          recon_space,           &
+                                                          ndata_first = .false. )
             call reconstruction_field%initialise( vector_space=recon_fs )
             rmultiplicity_rdef => get_rmultiplicity(recon_space, mesh%get_id())
             call rmultiplicity%initialise(  &
@@ -159,7 +162,9 @@ contains
               case default
                 call log_event('W3 reconstruction at W2: direction not recognised', LOG_LEVEL_ERROR)
             end select
-            recon_fs => function_space_collection%get_fs( mesh, element_order, W3, ndata, ndata_first = .false. )
+            recon_fs => function_space_collection%get_fs( mesh, element_order_h, &
+                                                          element_order_v, W3,   &
+                                                          ndata, ndata_first = .false. )
             call reconstruction_field%initialise( vector_space=recon_fs )
             call reconstruct_w3_field_alg(reconstruction_field, density, direction, &
                                           transport_metadata, final_rk_stage)

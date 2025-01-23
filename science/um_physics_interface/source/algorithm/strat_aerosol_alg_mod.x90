@@ -22,7 +22,8 @@ use multires_coupling_config_mod, &
                               only: lowest_order_aero_flag, &
                                     coarse_rad_aerosol
 use finite_element_config_mod, &
-                              only: element_order
+                              only: element_order_h,        &
+                                    element_order_v
 use fs_continuity_mod,        only: Wtheta
 use intermesh_mappings_alg_mod, &
                               only: map_scalar_intermesh
@@ -55,7 +56,9 @@ subroutine strat_aerosol_alg( aerosol_fields, trop_level, exner )
   if (coarse_rad_aerosol) then
     ! Initialise potentially coarse aerosol field
     aerosol_mesh => exner%get_mesh()
-    wth_aero => function_space_collection%get_fs( aerosol_mesh, element_order, WTHETA )
+    wth_aero => function_space_collection%get_fs( aerosol_mesh,                &
+                                                  element_order_h,             &
+                                                  element_order_v, WTHETA )
     call sulphuric_aero%initialise(vector_space = wth_aero)
     call aerosol_fields%get_field('sulphuric', sulphuric)
     call invoke( strat_aerosol_kernel_type( sulphuric_aero, trop_level, exner ) )

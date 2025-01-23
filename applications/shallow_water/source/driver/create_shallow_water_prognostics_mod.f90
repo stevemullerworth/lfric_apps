@@ -19,7 +19,7 @@ module create_shallow_water_prognostics_mod
                                                 checkpoint_write_interface, &
                                                 checkpoint_read_interface
   use field_collection_mod,               only: field_collection_type
-  use finite_element_config_mod,          only: element_order
+  use finite_element_config_mod,          only: element_order_h, element_order_v
   use function_space_collection_mod,      only: function_space_collection
   use fs_continuity_mod,                  only: W1, W2, W3
   use io_config_mod,                      only: write_diag,       &
@@ -90,29 +90,37 @@ module create_shallow_water_prognostics_mod
     tracer_space = W3
     call log_event( 'shallow_water: Using V2 for tracers', LOG_LEVEL_INFO )
 
-    call wind%initialise( vector_space =                                                             &
-                          function_space_collection%get_fs(mesh, element_order, W2),                 &
+    call wind%initialise( vector_space =                                          &
+                          function_space_collection%get_fs(mesh, element_order_h, &
+                              element_order_v, W2),                               &
                           name="wind" )
-    call buoyancy%initialise( vector_space =                                                         &
-                              function_space_collection%get_fs(mesh, element_order, buoyancy_space), &
+    call buoyancy%initialise( vector_space =                                          &
+                              function_space_collection%get_fs(mesh, element_order_h, &
+                                  element_order_v, buoyancy_space),                   &
                               name="buoyancy" )
-    call geopot%initialise( vector_space =                                                           &
-                            function_space_collection%get_fs(mesh, element_order, W3),               &
+    call geopot%initialise( vector_space =                                          &
+                            function_space_collection%get_fs(mesh, element_order_h, &
+                                element_order_v, W3),                               &
                             name="geopot" )
-    call q%initialise( vector_space =                                                                &
-                       function_space_collection%get_fs(mesh, element_order, vorticity_space),       &
+    call q%initialise( vector_space =                                          &
+                       function_space_collection%get_fs(mesh, element_order_h, &
+                          element_order_v, vorticity_space),                   &
                        name="q")
-    call s_geopot%initialise( vector_space =                                                         &
-                              function_space_collection%get_fs(mesh, element_order, W3),             &
+    call s_geopot%initialise( vector_space =                                          &
+                              function_space_collection%get_fs(mesh, element_order_h, &
+                                  element_order_v, W3),                               &
                               name="s_geopot" )
-    call tracer_const%initialise( vector_space =                                                     &
-                       function_space_collection%get_fs(mesh, element_order, tracer_space),          &
+    call tracer_const%initialise( vector_space =                               &
+                       function_space_collection%get_fs(mesh, element_order_h, &
+                          element_order_v, tracer_space),                      &
                        name="tracer_const")
-    call tracer_pv%initialise( vector_space =                                                        &
-                       function_space_collection%get_fs(mesh, element_order, tracer_space),          &
+    call tracer_pv%initialise( vector_space =                                  &
+                       function_space_collection%get_fs(mesh, element_order_h, &
+                          element_order_v, tracer_space),                      &
                        name="tracer_pv")
-    call tracer_step%initialise( vector_space =                                                      &
-                       function_space_collection%get_fs(mesh, element_order, tracer_space),          &
+    call tracer_step%initialise( vector_space =                                &
+                       function_space_collection%get_fs(mesh, element_order_h, &
+                          element_order_v, tracer_space),                      &
                        name="tracer_step")
 
     ! Set I/O behaviours for diagnostic output

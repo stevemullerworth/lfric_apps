@@ -20,7 +20,7 @@ module init_gungho_prognostics_alg_mod
                                              get_height
   use sci_fem_constants_mod,           only: get_inverse_mass_matrix, &
                                              get_qr
-  use finite_element_config_mod,       only: element_order, &
+  use finite_element_config_mod,       only: element_order_h, element_order_v, &
                                              nqp_exact
   use base_mesh_config_mod,            only: geometry,           &
                                              geometry_spherical, &
@@ -159,9 +159,11 @@ contains
         call log_event( "Gungho: Initialising winds from stream function",     &
                         LOG_LEVEL_INFO )
         call psi%initialise( vector_space =                                    &
-                function_space_collection%get_fs(mesh, element_order, W1) )
+                function_space_collection%get_fs(mesh, element_order_h,        &
+                                                 element_order_v, W1) )
         call r_psi%initialise( vector_space =                                  &
-                function_space_collection%get_fs(mesh, element_order, W1) )
+                function_space_collection%get_fs(mesh, element_order_h,        &
+                                                 element_order_v, W1) )
         call invoke( name = "initialise_streamfunction",                       &
                      setval_c(psi, 0.0_r_def),                                 &
                      setval_c(r_psi, 0.0_r_def),                               &

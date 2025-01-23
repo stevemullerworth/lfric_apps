@@ -100,7 +100,7 @@ SUBROUTINE scintelapi_add_field(field_id, field_kind, n_data, write_name)
 ! consistency.
 !
 
-USE finite_element_config_mod,      ONLY: element_order
+USE finite_element_config_mod,      ONLY: element_order_h, element_order_v
 USE function_space_collection_mod , ONLY: function_space_collection
 USE fs_continuity_mod,              ONLY: W3, Wtheta
 USE lfricinp_lfric_driver_mod,      ONLY: mesh, twod_mesh
@@ -269,16 +269,17 @@ END IF
 l = no_fields + 1
 
 ! Set new field
-CALL field_list(l) % initialise(vector_space =                                 &
-                                function_space_collection%get_fs(              &
-                                                                tmp_mesh,      &
-                                                                element_order, &
-                                                                Fspace,        &
-                                                                ndata = ndata, &
-                                                                ndata_first =  &
-                                                                  ndata_first  &
-                                                                ),             &
-                                name         = field_id)
+CALL field_list(l) % initialise(vector_space =                                  &
+                                  function_space_collection%get_fs(             &
+                                                               tmp_mesh,        &
+                                                               element_order_h, &
+                                                               element_order_v, &
+                                                               Fspace,          &
+                                                               ndata = ndata,   &
+                                                               ndata_first =    &
+                                                                 ndata_first    &
+                                                                   ),           &
+                                name = field_id)
 
 ! Initialise new field data to rmdi
 field_proxy = field_list(l) % get_proxy()

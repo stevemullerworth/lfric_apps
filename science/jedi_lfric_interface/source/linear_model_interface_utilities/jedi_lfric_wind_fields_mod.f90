@@ -64,7 +64,8 @@ contains
     type( function_space_type ),       pointer :: wtheta_fs
     type( namelist_type ),             pointer :: base_mesh_nml
     character( len=str_def )                   :: prime_mesh_name
-    integer( kind=i_def ),           parameter :: element_order = 0_i_def
+    integer( kind=i_def ),           parameter :: element_order_h = 0_i_def
+    integer( kind=i_def ),           parameter :: element_order_v = 0_i_def
 
     ! Temporary fields to create prognostics
     type( field_type ) :: u_in_w3
@@ -86,8 +87,10 @@ contains
     mesh => mesh_collection%get_mesh(prime_mesh_name)
 
     ! Create prognostic fields
-    w3_fs     => function_space_collection%get_fs(mesh, element_order, W3)
-    wtheta_fs => function_space_collection%get_fs(mesh, element_order, Wtheta)
+    w3_fs     => function_space_collection%get_fs(mesh, element_order_h,       &
+                                                  element_order_v, W3)
+    wtheta_fs => function_space_collection%get_fs(mesh, element_order_h,       &
+                                                  element_order_v, Wtheta)
 
     ! Populate the depository if fields are not present
     if (.not.depository%field_exists('u_in_w3')) then
@@ -140,7 +143,8 @@ contains
     type(mesh_type),           pointer :: mesh
     type(function_space_type), pointer :: fs
     type(field_type),      allocatable :: vector_wind
-    integer( kind=i_def ),   parameter :: element_order = 0_i_def
+    integer( kind=i_def ),   parameter :: element_order_h = 0_i_def
+    integer( kind=i_def ),   parameter :: element_order_v = 0_i_def
 
     nullify( u_in_w3, v_in_w3, w_in_wth, mesh, fs )
 
@@ -156,7 +160,8 @@ contains
 
       ! Create a vector wind
       mesh => u_in_w3%get_mesh()
-      fs => function_space_collection%get_fs(mesh, element_order, W2)
+      fs => function_space_collection%get_fs(mesh, element_order_h,            &
+                                             element_order_v, W2)
       allocate(vector_wind)
       call vector_wind%initialise(fs, "u")
 

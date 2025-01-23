@@ -41,7 +41,6 @@ module jedi_lfric_io_update_test
     procedure test_jedi_lfric_io_update
   end type jedi_lfric_io_update_test_type
 
-  integer(i_def), parameter    :: element_order = 0
 
 
 contains

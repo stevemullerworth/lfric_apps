@@ -167,7 +167,7 @@ contains
     integer(kind=i_def), pointer :: map_pid(:,:) => null()
     integer(kind=i_def), pointer :: map_sf(:,:) => null()
 
-    integer(kind=i_def)          :: surface_order
+    integer(kind=i_def)          :: surface_order_h, surface_order_v
     type( mesh_type ), pointer   :: sf_mesh
     type( field_type )           :: surface_altitude_w0
     type( field_proxy_type )     :: sfc_alt_proxy
@@ -275,9 +275,11 @@ contains
 
         ! Set up the surface altitude field on W0 points
         sf_mesh =>  surface_altitude%get_mesh()
-        surface_order = surface_altitude%get_element_order()
-        call surface_altitude_w0%initialise( vector_space =  &
-           function_space_collection%get_fs(sf_mesh, surface_order, W0), &
+        surface_order_h = surface_altitude%get_element_order_h()
+        surface_order_v = surface_altitude%get_element_order_v()
+        call surface_altitude_w0%initialise( vector_space =           &
+           function_space_collection%get_fs(sf_mesh, surface_order_h, &
+                                            surface_order_v, W0),     &
                                              halo_depth = sf_mesh%get_halo_depth() )
 
         if (surface_altitude%which_function_space()==W0) then

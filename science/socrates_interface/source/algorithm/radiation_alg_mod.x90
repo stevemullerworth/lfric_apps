@@ -371,8 +371,8 @@ subroutine radiation_alg(dtheta_rad, theta, exner, mr, moist_dyn,             &
   dz_in_wth => get_dz_at_wtheta(mesh%get_id())
 
   n_levs = mesh%get_nlayers() + 1
-  flux_space => function_space_collection%get_fs(twod_mesh, 0, W3, n_levs)
-  wtheta_space => function_space_collection%get_fs( mesh, 0, Wtheta )
+  flux_space => function_space_collection%get_fs(twod_mesh, 0, 0, W3, n_levs)
+  wtheta_space => function_space_collection%get_fs( mesh, 0, 0, Wtheta )
 
   write_diag_behaviour => write_field_generic
   call tile_lw_albedo%set_write_behaviour(write_diag_behaviour)

@@ -131,7 +131,7 @@ contains
     use operator_mod,                    only: r_solver_operator_type
     use sci_enforce_bc_kernel_mod,       only: enforce_bc_kernel_type
     use apply_variable_hx_kernel_mod,    only: apply_variable_hx_kernel_type
-    use finite_element_config_mod,       only: element_order
+    use finite_element_config_mod,       only: element_order_h, element_order_v
     use io_config_mod,                   only: subroutine_timers
     use timer_mod,                       only: timer
     use helmholtz_solver_config_mod,     only: normalise
@@ -177,7 +177,7 @@ contains
         ! Compute M3*p + H[ D{\theta*}*p ]
         x_vec => x%get_field_from_position(1)
         y_vec => y%get_field_from_position(1)
-        if ( element_order == 0 ) then
+        if ( element_order_h == 0 .and. element_order_v == 0 ) then
           Helmholtz_operator => get_helmholtz_operator(self%level)
 
           lam_mesh=.false.

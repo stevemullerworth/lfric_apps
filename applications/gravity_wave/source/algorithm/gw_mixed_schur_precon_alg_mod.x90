@@ -192,7 +192,7 @@ contains
                                                      result(self)
 
     use function_space_mod,            only: function_space_type
-    use finite_element_config_mod,     only: element_order
+    use finite_element_config_mod,     only: element_order_h, element_order_v
     use quadrature_xyoz_mod,           only: quadrature_xyoz_type
     use quadrature_rule_gaussian_mod,  only: quadrature_rule_gaussian_type
     use compute_q_operator_kernel_mod, only: compute_q_operator_type
@@ -266,7 +266,8 @@ contains
 
     ! Compute Q (projection) operator
     call self%Q%initialise( wu, wb )
-    qr = quadrature_xyoz_type(element_order+2, quadrature_rule)
+    qr = quadrature_xyoz_type(MAX(element_order_h, element_order_v)+2, &
+                              quadrature_rule)
     call invoke( compute_q_operator_type(self%Q, qr) )
 
     ! Set \f$ \tilde{H}_b^{-1}\f$

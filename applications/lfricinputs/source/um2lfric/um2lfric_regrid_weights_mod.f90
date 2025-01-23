@@ -246,7 +246,7 @@ SUBROUTINE create_w2h_copy_maps()
 USE function_space_collection_mod, ONLY: function_space_collection
 USE function_space_mod,            ONLY: function_space_type
 USE fs_continuity_mod,             ONLY: W2H
-USE finite_element_config_mod,     ONLY: element_order
+USE finite_element_config_mod,     ONLY: element_order_h, element_order_v
 USE reference_element_mod,         ONLY: W, S, E, N
 USE lfricinp_lfric_driver_mod,     ONLY: mesh
 USE lfricinp_um_grid_mod,          ONLY: um_grid
@@ -307,7 +307,8 @@ grid_v_to_w2h_map % num_points_src = INT(um_grid % num_v_points_x *            &
 grid_v_to_w2h_map % num_points_dst = grid_v_to_w2h_map % num_points_src
 
 ! Get whole W2H dofmap
-fs_w2h => function_space_collection % get_fs(mesh, element_order, W2H)
+fs_w2h => function_space_collection % get_fs(mesh, element_order_h, &
+                                             element_order_v, W2H)
 map_w2h => fs_w2h % get_whole_dofmap()
 no_layers = fs_w2h % get_nlayers()
 base_last_dof_owned =  (fs_w2h % get_last_dof_owned() / no_layers ) + 1

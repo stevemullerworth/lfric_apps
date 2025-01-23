@@ -26,7 +26,8 @@ module create_gungho_prognostics_mod
                                              make_spec
   use field_mapper_mod,               only : field_mapper_type
   use field_maker_mod,                only : field_maker_type
-  use finite_element_config_mod,      only : ord => element_order
+  use finite_element_config_mod,      only : ord_h => element_order_h,         &
+                                             ord_v => element_order_v
   use fs_continuity_mod,              only : W0, W2, W3, Wtheta, W2H, W2V
   use function_space_collection_mod , only : function_space_collection
   use log_mod,                        only : log_event,         &
@@ -74,14 +75,20 @@ contains
     ! enable/disable legacy checkpointing
     legacy = .true.
 
-    call proc%apply(make_spec('theta', main%none, Wtheta, order=ord, ckp=.true., legacy=legacy))
-    call proc%apply(make_spec('u', main%none, W2, order=ord, ckp=.true., legacy=legacy))
+    call proc%apply(make_spec('theta', main%none, Wtheta, order_h=ord_h, &
+                              order_v=ord_v, ckp=.true., legacy=legacy))
+    call proc%apply(make_spec('u', main%none, W2, order_h=ord_h, order_v=ord_v,&
+                              ckp=.true., legacy=legacy))
     if (.not. legacy) then
-      call proc%apply(make_spec('h_u', main%none, W2H, order=ord, ckp=.true.))
-      call proc%apply(make_spec('v_u', main%none, W2V, order=ord, ckp=.true.))
+      call proc%apply(make_spec('h_u', main%none, W2H, order_h=ord_h, &
+                                order_v=ord_v, ckp=.true.))
+      call proc%apply(make_spec('v_u', main%none, W2V, order_h=ord_h, &
+                                order_v=ord_v, ckp=.true.))
     end if
-    call proc%apply(make_spec('rho', main%none, W3, order=ord, ckp=.true., legacy=legacy))
-    call proc%apply(make_spec('exner', main%none, W3, order=ord, ckp=.true., legacy=legacy))
+    call proc%apply(make_spec('rho', main%none, W3, order_h=ord_h, &
+                              order_v=ord_v, ckp=.true., legacy=legacy))
+    call proc%apply(make_spec('exner', main%none, W3, order_h=ord_h, &
+                              order_v=ord_v, ckp=.true., legacy=legacy))
 
     ! Create reference fields for solver. They are only created and checkpointed if either the first or
     ! final steps are not semi-implicit operator recalculation timesteps
@@ -91,30 +98,37 @@ contains
       mod(clock%get_first_step()-1, reference_reset_freq) /= 0 .or.  &
       mod(clock%get_last_step(),    reference_reset_freq) /= 0
     is_empty = .not. checkpoint_flag
-    call proc%apply(make_spec('theta_ref', main%none, Wtheta, empty=is_empty, order=ord, ckp=checkpoint_flag))
-    call proc%apply(make_spec('rho_ref', main%none, W3, empty=is_empty, order=ord, ckp=checkpoint_flag))
-    call proc%apply(make_spec('exner_ref', main%none, W3,  empty=is_empty, order=ord, ckp=checkpoint_flag))
+    call proc%apply(make_spec('theta_ref', main%none, Wtheta, empty=is_empty, &
+                    order_h=ord_h, order_v=ord_v, ckp=checkpoint_flag))
+    call proc%apply(make_spec('rho_ref', main%none, W3, empty=is_empty, &
+                    order_h=ord_h, order_v=ord_v, ckp=checkpoint_flag))
+    call proc%apply(make_spec('exner_ref', main%none, W3,  empty=is_empty, &
+                    order_h=ord_h, order_v=ord_v, ckp=checkpoint_flag))
 
     ! The moisture mixing ratio fields (mr) and moist dynamics fields
     ! (moist_dyn) are always passed into the timestep algorithm, so are
     ! always created here, even when moisture_formulation = 'dry'
     do imr = 1,nummr
       call proc%apply(make_spec(trim(mr_names(imr)), main%none, &
-        Wtheta, moist_arr=moist_arr_dict%mr, moist_idx=imr, order=ord, ckp=.true., legacy=legacy))
+        Wtheta, moist_arr=moist_arr_dict%mr, moist_idx=imr, order_h=ord_h,     &
+        order_v=ord_v, ckp=.true., legacy=legacy))
     end do
 
     ! Auxiliary fields holding moisture-dependent factors for dynamics, including checkpointed versions for
     ! semi-implicit operator recalculations
     do imr = 1, num_moist_factors
       call proc%apply(make_spec(trim(moist_dyn_names(imr)), main%none, &
-        Wtheta, moist_arr=moist_arr_dict%moist_dyn, moist_idx=imr, order=ord))
-      call proc%apply(make_spec(trim('moist_dyn_'//trim(moist_dyn_names(imr))//'_ref'), main%none, &
-        Wtheta,  empty=is_empty, moist_arr=moist_arr_dict%moist_dyn_ref, moist_idx=imr, order=ord, ckp=checkpoint_flag))
+        Wtheta, moist_arr=moist_arr_dict%moist_dyn, moist_idx=imr, &
+        order_h=ord_h, order_v=ord_v))
+      call proc%apply(make_spec(trim('moist_dyn_'//trim(moist_dyn_names(imr))//'_ref'), &
+        main%none, Wtheta,  empty=is_empty, moist_arr=moist_arr_dict%moist_dyn_ref, &
+        moist_idx=imr, order_h=ord_h, order_v=ord_v, ckp=checkpoint_flag))
     end do
 
     if (transport_ageofair) then
       call proc%apply(make_spec('ageofair', main%none, &
-        W3, adv_coll=adv%last_con, order=ord, ckp=.true., legacy=legacy))
+        W3, adv_coll=adv%last_con, order_h=ord_h, order_v=ord_v, ckp=.true., &
+        legacy=legacy))
     end if
   end subroutine process_gungho_prognostics
 

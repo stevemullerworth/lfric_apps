@@ -37,8 +37,6 @@ module schar_orography_spherical_mod_test
   ! Mesh and element order parameters
   character(str_def), parameter   :: mesh_name     = 'unit_test'
   character(len=str_max_filename) :: file_prefix   = "data/mesh_C16"
-  integer(i_def),     parameter   :: nlayers       = 1_i_def
-  integer(i_def),     parameter   :: element_order = 0_i_def
   integer(i_def),     parameter   :: total_ranks   = 1_i_def
   integer(i_def),     parameter   :: local_rank    = 0_i_def
   integer(i_def),     parameter   :: xproc         = 1_i_def

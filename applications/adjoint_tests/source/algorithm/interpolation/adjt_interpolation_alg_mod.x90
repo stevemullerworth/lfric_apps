@@ -11,7 +11,8 @@ module adjt_interpolation_alg_mod
   use function_space_mod,            only : function_space_type
   use mesh_mod,                      only : mesh_type
   use function_space_collection_mod, only : function_space_collection
-  use finite_element_config_mod,     only : element_order
+  use finite_element_config_mod,     only : element_order_h, &
+                                            element_order_v
   use fs_continuity_mod,             only : w2, w3, wtheta
   use constants_mod,                 only : i_def, r_def
   use log_mod,                       only : log_event,         &
@@ -77,9 +78,12 @@ module adjt_interpolation_alg_mod
     real(kind=r_def)                   :: relative_diff
     real(kind=r_def),        parameter :: overall_tolerance = 1500.0_r_def
 
-    vector_space_w2_ptr => function_space_collection % get_fs(mesh, element_order, w2)
-    vector_space_w3_ptr => function_space_collection % get_fs(mesh, element_order, w3)
-    vector_space_wtheta_ptr => function_space_collection % get_fs(mesh, element_order, wtheta)
+    vector_space_w2_ptr => function_space_collection % get_fs(mesh, element_order_h, &
+                                                              element_order_v, w2)
+    vector_space_w3_ptr => function_space_collection % get_fs(mesh, element_order_h, &
+                                                              element_order_v, w3)
+    vector_space_wtheta_ptr => function_space_collection % get_fs(mesh, element_order_h, &
+                                                                  element_order_v, wtheta)
     call u_in_w2 % initialise(vector_space=vector_space_w2_ptr, name='u_in_w2')
     call u_in_w3 % initialise(vector_space=vector_space_w3_ptr, name='u_in_w3')
     call v_in_w3 % initialise(vector_space=vector_space_w3_ptr, name='v_in_w3')
@@ -199,9 +203,12 @@ module adjt_interpolation_alg_mod
     real(kind=r_def)                   :: relative_diff
     real(kind=r_def),        parameter :: overall_tolerance = 1500.0_r_def
 
-    vector_space_w2_ptr => function_space_collection % get_fs(mesh, element_order, w2)
-    vector_space_w3_ptr => function_space_collection % get_fs(mesh, element_order, w3)
-    vector_space_wtheta_ptr => function_space_collection % get_fs(mesh, element_order, wtheta)
+    vector_space_w2_ptr => function_space_collection % get_fs(mesh, element_order_h, &
+                                                              element_order_v, w2)
+    vector_space_w3_ptr => function_space_collection % get_fs(mesh, element_order_h, &
+                                                              element_order_v, w3)
+    vector_space_wtheta_ptr => function_space_collection % get_fs(mesh, element_order_h, &
+                                                                  element_order_v, wtheta)
     call u_in_w2 % initialise(vector_space=vector_space_w2_ptr, name='u_in_w2')
     call u_in_w3 % initialise(vector_space=vector_space_w3_ptr, name='u_in_w3')
     call v_in_w3 % initialise(vector_space=vector_space_w3_ptr, name='v_in_w3')

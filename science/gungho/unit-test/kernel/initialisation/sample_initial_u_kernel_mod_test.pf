@@ -26,7 +26,8 @@ module sample_initial_u_kernel_mod_test
     procedure test_all
   end type sample_initial_u_test_type
 
-  integer(i_def), parameter :: element_order = 0
+  integer(i_def), parameter :: element_order_h = 0
+  integer(i_def), parameter :: element_order_v = 0
 
   real(r_def), parameter :: u0             = 1.0_r_def
   real(r_def), parameter :: v0             = 2.0_r_def

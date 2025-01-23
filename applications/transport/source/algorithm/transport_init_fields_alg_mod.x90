@@ -18,7 +18,7 @@ module transport_init_fields_alg_mod
   use sci_enforce_lower_bound_kernel_mod, &
                                          only: enforce_lower_bound_kernel_type
   use sci_fem_constants_mod,             only: get_qr
-  use finite_element_config_mod,         only: element_order
+  use finite_element_config_mod,         only: element_order_h, element_order_v
   use field_mod,                         only: field_type
   use sci_field_bundle_builtins_mod,     only: set_bundle_scalar
   use field_parent_mod,                  only: write_interface
@@ -124,15 +124,21 @@ subroutine transport_init_fields_alg( mesh,         &
     procedure(write_interface), pointer :: tmp_write_ptr => null()
 
     ! Set pointers
-    w2_fs => function_space_collection%get_fs( mesh, element_order, W2 )
-    w3_fs => function_space_collection%get_fs( mesh, element_order, W3 )
-    wt_fs => function_space_collection%get_fs( mesh, element_order, Wtheta )
+    w2_fs => function_space_collection%get_fs( mesh, element_order_h, &
+                                               element_order_v, W2 )
+    w3_fs => function_space_collection%get_fs( mesh, element_order_h, &
+                                               element_order_v, W3 )
+    wt_fs => function_space_collection%get_fs( mesh, element_order_h, &
+                                               element_order_v, Wtheta )
     chi  => get_coordinates(mesh%get_id())
     panel_id => get_panel_id(mesh%get_id())
     qr => get_qr()
-    w2_aerosol_fs => function_space_collection%get_fs( aerosol_mesh, element_order, W2 )
-    w3_aerosol_fs => function_space_collection%get_fs( aerosol_mesh, element_order, W3 )
-    wt_aerosol_fs => function_space_collection%get_fs( aerosol_mesh, element_order, Wtheta )
+    w2_aerosol_fs => function_space_collection%get_fs( aerosol_mesh, element_order_h, &
+                                                       element_order_v, W2 )
+    w3_aerosol_fs => function_space_collection%get_fs( aerosol_mesh, element_order_h, &
+                                                       element_order_v, W3 )
+    wt_aerosol_fs => function_space_collection%get_fs( aerosol_mesh, element_order_h, &
+                                                       element_order_v, Wtheta )
     aerosol_chi  => get_coordinates(aerosol_mesh%get_id())
     aerosol_panel_id => get_panel_id(aerosol_mesh%get_id())
 

@@ -84,8 +84,10 @@ contains
     if ( sample_physics_scalars ) then
       ! Determine situation from number of DoFs
       ! First check that both fields are lowest order
-      if (.not. ((target_field%get_element_order() == 0) .and. &
-                 (source_field%get_element_order() == 0))) then
+      if (.not. ((target_field%get_element_order_h() == 0) .and. &
+                 (target_field%get_element_order_v() == 0) .and. &
+                 (source_field%get_element_order_h() == 0) .and. &
+                 (source_field%get_element_order_v() == 0))) then
         call log_event('sample_physics_scalars only works with the lowest order spaces', &
                        LOG_LEVEL_ERROR)
       end if

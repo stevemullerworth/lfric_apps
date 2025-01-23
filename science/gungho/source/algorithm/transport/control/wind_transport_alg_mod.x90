@@ -14,7 +14,7 @@ module wind_transport_alg_mod
                                             get_rmultiplicity,       &
                                             get_inverse_mass_matrix
   use field_mod,                      only: field_type
-  use finite_element_config_mod,      only: element_order
+  use finite_element_config_mod,      only: element_order_h, element_order_v
   use formulation_config_mod,         only: si_momentum_equation
   use fs_continuity_mod,              only: W2, W3, W2broken
   use function_space_mod,             only: function_space_type
@@ -111,7 +111,8 @@ contains
         ! Cartesian coordinates and then map back to computational form
 
         mesh => wind_n%get_mesh()
-        w3_fs => function_space_collection%get_fs( mesh, element_order, W3 )
+        w3_fs => function_space_collection%get_fs( mesh, element_order_h, &
+                                                   element_order_v, W3 )
         chi => get_coordinates(mesh%get_id())
         panel_id => get_panel_id(mesh%get_id())
 
@@ -156,8 +157,10 @@ contains
         ! Either Galerkin project in W2broken
         if (broken_w2_projection) then
           ! Galerkin projection into W2broken, then restore continuity
-          w2_fs => function_space_collection%get_fs( mesh, element_order, W2 )
-          w2b_fs => function_space_collection%get_fs( mesh, element_order, W2broken )
+          w2_fs => function_space_collection%get_fs( mesh, element_order_h, &
+                                                     element_order_v, W2 )
+          w2b_fs => function_space_collection%get_fs( mesh, element_order_h, &
+                                                      element_order_v, W2broken )
           mm_w2 => get_mass_matrix(W2, mesh%get_id())
           mm_w2b_inv => get_inverse_mass_matrix(W2broken, mesh%get_id())
           rmultiplicity_w2 => get_rmultiplicity(W2, mesh%get_id())

@@ -30,7 +30,8 @@ module jedi_lfric_linear_fields_mod
 
   private
 
-  integer( kind=i_def ), parameter :: element_order = 0
+  integer( kind=i_def ), parameter :: element_order_h = 0
+  integer( kind=i_def ), parameter :: element_order_v = 0
   integer( kind=i_def ), parameter :: nvars = 10
   character( len=str_def ), parameter, public :: &
                                      variable_names(nvars) =  (/'theta   ', &
@@ -94,7 +95,10 @@ subroutine create_linear_fields( mesh, linear_fields )
     variable_name = trim(variable_names(i))
 
     call field%initialise( &
-           vector_space = function_space_collection%get_fs(mesh, element_order, variable_function_spaces(i)), &
+           vector_space = function_space_collection%get_fs(mesh,               &
+                                                           element_order_h,    &
+                                                           element_order_v,    &
+                                                           variable_function_spaces(i)), &
            name = variable_name )
 
     call linear_fields%add_field( field )

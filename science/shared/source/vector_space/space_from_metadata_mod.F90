@@ -208,11 +208,15 @@ contains
   !> @param[in, optional] force_mesh       Override derived mesh
   !> @param[in, optional] force_rad_levels Override derived radiation levels
   !> @param[in, optional] force_ndata      Override derived ndata
-  !> @param[in, optional] force_order      Override function space order
+  !> @param[in, optional] force_order_h    Override function space order in
+  !!                                       horizontal
+  !> @param[in, optional] force_order_v    Override function space order in
+  !!                                       vertical
   !> @return                               Function space returned
   function space_from_metadata(xios_id, status,                            &
                                mesh_3d, mesh_2d, force_mesh,               &
-                               force_rad_levels, force_order, force_ndata) &
+                               force_rad_levels, force_order_h,            &
+                               force_order_v, force_ndata) &
                                result(vector_space)
 
     implicit none
@@ -223,13 +227,15 @@ contains
     type(mesh_type), pointer, optional, intent(in)  :: mesh_2d
     type(mesh_type), pointer, optional, intent(in)  :: force_mesh
     integer(kind=i_def), optional,      intent(in)  :: force_rad_levels
-    integer(kind=i_def), optional,      intent(in)  :: force_order
+    integer(kind=i_def), optional,      intent(in)  :: force_order_h
+    integer(kind=i_def), optional,      intent(in)  :: force_order_v
     integer(kind=i_def), optional,      intent(in)  :: force_ndata
 
     character(str_def)  :: grid_ref
     character(str_def)  :: domain_ref
     character(str_def)  :: axis_ref
-    integer(kind=i_def) :: order
+    integer(kind=i_def) :: order_h
+    integer(kind=i_def) :: order_v
     integer(kind=i_def) :: fsenum
     character(str_def)  :: flavour
     integer(kind=i_def) :: ndata
@@ -266,7 +272,10 @@ contains
       ! no axis encoded in grid name - try to get it from XIOS
       axis_ref = get_field_axis_ref(xios_id)
     end if
-    order = get_field_order(xios_id, force_order)
+
+    ! Currently just returns 0 unless input is non-zero
+    order_h = get_field_order(xios_id, force_order_h)
+    order_v = get_field_order(xios_id, force_order_v)
 
     ! derive function space and flavour from metadata
     fsenum = get_field_fsenum(xios_id, grid_ref, domain_ref)
@@ -330,16 +339,17 @@ contains
     ! set up function space - needed by psyclone even for inactive fields
     vector_space => function_space_collection%get_fs(                         &
       this_mesh,                                                              &
-      order,                                                                  &
+      order_h,                                                                &
+      order_v,                                                                &
       fsenum,                                                                 &
       ndata)
 #ifndef UNIT_TEST
     write(log_scratch_space,                                                  &
        '("field: ", A, ", ", A, '                                             &
-       // '", mesh: ", A, ", order: ", I2, '                                  &
+       // '", mesh: ", A, ", order_h: ", I2, ", order_v: ", I2, '             &
        // '", fs: ", A, ", flavour: ", A, ", ndata: ", I5)')                  &
-      trim(xios_id), trim(status), trim(this_mesh%get_mesh_name()), order,    &
-      trim(name_from_functionspace(fsenum)), trim(flavour), ndata
+      trim(xios_id), trim(status), trim(this_mesh%get_mesh_name()), order_h,  &
+      order_v, trim(name_from_functionspace(fsenum)), trim(flavour), ndata
     call log_event(log_scratch_space, log_level_trace)
 #endif
     ! paranoia

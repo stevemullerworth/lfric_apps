@@ -21,7 +21,8 @@ module rk_alg_timestep_mod
   use timestep_method_mod,       only: timestep_method_type
 
   ! Configuration options
-  use finite_element_config_mod,          only: element_order, &
+  use finite_element_config_mod,          only: element_order_h, &
+                                                element_order_v, &
                                                 vorticity_in_w1
   use formulation_config_mod,             only: rotating, &
                                                 vector_invariant
@@ -264,7 +265,8 @@ contains
       vorticity_fs = W2
     end if
     call self%vorticity%initialise( vector_space = &
-      function_space_collection%get_fs(mesh, element_order, vorticity_fs) )
+      function_space_collection%get_fs(mesh, element_order_h, element_order_v, &
+                                       vorticity_fs) )
 
     call gungho_transport_control_alg_init(mesh)
 
@@ -328,7 +330,7 @@ contains
     outer = 1_i_def
     horizontal_face = .true.
     vertical_face = .false.
-    nqp = element_order + 2_i_def
+    nqp = MAX(element_order_h, element_order_v) + 2_i_def
     qrf = quadrature_face_type(nqp, horizontal_face, vertical_face, &
                                reference_element,  gaussian_quadrature)
     cheap_update = .false.

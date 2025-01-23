@@ -39,7 +39,7 @@ module compute_dl_matrix_kernel_mod
 
   type, public, extends(kernel_type) :: compute_dl_matrix_kernel_type
     private
-    type(arg_type) :: meta_args(9) = (/                                       &
+    type(arg_type) :: meta_args(10) = (/                                      &
          arg_type(GH_OPERATOR, GH_REAL, GH_WRITE, W2, W2),                    &
          arg_type(GH_FIELD*3,  GH_REAL, GH_READ,  ANY_SPACE_9),               &
          arg_type(GH_FIELD,    GH_REAL, GH_READ,  ANY_DISCONTINUOUS_SPACE_3), &
@@ -47,6 +47,7 @@ module compute_dl_matrix_kernel_mod
          arg_type(GH_SCALAR,   GH_REAL, GH_READ),                             &
          arg_type(GH_SCALAR,   GH_REAL, GH_READ),                             &
          arg_type(GH_SCALAR,   GH_REAL, GH_READ),                             &
+         arg_type(GH_SCALAR,   GH_INTEGER, GH_READ),                          &
          arg_type(GH_SCALAR,   GH_INTEGER, GH_READ),                          &
          arg_type(GH_SCALAR,   GH_REAL, GH_READ)                              &
          /)
@@ -85,7 +86,10 @@ contains
   !! @param[in] domain_height
   !!                     The model domain height
   !! @param[in] radius   The planet radius
-  !! @param[in] element_order The model finite element order
+  !! @param[in] element_order_h The model finite element order in the horizontal
+  !!                            direction
+  !! @param[in] element_order_v The model finite element order in the vertical
+  !!                            direction
   !! @param[in] dt       The model timestep length
   !! @param[in] ndf_w2   Degrees of freedom per cell
   !! @param[in] basis_w2 Vector basis functions evaluated at quadrature points.
@@ -106,8 +110,9 @@ contains
   subroutine compute_dl_matrix_code(cell, nlayers, ncell_3d,     &
                                     mm, chi1, chi2, chi3,        &
                                     panel_id, dl_base_height,    &
-                                    dl_strength, domain_height,     &
-                                    radius, element_order, dt,   &
+                                    dl_strength, domain_height,  &
+                                    radius, element_order_h,     &
+                                    element_order_v, dt,         &
                                     ndf_w2, basis_w2,            &
                                     ndf_chi, undf_chi, map_chi,  &
                                     basis_chi, diff_basis_chi,   &
@@ -142,11 +147,15 @@ contains
     real(kind=r_def),    intent(in)    :: wqp_h(nqp_h)
     real(kind=r_def),    intent(in)    :: wqp_v(nqp_v)
     real(kind=r_def),    intent(in)    :: basis_w2(3,ndf_w2,nqp_h,nqp_v)
-    integer(kind=i_def), intent(in)    :: element_order
+    integer(kind=i_def), intent(in)    :: element_order_h
+    integer(kind=i_def), intent(in)    :: element_order_v
 
     ! Internal variables
     integer(kind=i_def) :: df, df2, dfc, k, ik
     integer(kind=i_def) :: qp1, qp2
+    integer(kind=i_def) :: ndof_face_v         ! number of dofs on a vertical face
+    integer(kind=i_def) :: ndof_vol_h          ! number of horizontal dofs in volume
+    integer(kind=i_def) :: ndof_vol            ! number of dofs in volume
 
     real(kind=r_def), dimension(ndf_chi)         :: chi1_e, chi2_e, chi3_e
     real(kind=r_def)                             :: integrand
@@ -164,6 +173,12 @@ contains
     integer(kind=i_def) :: ipanel
 
     ipanel = int(panel_id(map_pid(1)), i_def)
+
+    ! Constants for calculation of which dofs correspond to w components
+    ndof_face_v = (element_order_h+1)*(element_order_h+1)
+    ndof_vol_h  = 2*element_order_h*(element_order_h+1)*(element_order_v+1)
+    ndof_vol    = 2*element_order_h*(element_order_h+1)*(element_order_v+1)    &
+                + (element_order_h+1)*(element_order_h+1)*element_order_v
 
     ! Loop over layers: Start from 1 as in this loop k is not an offset
     do k = 1, nlayers
@@ -215,10 +230,22 @@ contains
                           matmul(jac(:,:,qp1,qp2),basis_w2(:,df,qp1,qp2)),   &
                           matmul(jac(:,:,qp1,qp2),basis_w2(:,df2,qp1,qp2)) ) &
                           /dj(qp1,qp2)
-              ! Only modify dofs corresponding to vertical part of w-basis function (for lowest order: bottom two rows)
-              if (df > ndf_w2 - (element_order+2)*(element_order+1)**2) then
-                mm(ik,df,df2) = mm(ik,df,df2) +                          &
-                                (1.0_r_def + real(dt, r_def)*mu_at_quad) &
+
+              ! Only modify dofs corresponding to vertical part of w-basis
+              ! function (for lowest order: final two dofs).
+              ! Dofs are ordered:
+              !   a) Horizontal volume dofs
+              !   b) Vertical volume dofs
+              !   c) Horizontal face dofs
+              !   d) Vertical face dofs
+              ! So vertical dofs follow one of the two conditions:
+              !   b) df > ndof_vol_h .and. df <= ndof_vol
+              !   d) df > ndf_w2 - 2*ndof_face_v
+              ! So the check is as follows
+              if ( (df > ndf_w2 - 2*ndof_face_v) .or. &
+                   (df > ndof_vol_h .and. df <= ndof_vol) ) then
+                mm(ik,df,df2) = mm(ik,df,df2)                            &
+                              + (1.0_r_def + real(dt, r_def)*mu_at_quad) &
                                 * integrand
               else
                 mm(ik,df,df2) = mm(ik,df,df2) + integrand

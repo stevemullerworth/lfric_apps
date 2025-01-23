@@ -32,7 +32,8 @@ module test_algorithm_mod
   type(inventory_by_mesh_type)           :: chi_inventory
   type(inventory_by_mesh_type)           :: panel_id_inventory
   type(function_space_type), pointer     :: wtheta_fs => null()
-  integer(i_def),   parameter            :: element_order = 0
+  integer(i_def),   parameter            :: element_order_h = 0
+  integer(i_def),   parameter            :: element_order_v = 0
 
 contains
 
@@ -48,8 +49,9 @@ contains
 
     call init_fem( mesh_collection, chi_inventory, panel_id_inventory )
     mesh => mesh_collection%get_mesh(mesh_name)
-    wtheta_fs => function_space_collection%get_fs( mesh,          &
-                                                   element_order, &
+    wtheta_fs => function_space_collection%get_fs( mesh,            &
+                                                   element_order_h, &
+                                                   element_order_v, &
                                                    Wtheta )
 
   end subroutine test_algorithm_initialise
