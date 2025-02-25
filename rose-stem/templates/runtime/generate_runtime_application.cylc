@@ -25,11 +25,11 @@
 {% if task_values["app_name"] == "canned_test" %}
     {% set script_str.name = script_str.name~" --command-key=$RUN_METHOD" %}
 {% else %}
+    {% set script_str.name = script_str.name~" --opt-conf-key="~task_values["resolution"] %}
     {% for opt_conf in task_values["opt_confs"] %}
         {% set script_str.name = script_str.name~" --opt-conf-key="~opt_conf %}
     {% endfor %}
-    {% set script_str.name = script_str.name~" --opt-conf-key="~task_values["resolution"] %}
-    {% if task_values["use_xios"] %}
+    {% if task_values["use_xios"] and task_values["app_name"]!='lfric_atm' %}
         {% set script_str.name = script_str.name~" --opt-conf-key=xios_server" %}
     {% endif %}
     {% set script_str.name = script_str.name~" --opt-conf-key=suite_controlled" %}
