@@ -54,7 +54,6 @@ module tl_si_timestep_alg_mod
   ! PsyKAl PSYClone kernels
   use moist_dyn_factors_alg_mod,          only: moist_dyn_factors_alg
   use tl_moist_dyn_factors_alg_mod,       only: tl_moist_dyn_factors_alg
-  use sci_enforce_lower_bound_kernel_mod, only: enforce_lower_bound_kernel_type
   use sci_set_any_dof_kernel_mod,         only: set_any_dof_kernel_type
   use dg_inc_matrix_vector_kernel_mod,    only: dg_inc_matrix_vector_kernel_type
   use stabilise_bl_u_kernel_mod,          only: stabilise_bl_u_kernel_type
@@ -371,7 +370,7 @@ contains
     type( operator_type ), pointer :: mm_wt  => null()
     type( operator_type ), pointer :: mm_vel => null()
 
-    integer( kind=i_def ) :: outer, inner, i_mr, reference_reset_freq
+    integer( kind=i_def ) :: outer, inner, reference_reset_freq
     integer( kind=i_def ) :: next_outer, next_inner
     real( kind=r_def )    :: varalpha, varbeta ! alpha, beta weight to use
                                                ! these may differ from input
@@ -437,9 +436,6 @@ contains
     call copy_bundle(ls_moist_dyn, ls_moist_dyn_itns(:,1,1), num_moist_factors)
 
     if (use_moisture) then
-      do i_mr = 1, nummr
-        call invoke( enforce_lower_bound_kernel_type (ls_mr(i_mr), 0.0_r_def) )
-      end do
       call copy_bundle(ls_mr, ls_mr_n(:), nummr)
       call copy_bundle(ls_mr, ls_mr_after_slow(:), nummr)
 
@@ -668,9 +664,6 @@ contains
     ! Update state_n and mr_n with start of timestep values
     !--------------------------------------------------------------------
     if (use_moisture) then
-      do i_mr = 1, nummr
-        call invoke( enforce_lower_bound_kernel_type (mr(i_mr), 0.0_r_def) )
-      end do
       call copy_bundle(mr, mr_n, nummr)
       call copy_bundle(mr, mr_after_slow, nummr)
       call tl_moist_dyn_factors_alg(moist_dyn, mr_n)
