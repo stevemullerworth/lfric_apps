@@ -216,7 +216,7 @@ contains
   ! Add arrays my_coeff_rad & my_phi_stph by hand
   real(kind=r_def), intent(in), dimension(:,:) :: coeffc_phase
   real(kind=r_def), intent(in), dimension(:,:) :: coeffs_phase
-  integer(kind=i_def), parameter :: nranks_array = rank(coeffc_phase)
+  integer(kind=i_def), parameter :: nranks_array = 2
   integer(kind=i_def), dimension(nranks_array) :: dims_array
 
   ! Get the upper bound for each rank of each scalar array
