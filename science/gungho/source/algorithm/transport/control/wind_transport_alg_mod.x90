@@ -14,7 +14,6 @@ module wind_transport_alg_mod
                                             get_rmultiplicity,       &
                                             get_inverse_mass_matrix
   use field_mod,                      only: field_type
-  use finite_element_config_mod,      only: element_order_h, element_order_v
   use formulation_config_mod,         only: si_momentum_equation
   use fs_continuity_mod,              only: W2, W3, W2broken
   use function_space_mod,             only: function_space_type
@@ -31,6 +30,8 @@ module wind_transport_alg_mod
   use operator_mod,                   only: operator_type
   use timer_mod,                      only: timer
   use transport_config_mod,           only: broken_w2_projection
+  use transport_constants_mod,        only: get_element_order_h_transport, &
+                                            get_element_order_v_transport
   use transport_controller_mod,       only: transport_controller_type
   use transport_enumerated_types_mod, only: equation_form_advective
   use transport_field_mod,            only: transport_field
@@ -79,6 +80,7 @@ contains
     ! Internal variables
     type(mesh_type),           pointer  :: mesh
     integer(kind=i_def)                 :: dir
+    integer(kind=i_def)                 :: k_h, k_v
     type(field_type)                    :: u_w3_n(3), u_w3_inc(3), u_w3_np1(3)
     type(field_type)                    :: u_w2_inc, u_w2b_inc, rhs_u_broken
     type(field_type),           pointer :: chi(:)
@@ -94,6 +96,9 @@ contains
     type(function_space_type),  pointer :: w2b_fs
 
     if ( subroutine_timers ) call timer('transport.wind')
+
+    k_h = get_element_order_h_transport()
+    k_v = get_element_order_v_transport()
 
     ! ------------------------------------------------------------------------ !
     ! Semi-implicit formulation
@@ -116,8 +121,7 @@ contains
         ! Cartesian coordinates and then map back to computational form
 
         mesh => wind_n%get_mesh()
-        w3_fs => function_space_collection%get_fs( mesh, element_order_h, &
-                                                   element_order_v, W3 )
+        w3_fs => function_space_collection%get_fs( mesh, k_h, k_v, W3 )
         chi => get_coordinates(mesh%get_id())
         panel_id => get_panel_id(mesh%get_id())
 
@@ -165,10 +169,8 @@ contains
         ! Either Galerkin project in W2broken
         if (broken_w2_projection) then
           ! Galerkin projection into W2broken, then restore continuity
-          w2_fs => function_space_collection%get_fs( mesh, element_order_h, &
-                                                     element_order_v, W2 )
-          w2b_fs => function_space_collection%get_fs( mesh, element_order_h, &
-                                                      element_order_v, W2broken )
+          w2_fs => function_space_collection%get_fs( mesh, k_h, k_v, W2 )
+          w2b_fs => function_space_collection%get_fs( mesh, k_h, k_v, W2broken )
           mm_w2 => get_mass_matrix(W2, mesh%get_id())
           mm_w2b_inv => get_inverse_mass_matrix(W2broken, mesh%get_id())
           rmultiplicity_w2 => get_rmultiplicity(W2, mesh%get_id())

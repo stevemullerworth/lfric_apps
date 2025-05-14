@@ -187,7 +187,6 @@ contains
                                           )
 
     use derived_config_mod,              only: bundle_size
-    use sci_fem_constants_mod,           only: get_mass_matrix
     use sci_field_bundle_builtins_mod,   only: bundle_inc_axpby,               &
                                                clone_bundle,                   &
                                                set_bundle_scalar

@@ -28,7 +28,6 @@ module wind_precomputations_alg_mod
   use extrusion_mod,                  only: SHIFTED
   use sci_field_minmax_alg_mod,       only: get_field_minmax,                  &
                                             log_field_minmax
-  use finite_element_config_mod,      only: element_order_h, element_order_v
   use flux_precomputations_alg_mod,   only: flux_precomputations_type
   use fs_continuity_mod,              only: W2, W2h, W2v, W3, Wtheta
   use function_space_mod,             only: function_space_type
@@ -57,6 +56,8 @@ module wind_precomputations_alg_mod
   use transport_enumerated_types_mod, only: direction_h,                       &
                                             direction_v,                       &
                                             direction_3d
+  use transport_constants_mod,        only: get_element_order_h_transport,     &
+                                            get_element_order_v_transport
 
 
   implicit none
@@ -179,6 +180,7 @@ contains
 
     ! Local variables
     integer(kind=i_def)            :: i
+    integer(kind=i_def)            :: k_h, k_v
     type(local_mesh_type), pointer :: local_mesh
     type(mesh_type),       pointer :: shifted_mesh
     type(mesh_type),       pointer :: mesh
@@ -192,6 +194,12 @@ contains
     type(integer_field_type),  pointer :: face_selector_ns
 
     if ( subroutine_timers ) call timer('transport.wind_precomp_init')
+
+    ! ------------------------------------------------------------------------ !
+    ! Get correct element order arguments
+    ! ------------------------------------------------------------------------ !
+    k_h = get_element_order_h_transport()
+    k_v = get_element_order_v_transport()
 
     ! ------------------------------------------------------------------------ !
     ! Set mesh IDs and indices
@@ -271,7 +279,7 @@ contains
     if (num_meshes == 2) then
       ! Compute the transporting wind on the shifted mesh
       w2_fs => function_space_collection%get_fs(                               &
-          shifted_mesh, element_order_h, element_order_v, W2                   &
+          shifted_mesh, k_h, k_v, W2                                           &
       )
       call self%wind_3d(2)%initialise( w2_fs )
       call map_w2_to_sh_w2_alg(self%wind_3d(2), self%wind_3d(1))
@@ -281,10 +289,10 @@ contains
     do i = 1, num_meshes
       mesh => mesh_collection%get_mesh(self%mesh_ids(i))
       w2h_fs => function_space_collection%get_fs(                              &
-          mesh, element_order_h, element_order_v, W2H                          &
+          mesh, k_h, k_v, W2H                                                  &
       )
       w2v_fs => function_space_collection%get_fs(                              &
-          mesh, element_order_h, element_order_v, W2V                          &
+          mesh, k_h, k_v, W2V                                                  &
       )
       face_selector_ew => get_face_selector_ew(mesh%get_id())
       face_selector_ns => get_face_selector_ns(mesh%get_id())
@@ -1163,6 +1171,7 @@ contains
     type(function_space_type), pointer :: w2v_fs
     type(r_tran_field_type),   pointer :: dep_courant_vert
     integer(kind=i_def)                :: mesh_idx
+    integer(kind=i_def)                :: k_h, k_v
     type(r_tran_field_type)            :: dep_dist_z
     type(r_tran_field_type)            :: frac_vert_wind
     logical(kind=l_def)                :: compute_cfl_dep
@@ -1176,8 +1185,10 @@ contains
       ! Calculate vertical departure distance
       mesh => mesh_collection%get_mesh(mesh_id)
       mesh_idx = self%idx_from_mesh_id(mesh_id)
+      k_h = get_element_order_h_transport()
+      k_v = get_element_order_v_transport()
       w2v_fs => function_space_collection%get_fs(                              &
-          mesh, element_order_h, element_order_v, W2V                          &
+          mesh, k_h, k_v, W2V                                                  &
       )
       call dep_dist_z%initialise(w2v_fs)
       call frac_vert_wind%initialise(w2v_fs)
@@ -1270,6 +1281,7 @@ contains
     integer(kind=i_def),                      intent(in)    :: mesh_id
 
     integer(kind=i_def)                :: mesh_idx, frac_idx
+    integer(kind=i_def)                :: k_h, k_v
     real(kind=r_tran)                  :: frac_real
     type(mesh_type),           pointer :: mesh
     type(function_space_type), pointer :: w2_fs, w3_fs, w2h_fs, w2v_fs
@@ -1286,17 +1298,19 @@ contains
 
     mesh => mesh_collection%get_mesh(mesh_id)
     mesh_idx = self%idx_from_mesh_id(mesh_id)
+    k_h = get_element_order_h_transport()
+    k_v = get_element_order_v_transport()
     w2_fs => function_space_collection%get_fs(                                 &
-        mesh, element_order_h, element_order_v, W2                             &
+        mesh, k_h, k_v, W2                                                     &
     )
     w3_fs => function_space_collection%get_fs(                                 &
-        mesh, element_order_h, element_order_v, W3                             &
+        mesh, k_h, k_v, W3                                                     &
     )
     w2h_fs => function_space_collection%get_fs(                                &
-        mesh, element_order_h, element_order_v, W2H                            &
+        mesh, k_h, k_v, W2H                                                    &
     )
     w2v_fs => function_space_collection%get_fs(                                &
-        mesh, element_order_h, element_order_v, W2V                            &
+        mesh, k_h, k_v, W2V                                                    &
     )
     face_selector_ew => get_face_selector_ew(mesh_id)
     face_selector_ns => get_face_selector_ns(mesh_id)
@@ -1350,7 +1364,7 @@ contains
     max_courant_vert = MAX(ABS(max_courant_vert), ABS(min_courant_vert))
 
     ! Determine the 2D and 3D Courant numbers: depends on element --------------
-    if (element_order_h == 0_i_def .and. element_order_v == 0_i_def) then
+    if (k_h == 0_i_def .and. k_v == 0_i_def) then
       ! Get the total CFL at each cell - this only works for element_order = 0
       ! Sum different components
       call invoke( calc_max_cfl_kernel_type(sum_courant_3d, sum_courant_hori,  &

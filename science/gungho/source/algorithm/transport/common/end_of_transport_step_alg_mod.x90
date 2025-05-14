@@ -22,7 +22,6 @@ module end_of_transport_step_alg_mod
                                             get_rmultiplicity
   use field_mod,                      only: field_type
   use sci_field_minmax_alg_mod,       only: log_field_minmax
-  use finite_element_config_mod,      only: element_order_h, element_order_v
   use flux_precomputations_alg_mod,   only: flux_precomputations_type
   use fs_continuity_mod,              only: W3, Wtheta, W2, W2H, W2V
   use function_space_mod,             only: function_space_type
@@ -63,7 +62,9 @@ module end_of_transport_step_alg_mod
                                             operators_fem,               &
                                             cheap_update
   use transport_constants_mod,        only: get_directional_im3_div_r_tran, &
-                                            get_detj_at_w3_r_tran
+                                            get_detj_at_w3_r_tran,          &
+                                            get_element_order_h_transport,  &
+                                            get_element_order_v_transport
   use transport_counter_mod,          only: transport_counter_type
   use transport_enumerated_types_mod, only: direction_3d,   &
                                             direction_h,    &
@@ -187,6 +188,7 @@ contains
     integer(kind=i_def)                   :: ref_step
     integer(kind=i_def)                   :: limit_iteration
     integer(kind=i_def)                   :: num_limiting_steps
+    integer(kind=i_def)                   :: k_h, k_v
     type(mesh_type),              pointer :: mesh
     type(r_tran_field_type)               :: increment
     type(r_tran_field_type)               :: sum_flux
@@ -225,9 +227,12 @@ contains
 
     if ( final_split_step ) then
 
+      ! Get transport element orders
+      k_h = get_element_order_h_transport()
+      k_v = get_element_order_v_transport()
+
       field_start => transport_counter%get_field_n()
-      w2_fs => function_space_collection%get_fs(mesh, element_order_h, &
-                                                element_order_v, W2)
+      w2_fs => function_space_collection%get_fs(mesh, k_h, k_v, W2)
       field_fs => field_np1%get_function_space()
       call increment%initialise(field_fs)
       call sum_flux%initialise(w2_fs)

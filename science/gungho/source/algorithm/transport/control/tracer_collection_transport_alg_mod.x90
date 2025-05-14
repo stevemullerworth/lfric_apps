@@ -177,7 +177,8 @@ contains
                                              transport_controller,             &
                                              transport_metadata)
 
-    use finite_element_config_mod,     only: element_order_h, element_order_v
+    use transport_constants_mod,       only: get_element_order_h_transport, &
+                                             get_element_order_v_transport
     use function_space_collection_mod, only: function_space_collection
     use function_space_mod,            only: function_space_type
     use intermesh_mappings_alg_mod,    only: map_scalar_intermesh
@@ -241,7 +242,9 @@ contains
 
         coarse_mesh => mesh_collection%get_mesh(aerosol_mesh_name)
         coarse_fs => function_space_collection%get_fs(                         &
-            coarse_mesh, element_order_h, element_order_v,                     &
+            coarse_mesh,                                                       &
+            get_element_order_h_transport(),                                   &
+            get_element_order_v_transport(),                                   &
             single_field_in%which_function_space()                             &
         )
         call coarse_field_in%initialise(coarse_fs)

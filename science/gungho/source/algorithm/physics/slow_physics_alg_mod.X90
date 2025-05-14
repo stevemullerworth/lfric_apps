@@ -79,7 +79,6 @@ module slow_physics_alg_mod
                                  only: moisture_conservation_alg
   use fs_continuity_mod,         only: W3, Wtheta
   use extrusion_mod,             only: TWOD
-  use finite_element_config_mod, only: element_order_h, element_order_v
   use sci_field_bundle_builtins_mod,                             &
                                  only: add_bundle, clone_bundle, &
                                        set_bundle_scalar
@@ -452,10 +451,8 @@ contains
           aerosol_mesh => mesh_collection%get_mesh(aerosol_mesh_name)
           aerosol_twod_mesh => mesh_collection%get_mesh(aerosol_mesh, TWOD)
           ! Initialise the coarse aerosol fields fields
-          wth_aero => function_space_collection%get_fs( aerosol_mesh, element_order_h, &
-                                                        element_order_v, WTHETA )
-          w3_aero => function_space_collection%get_fs( aerosol_mesh, element_order_h, &
-                                                       element_order_v, W3 )
+          wth_aero => function_space_collection%get_fs( aerosol_mesh, 0, 0, WTHETA )
+          w3_aero => function_space_collection%get_fs( aerosol_mesh, 0, 0, W3 )
           call theta_coarse%initialise(vector_space = wth_aero)
           call exner_in_wth_coarse%initialise(vector_space = wth_aero)
           call exner_coarse%initialise(vector_space = w3_aero)

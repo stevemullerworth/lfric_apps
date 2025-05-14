@@ -68,8 +68,6 @@ module skeb_ndisp_alg_mod
                                             get_div,                 &
                                             get_curl,                &
                                             get_inverse_mass_matrix
-  ! element order to create vector spaces
-  use finite_element_config_mod,          only: element_order_h, element_order_v
 
   ! Kernels to compute vectorial operations
   use sci_set_w1h_dofs_kernel_mod,        only: set_w1h_dofs_kernel_type
@@ -138,14 +136,10 @@ module skeb_ndisp_alg_mod
   ! Create mesh
   mesh     => u%get_mesh()
   ! Create function spaces
-  w1_fs => function_space_collection%get_fs( mesh, element_order_h,              &
-                                             element_order_v, W1 )
-  w2h_fs => function_space_collection%get_fs( mesh, element_order_h,             &
-                                             element_order_v, W2H )
-  w2_fs => function_space_collection%get_fs( mesh, element_order_h,              &
-                                             element_order_v, W2 )
-  w3_fs => function_space_collection%get_fs( mesh, element_order_h,              &
-                                             element_order_v, W3 )
+  w1_fs => function_space_collection%get_fs( mesh, 0, 0, W1 )
+  w2h_fs => function_space_collection%get_fs( mesh, 0, 0, W2H )
+  w2_fs => function_space_collection%get_fs( mesh, 0, 0, W2 )
+  w3_fs => function_space_collection%get_fs( mesh, 0, 0, W3 )
   ! other variables from operators
   chi      => get_coordinates( mesh%get_id() )
   panel_id => get_panel_id( mesh%get_id() )

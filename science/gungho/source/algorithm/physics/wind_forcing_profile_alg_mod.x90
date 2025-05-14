@@ -10,7 +10,6 @@ module wind_forcing_profile_alg_mod
   use constants_mod,                 only: i_def, r_def, l_def
   use kernel_mod,                    only: kernel_type
   use field_mod,                     only: field_type
-  use finite_element_config_mod,     only: element_order_h, element_order_v
   use fs_continuity_mod,             only: Wtheta, W3
   use function_space_collection_mod, only: function_space_collection
   use sci_geometric_constants_mod,   only: get_height
@@ -90,16 +89,13 @@ contains
     mesh => du%get_mesh()
 
     call du_in_w3%initialise( vector_space = &
-                function_space_collection%get_fs( mesh, element_order_h, &
-                                                  element_order_v, W3 ) )
+                function_space_collection%get_fs( mesh, 0, 0, W3 ) )
 
     call dv_in_w3%initialise( vector_space = &
-                function_space_collection%get_fs( mesh, element_order_h, &
-                                                  element_order_v, W3 ) )
+                function_space_collection%get_fs( mesh, 0, 0, W3 ) )
 
     call dw_in_wth%initialise( vector_space = &
-                function_space_collection%get_fs( mesh, element_order_h, &
-                                                  element_order_v, Wtheta ) )
+                function_space_collection%get_fs( mesh, 0, 0, Wtheta ) )
 
     ! Forcing of vertical wind not yet implemented
     call invoke( setval_c( dw_in_wth, 0.0_r_def ) )

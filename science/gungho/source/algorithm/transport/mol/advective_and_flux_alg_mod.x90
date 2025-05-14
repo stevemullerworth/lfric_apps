@@ -61,7 +61,6 @@ contains
     use vertical_mass_flux_kernel_mod,   only: vertical_mass_flux_kernel_type
     use fs_continuity_mod,               only: W3, W2, W2h, W2v, Wtheta
     use mesh_mod,                        only: mesh_type
-    use finite_element_config_mod,       only: element_order_h, element_order_v
     use sci_fem_constants_mod,           only: get_rmultiplicity
     use sample_field_kernel_mod,         only: sample_field_kernel_type
     use transport_config_mod,            only: operators,     &
@@ -70,6 +69,8 @@ contains
                                                fv_horizontal_order
     use wt_advective_update_alg_mod,     only: wt_advective_update_alg
     use monotonic_update_kernel_mod,     only: monotonic_update_kernel_type
+    use transport_constants_mod,         only: get_element_order_h_transport, &
+                                               get_element_order_v_transport
 
     implicit none
 
@@ -84,6 +85,7 @@ contains
 
     ! Internal variables
     integer(kind=i_def)                :: ndata
+    integer(kind=i_def)                :: k_h, k_v
     type(function_space_type), pointer :: recon_fs => null()
     type(r_tran_field_type)            :: reconstruction_field
     logical(kind=l_def)                :: do_horizontal
@@ -99,6 +101,9 @@ contains
                                           do_vertical_monotone
 
     mesh => density%get_mesh()
+
+    k_h = get_element_order_h_transport()
+    k_v = get_element_order_v_transport()
 
     select case ( density%which_function_space() )
       case ( W3 )
@@ -119,9 +124,8 @@ contains
               case default
                 call log_event('W3 reconstruction at W2: direction not recognised', LOG_LEVEL_ERROR)
             end select
-            recon_fs => function_space_collection%get_fs( mesh, element_order_h, &
-                                                          element_order_v,       &
-                                                          recon_space,           &
+            recon_fs => function_space_collection%get_fs( mesh, k_h, k_v, &
+                                                          recon_space,    &
                                                           ndata_first = .false. )
             call reconstruction_field%initialise( vector_space=recon_fs )
             rmultiplicity_rdef => get_rmultiplicity(recon_space, mesh%get_id())
@@ -162,9 +166,9 @@ contains
               case default
                 call log_event('W3 reconstruction at W2: direction not recognised', LOG_LEVEL_ERROR)
             end select
-            recon_fs => function_space_collection%get_fs( mesh, element_order_h, &
-                                                          element_order_v, W3,   &
-                                                          ndata, ndata_first = .false. )
+            recon_fs => function_space_collection%get_fs( mesh, k_h, k_v, W3, &
+                                                          ndata,              &
+                                                          ndata_first = .false. )
             call reconstruction_field%initialise( vector_space=recon_fs )
             call reconstruct_w3_field_alg(reconstruction_field, density, direction, &
                                           transport_metadata, final_rk_stage)

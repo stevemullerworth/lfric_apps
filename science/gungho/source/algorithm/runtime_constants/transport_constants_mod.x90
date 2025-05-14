@@ -48,10 +48,6 @@ module transport_constants_mod
   use sci_field_minmax_alg_mod,           only: get_field_minmax
   use timer_mod,                          only: timer
 
-  ! Configuration
-  use finite_element_config_mod,          only: element_order_h, &
-                                                element_order_v
-
   ! Kernels
 
   use sci_operator_algebra_kernel_mod,    only: operator_setval_x_kernel_type
@@ -123,6 +119,8 @@ module transport_constants_mod
   public :: get_hori_wt_mol_coeffs
   public :: get_vert_wt_mol_coeffs
   public :: get_reversible_vert_wt_mol_coeffs
+  public :: get_element_order_h_transport
+  public :: get_element_order_v_transport
 
   ! Private routines for creating constants
   private :: initialise_remap_on_extended_mesh
@@ -245,8 +243,10 @@ contains
       ! Create the object as it doesn't exist yet
       if ( subroutine_timers ) call timer('runtime_constants.transport')
 
-      w3_fs => function_space_collection%get_fs(mesh, element_order_h, &
-                                                element_order_v, W3)
+      w3_fs => function_space_collection%get_fs(mesh,                            &
+                                                get_element_order_h_transport(), &
+                                                get_element_order_v_transport(), &
+                                                W3)
       halo_depth = mesh%get_halo_depth()
       call detj_at_w3_r_tran_inventory%add_field(detj_r_tran, w3_fs, mesh,     &
                                                  halo_depth=halo_depth)
@@ -303,8 +303,10 @@ contains
       if ( subroutine_timers ) call timer('runtime_constants.transport')
 
       detj_direction = 1
-      w2_fs => function_space_collection%get_fs(mesh, element_order_h, &
-                                                element_order_v, W2)
+      w2_fs => function_space_collection%get_fs(mesh,                            &
+                                                get_element_order_h_transport(), &
+                                                get_element_order_v_transport(), &
+                                                W2)
       call detj_at_w2_above_inventory%add_field(detj_above, w2_fs, mesh)
 
       call invoke( setval_X(detj_above, detj_at_w2),                           &
@@ -357,8 +359,10 @@ contains
       if ( subroutine_timers ) call timer('runtime_constants.transport')
 
       detj_direction = 0
-      w2_fs => function_space_collection%get_fs(mesh, element_order_h, &
-                                                element_order_v, W2)
+      w2_fs => function_space_collection%get_fs(mesh,                            &
+                                                get_element_order_h_transport(), &
+                                                get_element_order_v_transport(), &
+                                                W2)
       call detj_at_w2_below_inventory%add_field(detj_below, w2_fs, mesh)
 
       call invoke( setval_X(detj_below, detj_at_w2),                           &
@@ -422,8 +426,10 @@ contains
 
       if ( subroutine_timers ) call timer('runtime_constants.transport')
 
-      fs => function_space_collection%get_fs(mesh, element_order_h, &
-                                             element_order_v, space)
+      fs => function_space_collection%get_fs(mesh,                            &
+                                             get_element_order_h_transport(), &
+                                             get_element_order_v_transport(), &
+                                             space)
       call inventory%add_operator(mm_r_tran, fs, fs, mesh)
 
       call invoke( operator_setval_x_kernel_type(mm_r_tran, mm_r_def) )
@@ -480,8 +486,10 @@ contains
 
       if ( subroutine_timers ) call timer('runtime_constants.transport')
 
-      fs => function_space_collection%get_fs(mesh, element_order_h, &
-                                             element_order_v, space)
+      fs => function_space_collection%get_fs(mesh,                            &
+                                             get_element_order_h_transport(), &
+                                             get_element_order_v_transport(), &
+                                             space)
       call inventory%add_operator(mm_inv_r_tran, fs, fs, mesh)
 
       call invoke( operator_setval_x_kernel_type(mm_inv_r_tran, mm_inv_r_def) )
@@ -551,6 +559,8 @@ contains
     type(function_space_type),    pointer :: w3_fs
     type(function_space_type),    pointer :: w2_fs
     integer(kind=i_def)                   :: fs_id
+    integer(kind=i_def)                   :: element_order_h, &
+                                             element_order_v
 
     ! Point to appropriate inventory for this space
     select case (direction)
@@ -592,6 +602,9 @@ contains
       panel_id => get_panel_id(mesh_id)
       qr => get_qr()
       mm_w3_inv => get_inverse_mass_matrix(W3, mesh_id)
+
+      element_order_h = get_element_order_h_transport()
+      element_order_v = get_element_order_v_transport()
 
       w2_fs => function_space_collection%get_fs( mesh, element_order_h, &
                                                  element_order_v, fs_id )
@@ -839,7 +852,8 @@ contains
       ! Set up function space and coefficient field ----------------------------
       twod_mesh => mesh_collection%get_mesh(mesh, TWOD)
       multidata_fs => function_space_collection%get_fs(                        &
-              twod_mesh, element_order_h, element_order_v, W3, ndata_h,        &
+              twod_mesh, get_element_order_h_transport(),                      &
+              get_element_order_v_transport(), W3, ndata_h,                    &
               ndata_first=.false.                                              &
       )
       call hori_w3_mol_coeffs_inventory%add_field(                             &
@@ -1165,7 +1179,8 @@ contains
       ! Set up function space and coefficient field ----------------------------
       twod_mesh => mesh_collection%get_mesh(mesh, TWOD)
       multidata_fs => function_space_collection%get_fs(                        &
-              twod_mesh, element_order_h, element_order_v, W3, ndata_h,        &
+              twod_mesh, get_element_order_h_transport(),                      &
+              get_element_order_v_transport(), W3, ndata_h,                    &
               ndata_first=.false.                                              &
       )
       call hori_wt_mol_coeffs_inventory%add_field(                             &
@@ -1312,7 +1327,7 @@ contains
       ndata_v = 2*(fv_vertical_order + 1)
       ! Set up function space
       multidata_fs => function_space_collection%get_fs(                        &
-              mesh, 0, 0, Wtheta, ndata_v, ndata_first =.true.                    &
+              mesh, 0, 0, Wtheta, ndata_v, ndata_first =.true.                 &
       )
       ! Create field object
       call rev_vert_wt_mol_coeffs_inventory%add_field(                         &
@@ -1330,6 +1345,44 @@ contains
     call rev_vert_wt_mol_coeffs_inventory%get_field(mesh, mol_coeffs)
 
   end function get_reversible_vert_wt_mol_coeffs
+
+  !> @brief Returns the horizontal element order for initialisation of
+  !!        transport fields dependent on choice of operator
+  function get_element_order_h_transport() result(transport_element_order_h)
+    use finite_element_config_mod, only: element_order_h
+    use transport_config_mod,      only: operators, operators_fem
+
+    implicit none
+
+    integer(kind=i_def) :: transport_element_order_h
+
+    select case (operators)
+      case (operators_fem)
+        transport_element_order_h = element_order_h
+      case default
+        transport_element_order_h = 0_i_def
+    end select
+
+  end function get_element_order_h_transport
+
+  !> @brief Returns the vertical element order for initialisation of
+  !!        transport fields dependent on choice of operator
+  function get_element_order_v_transport() result(transport_element_order_v)
+    use finite_element_config_mod, only: element_order_v
+    use transport_config_mod,      only: operators, operators_fem
+
+    implicit none
+
+    integer(kind=i_def) :: transport_element_order_v
+
+    select case (operators)
+      case (operators_fem)
+        transport_element_order_v = element_order_v
+      case default
+        transport_element_order_v = 0_i_def
+    end select
+
+  end function get_element_order_v_transport
 
   ! ========================================================================== !
   ! FINALISE

@@ -24,7 +24,6 @@ module reconstruct_w3_field_alg_mod
   use constants_mod,                  only: r_def, i_def, l_def, str_def
   use r_tran_field_mod,               only: r_tran_field_type
   use field_mod,                      only: field_type
-  use finite_element_config_mod,      only: element_order_h, element_order_v
   use fs_continuity_mod,              only: W2, W2h, W2v, W3, Wtheta
   use function_space_collection_mod,  only: function_space_collection
   use function_space_mod,             only: function_space_type
@@ -44,6 +43,8 @@ module reconstruct_w3_field_alg_mod
                                             operators_fv,         &
                                             oned_reconstruction,  &
                                             extended_mesh
+  use transport_constants_mod,        only: get_element_order_h_transport, &
+                                            get_element_order_v_transport
   use log_mod,                        only: log_event,         &
                                             LOG_LEVEL_ERROR,   &
                                             LOG_LEVEL_INFO
@@ -100,6 +101,8 @@ contains
     type(function_space_type),    pointer :: w3md_v_fs => null()
     type(function_space_type),    pointer :: w3md_h_fs => null()
 
+    integer(kind=i_def) :: k_h, k_v
+
     integer(kind=i_def), parameter :: ndata_h = 4
     integer(kind=i_def), parameter :: ndata_v = 2
     integer(kind=i_def), parameter :: ndata   = 6
@@ -107,15 +110,18 @@ contains
 
     mesh => field_new%get_mesh()
 
+    k_h = get_element_order_h_transport()
+    k_v = get_element_order_v_transport()
+
     select case ( direction )
       case ( direction_3d )
 
-        w3md_h_fs => function_space_collection%get_fs( mesh, element_order_h, &
-                                                       element_order_v, W3,   &
-                                                       ndata_h, ndata_first = ndata_first )
-        w3md_v_fs => function_space_collection%get_fs( mesh, element_order_h, &
-                                                       element_order_v, W3,   &
-                                                       ndata_v, ndata_first = ndata_first )
+        w3md_h_fs => function_space_collection%get_fs( mesh, k_h, k_v, W3, &
+                                                       ndata_h,            &
+                                                       ndata_first = ndata_first )
+        w3md_v_fs => function_space_collection%get_fs( mesh, k_h, k_v, W3, &
+                                                       ndata_v,            &
+                                                       ndata_first = ndata_first )
 
         call field_new_h%initialise( vector_space=w3md_h_fs )
         call field_new_v%initialise( vector_space=w3md_v_fs )

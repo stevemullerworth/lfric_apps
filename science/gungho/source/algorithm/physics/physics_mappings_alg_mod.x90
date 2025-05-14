@@ -12,8 +12,6 @@ module physics_mappings_alg_mod
   use constants_mod,                    only: r_def, i_def
   use sci_fem_constants_mod,            only: get_rmultiplicity
   use field_mod,                        only: field_type
-  use finite_element_config_mod,        only: nqp_h_exact, &
-                                              nqp_v_exact
   use fs_continuity_mod,                only: W3, WTHETA, W2, W2H
   use function_space_mod,               only: function_space_type
   use function_space_collection_mod,    only: function_space_collection
@@ -73,6 +71,7 @@ contains
     type(field_type), pointer             :: panel_id
     type( mesh_type ),  pointer           :: mesh
     integer( kind=i_def )                 :: space_dim
+    integer( kind=i_def )                 :: nqp_h_exact, nqp_v_exact
 
     call log_field_minmax( LOG_LEVEL_DEBUG, 'source field', source_field )
 
@@ -114,6 +113,10 @@ contains
     else
       ! Do galerkin projection
       space_dim = 1_i_def
+
+      ! At lowest order, nqp_exact is 0+3
+      nqp_h_exact = 3
+      nqp_v_exact = 3
       qr = quadrature_xyoz_type(nqp_h_exact, nqp_h_exact, nqp_v_exact, &
                                 quadrature_rule)
       call projected_field(1)%initialise( vector_space = target_field%get_function_space() )
@@ -142,11 +145,12 @@ contains
     type( field_type )                  :: wind_map(3), physical_chi(3)
     type( field_type ), pointer         :: chi(:)
     type( field_type ), pointer         :: panel_id
-    ! quatrature rule
+    ! quadrature rule
     type( quadrature_xyoz_type )          :: qr
     type( quadrature_rule_gaussian_type ) :: quadrature_rule
     type( field_type )                    :: projected_field(3)
     type( mesh_type ), pointer            :: mesh
+    integer( kind=i_def )                 :: nqp_h_exact, nqp_v_exact
 
     mesh =>  source_field%get_mesh()
 
@@ -182,6 +186,10 @@ contains
     else
 
       ! This method remains for posterity, but should be used with caution.
+
+      ! At lowest order, nqp_exact is 0+3
+      nqp_h_exact = 3
+      nqp_v_exact = 3
       qr = quadrature_xyoz_type(nqp_h_exact, nqp_h_exact, nqp_v_exact, &
                                 quadrature_rule)
 

@@ -30,8 +30,6 @@ module radaer_alg_mod
                                  coarse_rad_aerosol
   use multidata_field_dimensions_mod, &
                            only: get_ndata_val => get_multidata_field_dimension
-  use finite_element_config_mod, &
-                           only: element_order_h, element_order_v
   use fs_continuity_mod,   only: Wtheta, W3
   use intermesh_mappings_alg_mod, &
                            only: map_scalar_intermesh
@@ -233,25 +231,21 @@ contains
         call radiation_fields%get_field('aer_lw_asymmetry', aer_lw_asymmetry)
         ! If coarse RADAER, initialise new coarse fields, map data, and point to them
         w3_2d_aero => function_space_collection%get_fs( aerosol_twod_mesh,     &
-                                                        element_order_h,       &
-                                                        element_order_v, W3)
+                                                        0, 0, W3)
         wth_aero => function_space_collection%get_fs( aerosol_mesh,            &
-                                                      element_order_h,         &
-                                                      element_order_v, WTHETA, &
+                                                      0, 0, WTHETA,            &
                                                       get_ndata_val('aero_modes') )
         call aer_mix_ratio_coarse%initialise(vector_space = wth_aero)
 
         wth_aero => function_space_collection%get_fs( aerosol_mesh,            &
-                                                      element_order_h,         &
-                                                      element_order_v, WTHETA, &
+                                                      0, 0, WTHETA,            &
                                                       get_ndata_val('sw_bands_aero_modes') )
         call aer_sw_absorption_coarse%initialise(vector_space = wth_aero)
         call aer_sw_scattering_coarse%initialise(vector_space = wth_aero)
         call aer_sw_asymmetry_coarse%initialise(vector_space = wth_aero)
 
         wth_aero => function_space_collection%get_fs( aerosol_mesh,            &
-                                                      element_order_h,         &
-                                                      element_order_v, WTHETA, &
+                                                      0, 0, WTHETA,            &
                                                       get_ndata_val('lw_bands_aero_modes') )
         call aer_lw_absorption_coarse%initialise(vector_space = wth_aero)
         call aer_lw_scattering_coarse%initialise(vector_space = wth_aero)

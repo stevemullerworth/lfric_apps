@@ -12,9 +12,6 @@ module theta_transport_alg_mod
                                       only: dg_inc_matrix_vector_kernel_type
   use sci_enforce_lower_bound_kernel_mod, &
                                       only: enforce_lower_bound_kernel_type
-  use sci_fem_constants_mod,          only: get_inverse_lumped_mass_matrix,    &
-                                            get_mass_matrix_diagonal,          &
-                                            get_mass_matrix
   use field_mod,                      only: field_type
   use fs_continuity_mod,              only: Wtheta
   use function_space_mod,             only: function_space_type
