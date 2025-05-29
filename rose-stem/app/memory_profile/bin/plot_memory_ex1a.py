@@ -65,9 +65,12 @@ def plot_run_job(run, out_filename):
     job_name = os.path.basename(os.path.dirname(run))
     with open(os.path.join(run, 'job'), encoding="utf-8") as jf:
         jfr = jf.read()
+    # assume 1 node, unless PBS configures nodes
+    nnodes = 1
     # re pattern to fetch number of nodes from PBS config
     nnodes_rep = re.compile('#PBS -l select=([0-9]+)')
-    nnodes, = nnodes_rep.findall(jfr)
+    if nnodes_rep.match(jfr) is not None:
+        nnodes, = nnodes_rep.findall(jfr)
     nnodes = int(nnodes)
     # re pattern to fetch number of nodes from PBS config
     cores_per_node_mpiproc_rep = re.compile(r'[\s\S]*#PBS -l select='
@@ -95,17 +98,24 @@ def plot_run_job(run, out_filename):
                             r'([0-9a-zA-Z\-\_]+)'), jofr):
         run_env_vars[k] = v
     mps = ""
-    try:
-        # to parse wallclock time from job.out "walltime": "00:01:16"
-        wclock, = re.findall('"walltime": "([0-9]+:[0-9]+:[0-9]+)"', jofr)
+    # try to parse wallclock time from job.out
+    # "walltime": "00:01:16" or
+    # Elapsed Time:          0:31:49 (1909 seconds, 80% of total)
+    wclock_rep = re.compile('(?:"walltime": "|Elapsed Time:[ ]+)'
+                            '([0-9]+:[0-9]+:[0-9]+)')
+    wclock = "missing"
+    if wclock_rep.match(jofr) is not None:
+        wclock, = wclock_rep.findall(jofr)
+    else:
         # but the job.out can be read before PBS has reported the wall clock
-        # time, so catch the exception, wait, then try again
-    except ValueError:
-        # have a nap whilst PBS catches up
+        # time, so wait, then try again
         time.sleep(11)
         with open(os.path.join(run, 'job.out'), encoding="utf-8") as jof:
             jofr = jof.read()
-            wclock, = re.findall('"walltime": "([0-9]+:[0-9]+:[0-9]+)"', jofr)
+        # but this can also fail, as PBS End of Job may not get to cylc job.out
+        # so only update wclock if it is found
+        if wclock_rep.match(jofr) is not None:
+            wclock, = wclock_rep.findall(jofr)
 
     if mpiprocs is not None:
         mps = f"{mpiprocs} mpiprocs, "
@@ -125,7 +135,7 @@ def plot_run_job(run, out_filename):
     # for plotting.
     # Next, parse run configuration information from the job.err PBS file;
     # this was encoded into job.err by the /usr/bin/time utility which wrapped
-    # the run command for mpiexeC.
+    # the run command for mpiexec.
     with open(os.path.join(run, 'job.err'), encoding="utf-8") as jef:
         jefr = jef.read()
         # re pattern for max_mem_{process} for mem per rank
@@ -136,7 +146,7 @@ def plot_run_job(run, out_filename):
         mem_per_rank = [{'node': m[1], 'rank': int(m[2]), 'exec': m[3],
                          'memkB': int(m[4]), 'log': m[0]}
                         for m in mem_per_rank]
-        # print(mem_per_rank[0:3])
+
     for k, v in re.findall((r'(MPICH_RANK_REORDER_METHOD)[ ]*='
                             r'[ ]*([0-9a-zA-Z\-\_]+)'), jefr):
         run_env_vars[k] = v
@@ -154,7 +164,6 @@ def plot_run_job(run, out_filename):
     runtitle = runtitle + f', {lf_rpn} lfric ranks per node'
 
     nodes = [m['node'] for m in mem_per_node]
-    # print(f'{len(nodes)} nodes')
 
     width = 0.45
     offset = 0.5
