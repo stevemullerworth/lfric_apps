@@ -63,7 +63,7 @@
 {% elif task_ns.conf_name == "nwp_gal9-pert-C12" %}
 
     {% do task_dict.update({
-        "opt_confs": ["um_dump","test_diags", "perturb"],
+        "opt_confs": ["um_dump","test_diags1", "perturb"],
         "resolution": "C12",
         "DT": 1800,
         "tsteps": 10,

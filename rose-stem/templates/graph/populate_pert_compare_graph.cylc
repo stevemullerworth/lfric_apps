@@ -9,10 +9,10 @@
 {# Name the pert off task #}
 {% set pert_off_task = application_run_task~"_pert_off" %}
 
-{# Take a copy of the task definition and add the pert_off optional config #}
+{# Take a copy of the task definition and remove the perturb optional config #}
 {% set pert_off_values = task_values.copy() %}
-{% set opt_confs = pert_off_values["opt_confs"] %}
-{% set opt_confs = opt_confs + ["pert_off"] %}
+{% set opt_confs = pert_off_values["opt_confs"].copy() %}
+{% do opt_confs.remove("perturb") %}
 {% do pert_off_values.update({"opt_confs": opt_confs}) %}
 
 {# Record New task in tasks_to_run and in graph #}
