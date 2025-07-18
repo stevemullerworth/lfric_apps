@@ -17,6 +17,7 @@ from modules.occupy_fortran import entry
 VALID_APPS = [
     "applications/gungho_model",
     "applications/lfric_atm",
+    "applications/lfric2lfric",
     "applications/linear_model",
     "interfaces/coupled_interface",
     "interfaces/jedi_lfric_interface",

@@ -118,8 +118,8 @@ contains
     character(len=*),   intent(in)    :: source_collection_name
     character(len=*),   intent(in)    :: target_collection_name
 
-    ! LFRic-XIOS constants
-    integer(kind=i_def) :: start_timestep = 1_i_def
+    ! Timestep must be passed to LFRic-XIOS
+    integer(kind=i_def), parameter :: start_timestep = 1_i_def
 
     ! Namelist variables
     character(len=str_def) :: start_dump_filename
