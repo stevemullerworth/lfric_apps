@@ -133,10 +133,10 @@ contains
     ! Invoke lookup table kernel for adj_poly_adv_update.
     call create_lookup_poly_adv_upd( lookup_poly_adv, u_grad_f, h_reconstruction, &
                                      ls_wind, stencil_extent )
-    lookup_poly_field => lookup_poly_adv % get_lookup_field()
-    num_sets_poly_field => lookup_poly_adv % get_set_count_field()
-    nindices = lookup_poly_adv % get_nindices()
-    nsets = lookup_poly_adv % get_nsets_max()
+    lookup_poly_field => lookup_poly_adv%get_lookup_field()
+    num_sets_poly_field => lookup_poly_adv%get_set_count_field()
+    nindices = lookup_poly_adv%get_nindices()
+    nsets = lookup_poly_adv%get_nsets_max()
     call invoke_adj_poly_adv_upd_lookup( u_grad_f, h_reconstruction, &
                                          lookup_poly_field, num_sets_poly_field, &
                                          ls_wind, wind_dir, &
@@ -153,10 +153,10 @@ contains
         ! of the tl kernel.
         call create_lookup_poly1d( lookup_poly, h_reconstruction, field_ptr, &
                                    adv_coeffs, stencil_extent, fv_horizontal_order )
-        lookup_poly_field => lookup_poly % get_lookup_field()
-        num_sets_poly_field => lookup_poly % get_set_count_field()
-        nindices = lookup_poly % get_nindices()
-        nsets = lookup_poly % get_nsets_max()
+        lookup_poly_field => lookup_poly%get_lookup_field()
+        num_sets_poly_field => lookup_poly%get_set_count_field()
+        nindices = lookup_poly%get_nindices()
+        nsets = lookup_poly%get_nsets_max()
 
         call invoke_adj_poly1d_recon_lookup(h_reconstruction, field_ptr, lookup_poly_field, &
                                             num_sets_poly_field, adv_coeffs, nsets, nindices, &
@@ -167,10 +167,10 @@ contains
         ! of the TL kernel.
         call create_lookup_poly2d( lookup_poly, h_reconstruction, field_big_halo, &
                                    adv_coeffs, stencil_size, stencil_extent )
-        lookup_poly_field => lookup_poly % get_lookup_field()
-        num_sets_poly_field => lookup_poly % get_set_count_field()
-        nindices = lookup_poly % get_nindices()
-        nsets = lookup_poly % get_nsets_max()
+        lookup_poly_field => lookup_poly%get_lookup_field()
+        num_sets_poly_field => lookup_poly%get_set_count_field()
+        nindices = lookup_poly%get_nindices()
+        nsets = lookup_poly%get_nsets_max()
 
         call invoke_adj_poly2d_recon_lookup( h_reconstruction, field_big_halo, &
                                              lookup_poly_field, num_sets_poly_field, &

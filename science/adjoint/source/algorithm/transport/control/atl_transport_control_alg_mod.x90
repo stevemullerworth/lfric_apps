@@ -129,9 +129,9 @@ contains
     end if
 
     ! Initialise the transport controllers --------------------------------------
-    call advected_fields(igh_d) % copy_field_properties( zero_adv_fields )
-    call wind_n % copy_field_properties( zero_wind_n )
-    call wind_np1 % copy_field_properties( zero_wind_np1 )
+    call advected_fields(igh_d)%copy_field_properties( zero_adv_fields )
+    call wind_n%copy_field_properties( zero_wind_n )
+    call wind_np1%copy_field_properties( zero_wind_np1 )
 
     call invoke( setval_c( zero_adv_fields, 0.0_r_def ),                        &
                  setval_c( zero_wind_n, 0.0_r_def ),                            &
@@ -143,9 +143,9 @@ contains
             outer=outer, cheap_update_step=cheap_update_step                    &
     )
 
-    ls_wind_pert_rho_controller => tl_transport_controller % get_ls_wind_pert_rho_controller()
-    pert_wind_ls_rho_controller => tl_transport_controller % get_pert_wind_ls_rho_controller()
-    mesh => advected_fields(igh_d) % get_mesh()
+    ls_wind_pert_rho_controller => tl_transport_controller%get_ls_wind_pert_rho_controller()
+    pert_wind_ls_rho_controller => tl_transport_controller%get_pert_wind_ls_rho_controller()
+    mesh => advected_fields(igh_d)%get_mesh()
 
     ! ========================================================================= !
     ! TRANSPORT OF PROGNOSTICS
@@ -247,18 +247,18 @@ contains
     ! and then never called again. In principle, they could have been initialised
     ! before the first tl_transport_field without affecting the calculation, so we
     ! treat it as if that was the case and call them here.
-    pert_wind_ls_rho_wind_pc => pert_wind_ls_rho_controller % get_wind_precomputations()
-    transporting_wind => pert_wind_ls_rho_controller % get_transporting_wind()
-    wind_n_rtran => pert_wind_ls_rho_controller % get_wind_npdt( 0_i_def )
-    wind_np1_rtran => pert_wind_ls_rho_controller % get_wind_npdt( 1_i_def )
+    pert_wind_ls_rho_wind_pc => pert_wind_ls_rho_controller%get_wind_precomputations()
+    transporting_wind => pert_wind_ls_rho_controller%get_transporting_wind()
+    wind_n_rtran => pert_wind_ls_rho_controller%get_wind_npdt( 0_i_def )
+    wind_np1_rtran => pert_wind_ls_rho_controller%get_wind_npdt( 1_i_def )
 
     call adj_wind_precomputations_initialiser( pert_wind_ls_rho_wind_pc,        &
                                                transporting_wind,               &
                                                wind_n_rtran,                    &
                                                wind_np1_rtran )
 
-    ls_wind_pert_rho_flux_pc => ls_wind_pert_rho_controller % get_flux_precomputations()
-    ref_field_rtran => ls_wind_pert_rho_controller % get_ref_field()
+    ls_wind_pert_rho_flux_pc => ls_wind_pert_rho_controller%get_flux_precomputations()
+    ref_field_rtran => ls_wind_pert_rho_controller%get_ref_field()
 
     call adj_flux_precomputations_initialiser( ls_wind_pert_rho_flux_pc,        &
                                                ref_field_rtran )
@@ -304,17 +304,17 @@ contains
     integer(kind=i_def)                                     :: direction
     type(r_tran_field_type),                        pointer :: advecting_wind
 
-    splitting = transport_metadata % get_splitting()
-    flux_pc => transport_controller % get_flux_precomputations()
-    wind_pc => transport_controller % get_wind_precomputations()
-    num_steps = flux_pc % get_num_steps()
+    splitting = transport_metadata%get_splitting()
+    flux_pc => transport_controller%get_flux_precomputations()
+    wind_pc => transport_controller%get_wind_precomputations()
+    num_steps = flux_pc%get_num_steps()
 
     do step = 1, num_steps
       direction = get_splitting_direction( splitting, step )
-      advecting_wind => wind_pc % get_wind( mesh % get_id(), direction )
-      call zero_flux % initialise( advecting_wind % get_function_space() )
+      advecting_wind => wind_pc%get_wind( mesh%get_id(), direction )
+      call zero_flux%initialise( advecting_wind%get_function_space() )
       call invoke( setval_c( zero_flux, 0.0_r_tran ) )
-      call flux_pc % initialise_step( step, zero_flux )
+      call flux_pc%initialise_step( step, zero_flux )
     end do
 
   end subroutine init_zero_flux_pc

@@ -45,8 +45,8 @@ module atl_transport_controller_mod
     type(transport_controller_type),          pointer :: pert_wind_ls_rho_controller
     type(transport_controller_type),          pointer :: ls_wind_pert_rho_controller
 
-    pert_wind_ls_rho_controller => tl_transport_controller % get_pert_wind_ls_rho_controller()
-    ls_wind_pert_rho_controller => tl_transport_controller % get_ls_wind_pert_rho_controller()
+    pert_wind_ls_rho_controller => tl_transport_controller%get_pert_wind_ls_rho_controller()
+    ls_wind_pert_rho_controller => tl_transport_controller%get_ls_wind_pert_rho_controller()
 
     call adj_pert_wind_ls_rho_initialiser( pert_wind_ls_rho_controller, &
                                            model_clock,                 &

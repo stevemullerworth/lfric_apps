@@ -190,9 +190,9 @@ contains
 
           if ( do_horizontal ) then
             ! Need bigger halos due to atl_w3h being a stencil operation with GH_INC.
-            call ls_reconstruction_field_big_halo % initialise( ls_reconstruction_field % get_function_space(), &
-                                                                halo_depth=stencil_depth + 1_i_def )
-            call ls_wind_big_halo % initialise( ls_wind % get_function_space(), &
+            call ls_reconstruction_field_big_halo%initialise( ls_reconstruction_field%get_function_space(), &
+                                                              halo_depth=stencil_depth + 1_i_def )
+            call ls_wind_big_halo%initialise( ls_wind%get_function_space(), &
                                                 halo_depth=stencil_depth + 1_i_def )
             call invoke( setval_X( ls_reconstruction_field_big_halo, ls_reconstruction_field ),  &
                          setval_X( ls_wind_big_halo, ls_wind ),                                  &
@@ -208,10 +208,10 @@ contains
             ! a dry-run of the TL code.
             call create_lookup_w3h_adv_upd( lookup_w3h, adv_inc_1, reconstruction_field, &
                                             wind, m3_inv, stencil_depth )
-            lookup_w3h_field => lookup_w3h % get_lookup_field()
-            set_count_w3h_field => lookup_w3h % get_set_count_field()
-            nindices = lookup_w3h % get_nindices()
-            nsets = lookup_w3h % get_nsets_max()
+            lookup_w3h_field => lookup_w3h%get_lookup_field()
+            set_count_w3h_field => lookup_w3h%get_set_count_field()
+            nindices = lookup_w3h%get_nindices()
+            nsets = lookup_w3h%get_nsets_max()
             call invoke_adj_w3h_adv_upd_lookup_kernel_type( adv_inc_1, reconstruction_field, &
                                                             lookup_w3h_field, set_count_w3h_field, &
                                                             ls_wind, stencil_depth, m3_inv, &

@@ -81,12 +81,12 @@ contains
     recon_fspace => reconstruction%get_function_space()
     mesh => recon_fspace%get_mesh()
 
-    call lookup % initialise( nindices, nsets_max, mesh, recon_fspace%which(), stencil_extent )
-    lookup_poly1d_field => lookup % get_lookup_field()
-    set_counts_poly1d_field => lookup % get_set_count_field()
+    call lookup%initialise( nindices, nsets_max, mesh, recon_fspace%which(), stencil_extent )
+    lookup_poly1d_field => lookup%get_lookup_field()
+    set_counts_poly1d_field => lookup%get_set_count_field()
 
-    call lookup_poly1d_field % copy_field_properties( lookup_poly1d_field_dummy )
-    call set_counts_poly1d_field % copy_field_properties( set_counts_poly1d_field_dummy )
+    call lookup_poly1d_field%copy_field_properties( lookup_poly1d_field_dummy )
+    call set_counts_poly1d_field%copy_field_properties( set_counts_poly1d_field_dummy )
 
     loop_halo_depth = stencil_extent
     call invoke_gen_poly1d_lookup_kernel( tracer, &
@@ -153,12 +153,12 @@ contains
     recon_fspace => reconstruction%get_function_space()
     mesh => recon_fspace%get_mesh()
 
-    call lookup % initialise( nindices, nsets_max, mesh, recon_fspace%which(), stencil_extent )
-    lookup_poly2d_field => lookup % get_lookup_field()
-    set_counts_poly2d_field => lookup % get_set_count_field()
+    call lookup%initialise( nindices, nsets_max, mesh, recon_fspace%which(), stencil_extent )
+    lookup_poly2d_field => lookup%get_lookup_field()
+    set_counts_poly2d_field => lookup%get_set_count_field()
 
-    call lookup_poly2d_field % copy_field_properties( lookup_poly2d_field_dummy )
-    call set_counts_poly2d_field % copy_field_properties( set_counts_poly2d_field_dummy )
+    call lookup_poly2d_field%copy_field_properties( lookup_poly2d_field_dummy )
+    call set_counts_poly2d_field%copy_field_properties( set_counts_poly2d_field_dummy )
 
     loop_halo_depth = stencil_extent
     call invoke_gen_poly2d_lookup_kernel( tracer, &
@@ -217,13 +217,13 @@ contains
 
     advective_fspace => advective%get_function_space()
     mesh => advective_fspace%get_mesh()
-    call lookup % initialise( nindices, nsets_max, mesh, advective_fspace%which(), stencil_extent, &
-                              ndata=nfaces )
-    lookup_field => lookup % get_lookup_field()
-    set_counts_field => lookup % get_set_count_field()
+    call lookup%initialise( nindices, nsets_max, mesh, advective_fspace%which(), stencil_extent, &
+                            ndata=nfaces )
+    lookup_field => lookup%get_lookup_field()
+    set_counts_field => lookup%get_set_count_field()
 
-    call lookup_field % copy_field_properties( lookup_field_dummy )
-    call set_counts_field % copy_field_properties( set_counts_field_dummy )
+    call lookup_field%copy_field_properties( lookup_field_dummy )
+    call set_counts_field%copy_field_properties( set_counts_field_dummy )
 
     loop_halo_depth = stencil_extent
 
@@ -291,13 +291,13 @@ contains
 
     tracer_fspace => tracer%get_function_space()
     mesh => tracer_fspace%get_mesh()
-    call lookup % initialise( nindices, nsets_max, mesh, tracer_fspace%which(), stencil_extent, &
-                              ndata=nfaces )
-    lookup_field => lookup % get_lookup_field()
-    set_counts_field => lookup % get_set_count_field()
+    call lookup%initialise( nindices, nsets_max, mesh, tracer_fspace%which(), stencil_extent, &
+                            ndata=nfaces )
+    lookup_field => lookup%get_lookup_field()
+    set_counts_field => lookup%get_set_count_field()
 
-    call lookup_field % copy_field_properties( lookup_field_dummy )
-    call set_counts_field % copy_field_properties( set_counts_field_dummy )
+    call lookup_field%copy_field_properties( lookup_field_dummy )
+    call set_counts_field%copy_field_properties( set_counts_field_dummy )
 
     loop_halo_depth = stencil_extent
 
@@ -356,22 +356,22 @@ contains
 
     nullify( mesh, w3fspace, lookup_field, set_counts_field )
 
-    w3fspace => dummy_w3 % get_function_space()
-    mesh => w3fspace % get_mesh()
-    call lookup % initialise( nindices, nsets_max, mesh, W3, stencil_extent, &
-                              ndata=nfaces )
-    lookup_field => lookup % get_lookup_field()
-    set_counts_field => lookup % get_set_count_field()
+    w3fspace => dummy_w3%get_function_space()
+    mesh => w3fspace%get_mesh()
+    call lookup%initialise( nindices, nsets_max, mesh, W3, stencil_extent, &
+                            ndata=nfaces )
+    lookup_field => lookup%get_lookup_field()
+    set_counts_field => lookup%get_set_count_field()
 
-    call lookup_field % copy_field_properties( lookup_field_dummy )
-    call set_counts_field % copy_field_properties( set_counts_field_dummy )
+    call lookup_field%copy_field_properties( lookup_field_dummy )
+    call set_counts_field%copy_field_properties( set_counts_field_dummy )
 
     loop_halo_depth = stencil_extent
 
     ! NOTE: For this kernel fields with stencils must be extended so that the halo depth is
     !       loop_halo_depth + stencil_extent, because PSyclone will try to perform a halo exchange.
     !       Due to the OWNED_AND_HALO_CELL_COLUMN argument.
-    call dummy_w3_big_halo%initialise( dummy_w3 % get_function_space(), &
+    call dummy_w3_big_halo%initialise( dummy_w3%get_function_space(), &
                                        halo_depth=loop_halo_depth + stencil_extent )
 
     call invoke_gen_a_h_o_lookup_kernel( dummy_w3_big_halo, &

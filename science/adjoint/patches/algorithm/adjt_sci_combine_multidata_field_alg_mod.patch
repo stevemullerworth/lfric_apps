@@ -68,12 +68,12 @@
 +    n2 = 2_i_def
      ndata_first = .false._l_def
 -    ndata_first_input = ndata_first
-+    vector_space_w3_ptr => function_space_collection % get_fs(mesh, element_order_h, element_order_v, &
-+                                                              w3, n, ndata_first = ndata_first)
-+    vector_space_w3_n1_ptr => function_space_collection % get_fs(mesh, element_order_h, element_order_v, &
-+                                                                 w3, n1, ndata_first = ndata_first)
-+    vector_space_w3_n2_ptr => function_space_collection % get_fs(mesh, element_order_h, element_order_v, &
-+                                                                 w3, n2, ndata_first = ndata_first)
++    vector_space_w3_ptr => function_space_collection%get_fs(mesh, element_order_h, element_order_v, &
++                                                            w3, n, ndata_first = ndata_first)
++    vector_space_w3_n1_ptr => function_space_collection%get_fs(mesh, element_order_h, element_order_v, &
++                                                               w3, n1, ndata_first = ndata_first)
++    vector_space_w3_n2_ptr => function_space_collection%get_fs(mesh, element_order_h, element_order_v, &
++                                                               w3, n2, ndata_first = ndata_first)
 +    call field_out%initialise(vector_space=vector_space_w3_ptr, name='field_out')
 +    call field1_in%initialise(vector_space=vector_space_w3_n1_ptr, name='field1_in')
 +    call field2_in%initialise(vector_space=vector_space_w3_n2_ptr, name='field2_in')

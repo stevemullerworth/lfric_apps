@@ -40,7 +40,7 @@ module adj_transport_controller_mod
     ! Internal variables
     type(r_tran_field_type),                pointer :: ref_field_rtran
 
-    ref_field_rtran => transport_controller % get_ref_field()
+    ref_field_rtran => transport_controller%get_ref_field()
 
     call adj_copy_field(ref_field_rdef, ref_field_rtran)
 
@@ -82,7 +82,7 @@ module adj_transport_controller_mod
     type(r_tran_field_type),                pointer :: wind_np1_rtran
 
     dt_rtran = real(model_clock%get_seconds_per_step(), r_tran)
-    num_substeps = transport_controller % get_num_substeps()
+    num_substeps = transport_controller%get_num_substeps()
 
     fixed_multiple_substeps = (                                                &
       substep_transport == substep_transport_two .or.                          &
@@ -101,7 +101,7 @@ module adj_transport_controller_mod
     ! Normally executed if perform_watkins is false, which we have guaranteed
     ! with the error guarding above. Currently this routine should do nothing
     ! to the active fields and only produce an error if the wrong configuration is used.
-    transporting_wind => transport_controller % get_transporting_wind()
+    transporting_wind => transport_controller%get_transporting_wind()
     call adj_substep_transport_alg( num_substeps,      &
                                     transporting_wind, &
                                     dt_rtran )
@@ -109,9 +109,9 @@ module adj_transport_controller_mod
     ! ------------------------------------------------------------------------ !
     ! Set transporting wind based on optional arguments
     ! ------------------------------------------------------------------------ !
-    cheap_update_step = transport_controller % get_cheap_update_step()
-    wind_n_rtran => transport_controller % get_wind_npdt(0_i_def)
-    wind_np1_rtran => transport_controller % get_wind_npdt(1_i_def)
+    cheap_update_step = transport_controller%get_cheap_update_step()
+    wind_n_rtran => transport_controller%get_wind_npdt(0_i_def)
+    wind_np1_rtran => transport_controller%get_wind_npdt(1_i_def)
 
     ! "cheap update" wind: 1/2 difference between wind_n and wind_np1
     if (present(wind_np1_rdef) .and. cheap_update_step) then

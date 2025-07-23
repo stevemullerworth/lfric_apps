@@ -79,11 +79,11 @@ module adj_flux_precomputations_mod
     if ( extended_mesh ) then
       call log_event("adj_flux_pc_init: adjoint of extended mesh computations not yet implemented.", LOG_LEVEL_ERROR)
     else
-      mesh_id = flux_pc % get_mesh_id_from_idx( 1_i_def )
-      fpc_ref_field => flux_pc % get_ref_field( mesh_id, 1_i_def )
-      fpc_ref_mass => flux_pc % get_ref_mass( mesh_id, 1_i_def )
+      mesh_id = flux_pc%get_mesh_id_from_idx( 1_i_def )
+      fpc_ref_field => flux_pc%get_ref_field( mesh_id, 1_i_def )
+      fpc_ref_mass => flux_pc%get_ref_mass( mesh_id, 1_i_def )
       detj_w3 => get_detj_at_w3_r_tran( mesh_id )
-      call fpc_ref_mass % copy_field_properties( tmp_field )
+      call fpc_ref_mass%copy_field_properties( tmp_field )
       call invoke( X_times_Y( tmp_field, detj_w3, fpc_ref_mass ), &
                    inc_X_plus_Y( fpc_ref_field, tmp_field ),      &
                    setval_c( fpc_ref_mass, 0.0_r_tran ) )
@@ -109,7 +109,7 @@ module adj_flux_precomputations_mod
       end if
 
       ! Set first reference field for this object ------------------------------
-      mesh_id = flux_pc % get_mesh_id_from_idx( 1_i_def )
+      mesh_id = flux_pc%get_mesh_id_from_idx( 1_i_def )
       if (mesh%get_id() /= mesh_id) then
       call log_event(                                                          &
           'adj_flux_pc_init: restricting ref_field to the appropriate ' //     &
@@ -117,7 +117,7 @@ module adj_flux_precomputations_mod
       )
       else
         ! Flux is already on the mesh for this precomputation object
-        fpc_ref_field => flux_pc % get_ref_field( mesh_id, 1_i_def )
+        fpc_ref_field => flux_pc%get_ref_field( mesh_id, 1_i_def )
         call invoke( inc_X_plus_Y( ref_field, fpc_ref_field ), &
                      setval_c( fpc_ref_field, 0.0_r_tran ) )
       end if
@@ -163,7 +163,7 @@ module adj_flux_precomputations_mod
     end if
 
     ! Is the reference flux in the correct space for this split step?
-    splitting = flux_pc % get_splitting()
+    splitting = flux_pc%get_splitting()
     fs_id = ref_flux%which_function_space()
     step_of_substep = MOD(step - 1, get_num_split_steps(splitting)) + 1
     correct_fs_id = get_direction_w2_fs(splitting, step_of_substep)
@@ -177,7 +177,7 @@ module adj_flux_precomputations_mod
     end if
 
     ! Is the step number valid?
-    num_steps = flux_pc % get_num_steps()
+    num_steps = flux_pc%get_num_steps()
     if (step > num_steps .or. step < 1) then
       write(log_scratch_space, '(A,I8,A,I8)')                                  &
           'adj_initialise_step: the value of step: ', step,                    &
@@ -186,7 +186,7 @@ module adj_flux_precomputations_mod
     end if
 
     ! Set reference flux for this object ---------------------------------------
-    ref_flux_pc => flux_pc % get_ref_flux( flux_pc_mesh_id, step )
+    ref_flux_pc => flux_pc%get_ref_flux( flux_pc_mesh_id, step )
     if (mesh%get_id() /= flux_pc_mesh_id) then
       call log_event(                                                          &
           'adj_initialise_step: restricting fluxes to the appropriate ' //     &

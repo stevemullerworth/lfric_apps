@@ -93,8 +93,8 @@ contains
     if ( transport_metadata%get_splitting() == splitting_strang_vhv ) then
 
       ! Get fluxes from first two stages of splitting
-      old_flux => transport_counter % get_flux(1)
-      hori_flux => transport_counter % get_flux(2)
+      old_flux => transport_counter%get_flux(1)
+      hori_flux => transport_counter%get_flux(2)
 
       call sum_vert_flux%initialise(w2v_fs)
       call invoke( setval_c( sum_vert_flux, 0.0_r_tran ),                           &
@@ -117,7 +117,7 @@ contains
       is_flux_3d = .false.
       is_flux_split = .false.
 
-      select case ( flux_last_step % which_function_space() )
+      select case ( flux_last_step%which_function_space() )
       case ( W2 )
         is_flux_3d = .true.
       case ( W2H )

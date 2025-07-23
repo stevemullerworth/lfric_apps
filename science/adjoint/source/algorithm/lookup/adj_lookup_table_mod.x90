@@ -92,42 +92,42 @@ module adj_lookup_table_mod
 
     nullify( vector_space_set_count_ptr, vector_space_lookup_ptr, twod_mesh )
 
-    self % nindices = nindices
-    self % nsets_max = nsets_max
+    self%nindices = nindices
+    self%nsets_max = nsets_max
 
     ! For kernels that require a lookup with multidata fields.
     if ( present(ndata) ) then
-      self % ndata = ndata
+      self%ndata = ndata
     else
-      self % ndata = 1_i_def
+      self%ndata = 1_i_def
     end if
 
     ! Store indexing fields on the 2D mesh. Problematic stencils
     ! are applied horizontally so no vertical information is required.
-    twod_mesh => mesh_collection % get_mesh(mesh, TWOD)
+    twod_mesh => mesh_collection%get_mesh(mesh, TWOD)
 
     ! The lookup table is packed with the structure:
     ! [[[[ndata], ... number of indices], ... number of sets], ... number of cells]
-    ntotal = self % ndata*nindices*nsets_max
-    vector_space_lookup_ptr => function_space_collection % get_fs( twod_mesh,       &
-                                                                   element_order_h, &
-                                                                   element_order_v, &
-                                                                   fs,              &
-                                                                   ndata=ntotal )
+    ntotal = self%ndata*nindices*nsets_max
+    vector_space_lookup_ptr => function_space_collection%get_fs( twod_mesh,       &
+                                                                 element_order_h, &
+                                                                 element_order_v, &
+                                                                 fs,              &
+                                                                 ndata=ntotal )
 
-    vector_space_set_count_ptr => function_space_collection % get_fs( twod_mesh,       &
-                                                                      element_order_h, &
-                                                                      element_order_v, &
-                                                                      fs,              &
-                                                                      ndata=self%ndata )
+    vector_space_set_count_ptr => function_space_collection%get_fs( twod_mesh,       &
+                                                                    element_order_h, &
+                                                                    element_order_v, &
+                                                                    fs,              &
+                                                                    ndata=self%ndata )
 
 
     ! NOTE: Halo with twice the depth needed, as table is generated on halo points,
     !       which will attempt to access a stencil which reaches to `stencil_depth*2`.
-    call self % lookup_field % initialise( vector_space=vector_space_lookup_ptr, &
-                                           halo_depth=stencil_depth*2 )
-    call self % set_count_field % initialise( vector_space=vector_space_set_count_ptr, &
-                                              halo_depth=stencil_depth*2 )
+    call self%lookup_field%initialise( vector_space=vector_space_lookup_ptr, &
+                                       halo_depth=stencil_depth*2 )
+    call self%set_count_field%initialise( vector_space=vector_space_set_count_ptr, &
+                                          halo_depth=stencil_depth*2 )
 
     ! Set initial values for the lookup fields.
     ! -1 has intentionally been chosen for the lookup itself, to show
@@ -135,8 +135,8 @@ module adj_lookup_table_mod
     !
     ! Similarly the set count should start at 0 for each cell.
     call invoke( name = "init_lookup", &
-                 int_setval_c( self % lookup_field, -1_i_def ), &
-                 int_setval_c( self % set_count_field, 0_i_def ) )
+                 int_setval_c( self%lookup_field, -1_i_def ), &
+                 int_setval_c( self%set_count_field, 0_i_def ) )
 
   end subroutine adj_lookup_table_initialiser
 
@@ -155,7 +155,7 @@ module adj_lookup_table_mod
     type(integer_field_type), pointer :: lookup_field
 
     nullify(lookup_field)
-    lookup_field => self % lookup_field
+    lookup_field => self%lookup_field
 
   end function get_lookup_field
 
@@ -176,7 +176,7 @@ module adj_lookup_table_mod
     type(integer_field_type), pointer :: set_count_field
 
     nullify(set_count_field)
-    set_count_field => self % set_count_field
+    set_count_field => self%set_count_field
 
   end function get_set_count_field
 
@@ -194,7 +194,7 @@ module adj_lookup_table_mod
     ! Returns
     integer(kind=i_def) :: nsets_max
 
-    nsets_max = self % nsets_max
+    nsets_max = self%nsets_max
 
   end function get_nsets_max
 
@@ -212,7 +212,7 @@ module adj_lookup_table_mod
     ! Returns
     integer(kind=i_def) :: nindices
 
-    nindices = self % nindices
+    nindices = self%nindices
 
   end function get_nindices
 
@@ -230,7 +230,7 @@ module adj_lookup_table_mod
     ! Returns
     integer(kind=i_def) :: ndata
 
-    ndata = self % ndata
+    ndata = self%ndata
 
   end function get_ndata
 

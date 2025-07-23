@@ -102,8 +102,8 @@ contains
               ndata_first=ndata_first                                          &
           )
 
-          call field_new_h % initialise( vector_space=w3md_h_fs )
-          call field_new_v % initialise( vector_space=w3md_v_fs )
+          call field_new_h%initialise( vector_space=w3md_h_fs )
+          call field_new_v%initialise( vector_space=w3md_v_fs )
 
           ! Combine horizontal and vertical components of W3 multidata field
           call invoke( name="combine_w3_recon",                                       &

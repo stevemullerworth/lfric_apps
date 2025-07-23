@@ -77,38 +77,38 @@ module adj_wind_precomputations_alg_mod
     end if
 
     ! Store end-of-time step wind (if provided, otherwise use 3D wind)
-    mesh_id = wind_pc % get_mesh_id_from_idx(1_i_def)
-    wind_pc_np1 => wind_pc % get_wind_npdt( mesh_id, 1_i_def )
+    mesh_id = wind_pc%get_mesh_id_from_idx(1_i_def)
+    wind_pc_np1 => wind_pc%get_wind_npdt( mesh_id, 1_i_def )
     if (present(wind_np1)) then
       call invoke( inc_X_plus_Y( wind_np1, wind_pc_np1 ), &
                    setval_c( wind_pc_np1, 0.0_r_tran ) )
     else
-      wind_pc_3d => wind_pc % get_wind( mesh_id, direction_3d )
+      wind_pc_3d => wind_pc%get_wind( mesh_id, direction_3d )
       call invoke( inc_X_plus_Y( wind_pc_3d, wind_pc_np1 ), &
                    setval_c( wind_pc_np1, 0.0_r_tran ) )
     end if
 
     ! Store start-of-time step wind (if provided, otherwise use 3D wind)
-    wind_pc_n => wind_pc % get_wind_npdt( mesh_id, 0_i_def )
+    wind_pc_n => wind_pc%get_wind_npdt( mesh_id, 0_i_def )
     if (present(wind_n)) then
       call invoke( inc_X_plus_Y( wind_n, wind_pc_n ), &
                    setval_c( wind_pc_n, 0.0_r_tran ) )
     else
-      wind_pc_3d => wind_pc % get_wind( mesh_id, direction_3d )
+      wind_pc_3d => wind_pc%get_wind( mesh_id, direction_3d )
       call invoke( inc_X_plus_Y( wind_pc_3d, wind_pc_n ), &
                    setval_c( wind_pc_n, 0.0_r_tran ) )
     end if
 
     ! Split the wind into horizontal and vertical components
     do i = num_meshes, 1, -1
-      mesh_id = wind_pc % get_mesh_id_from_idx(i)
-      mesh => mesh_collection % get_mesh(mesh_id)
+      mesh_id = wind_pc%get_mesh_id_from_idx(i)
+      mesh => mesh_collection%get_mesh(mesh_id)
       face_selector_ew => get_face_selector_ew(mesh_id)
       face_selector_ns => get_face_selector_ns(mesh_id)
 
-      wind_pc_h => wind_pc % get_wind( mesh_id, direction_h )
-      wind_pc_v => wind_pc % get_wind( mesh_id, direction_v )
-      wind_pc_3d => wind_pc % get_wind( mesh_id, direction_3d )
+      wind_pc_h => wind_pc%get_wind( mesh_id, direction_h )
+      wind_pc_v => wind_pc%get_wind( mesh_id, direction_v )
+      wind_pc_3d => wind_pc%get_wind( mesh_id, direction_3d )
       call invoke( adj_split_w2_field_kernel_type( wind_pc_h,                       &
                                                    wind_pc_v,                       &
                                                    wind_pc_3d,                      &
@@ -116,8 +116,8 @@ module adj_wind_precomputations_alg_mod
                                                    face_selector_ns ) )
     end do
 
-    mesh_id = wind_pc % get_mesh_id_from_idx(1_i_def)
-    wind_pc_3d => wind_pc % get_wind( mesh_id, direction_3d )
+    mesh_id = wind_pc%get_mesh_id_from_idx(1_i_def)
+    wind_pc_3d => wind_pc%get_wind( mesh_id, direction_3d )
     call invoke( inc_X_plus_Y( transporting_wind, wind_pc_3d ), &
                  setval_c( wind_pc_3d, 0.0_r_tran ) )
 

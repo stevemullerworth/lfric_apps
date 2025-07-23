@@ -139,9 +139,9 @@ contains
           ! Run adj_apply_helmholtz_operator kernel.
           ! Generate adjoint lookup table for stencil operation. Dry run of the TL code, horizontal only.
           call create_lookup_apply_helmholtz_op( lookup, x_vec )
-          lookup_field => lookup % get_lookup_field()
-          set_counts_field => lookup % get_set_count_field()
-          nindices = lookup % get_nindices()
+          lookup_field => lookup%get_lookup_field()
+          set_counts_field => lookup%get_set_count_field()
+          nindices = lookup%get_nindices()
 
           call invoke_adj_a_h_o_lookup_kernel( x_vec,              &
                                                y_vec,              &

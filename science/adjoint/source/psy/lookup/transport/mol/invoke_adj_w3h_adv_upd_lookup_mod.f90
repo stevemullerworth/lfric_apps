@@ -118,72 +118,72 @@ module invoke_adj_w3h_adv_upd_lookup_mod
     !
     ! Initialise field and/or operator proxies
     !
-    advective_increment_proxy = advective_increment % get_proxy()
-    advective_increment_data => advective_increment_proxy % data
-    tracer_proxy = tracer % get_proxy()
-    tracer_data => tracer_proxy % data
-    lookup_w3h_adv_upd_field_proxy = lookup_w3h_adv_upd_field % get_proxy()
-    lookup_w3h_adv_upd_field_data => lookup_w3h_adv_upd_field_proxy % data
-    set_count_w3h_adv_upd_field_proxy = set_count_w3h_adv_upd_field % get_proxy()
-    set_count_w3h_adv_upd_field_data => set_count_w3h_adv_upd_field_proxy % data
-    wind_proxy = wind % get_proxy()
-    wind_data => wind_proxy % data
-    m3_inv_proxy = m3_inv % get_proxy()
-    m3_inv_local_stencil => m3_inv_proxy % local_stencil
+    advective_increment_proxy = advective_increment%get_proxy()
+    advective_increment_data => advective_increment_proxy%data
+    tracer_proxy = tracer%get_proxy()
+    tracer_data => tracer_proxy%data
+    lookup_w3h_adv_upd_field_proxy = lookup_w3h_adv_upd_field%get_proxy()
+    lookup_w3h_adv_upd_field_data => lookup_w3h_adv_upd_field_proxy%data
+    set_count_w3h_adv_upd_field_proxy = set_count_w3h_adv_upd_field%get_proxy()
+    set_count_w3h_adv_upd_field_data => set_count_w3h_adv_upd_field_proxy%data
+    wind_proxy = wind%get_proxy()
+    wind_data => wind_proxy%data
+    m3_inv_proxy = m3_inv%get_proxy()
+    m3_inv_local_stencil => m3_inv_proxy%local_stencil
     !
     ! Initialise number of layers
     !
-    nlayers_advective_increment = advective_increment_proxy % vspace % get_nlayers()
+    nlayers_advective_increment = advective_increment_proxy%vspace%get_nlayers()
     !
     ! Create a mesh object
     !
-    mesh => advective_increment_proxy % vspace % get_mesh()
-    max_halo_depth_mesh = mesh % get_halo_depth()
+    mesh => advective_increment_proxy%vspace%get_mesh()
+    max_halo_depth_mesh = mesh%get_halo_depth()
     !
     ! Initialise stencil dofmaps
     !
-    wind_stencil_map => wind_proxy % vspace % get_stencil_2D_dofmap( STENCIL_2D_CROSS, stencil_extent )
+    wind_stencil_map => wind_proxy%vspace%get_stencil_2D_dofmap( STENCIL_2D_CROSS, stencil_extent )
     wind_max_branch_length = stencil_extent + 1_i_def
-    wind_stencil_dofmap => wind_stencil_map % get_whole_dofmap()
-    wind_stencil_size => wind_stencil_map % get_stencil_sizes()
+    wind_stencil_dofmap => wind_stencil_map%get_whole_dofmap()
+    wind_stencil_size => wind_stencil_map%get_stencil_sizes()
     !
     ! Look-up dofmaps for each function space
     !
-    map_w3 => advective_increment_proxy % vspace % get_whole_dofmap()
-    map_adspc1_tracer => tracer_proxy % vspace % get_whole_dofmap()
-    map_adspc2_lookup_w3h_adv_upd_field => lookup_w3h_adv_upd_field_proxy % vspace % get_whole_dofmap()
-    map_adspc2_set_count_w3h_adv_upd_field => set_count_w3h_adv_upd_field_proxy % vspace % get_whole_dofmap()
-    map_any_w2 => wind_proxy % vspace % get_whole_dofmap()
+    map_w3 => advective_increment_proxy%vspace%get_whole_dofmap()
+    map_adspc1_tracer => tracer_proxy%vspace%get_whole_dofmap()
+    map_adspc2_lookup_w3h_adv_upd_field => lookup_w3h_adv_upd_field_proxy%vspace%get_whole_dofmap()
+    map_adspc2_set_count_w3h_adv_upd_field => set_count_w3h_adv_upd_field_proxy%vspace%get_whole_dofmap()
+    map_any_w2 => wind_proxy%vspace%get_whole_dofmap()
     !
     ! Initialise number of DoFs for w3
     !
-    ndf_w3 = advective_increment_proxy % vspace % get_ndf()
-    undf_w3 = advective_increment_proxy % vspace % get_undf()
+    ndf_w3 = advective_increment_proxy%vspace%get_ndf()
+    undf_w3 = advective_increment_proxy%vspace%get_undf()
     !
     ! Initialise number of DoFs for adspc1_tracer
     !
-    ndf_adspc1_tracer = tracer_proxy % vspace % get_ndf()
-    undf_adspc1_tracer = tracer_proxy % vspace % get_undf()
+    ndf_adspc1_tracer = tracer_proxy%vspace%get_ndf()
+    undf_adspc1_tracer = tracer_proxy%vspace%get_undf()
     !
     ! Initialise number of DoFs for lookup_w3h_adv_upd_field
     !
-    ndf_adspc2_lookup_w3h_adv_upd_field = lookup_w3h_adv_upd_field_proxy % vspace % get_ndf()
-    undf_adspc2_lookup_w3h_adv_upd_field = lookup_w3h_adv_upd_field_proxy % vspace % get_undf()
+    ndf_adspc2_lookup_w3h_adv_upd_field = lookup_w3h_adv_upd_field_proxy%vspace%get_ndf()
+    undf_adspc2_lookup_w3h_adv_upd_field = lookup_w3h_adv_upd_field_proxy%vspace%get_undf()
 
     ! Initialise number of DoFs for set_count_w3h_adv_upd_field
     !
-    ndf_adspc3_set_count_w3h_adv_upd_field = set_count_w3h_adv_upd_field_proxy % vspace % get_ndf()
-    undf_adspc3_set_count_w3h_adv_upd_field = set_count_w3h_adv_upd_field_proxy % vspace % get_undf()
+    ndf_adspc3_set_count_w3h_adv_upd_field = set_count_w3h_adv_upd_field_proxy%vspace%get_ndf()
+    undf_adspc3_set_count_w3h_adv_upd_field = set_count_w3h_adv_upd_field_proxy%vspace%get_undf()
     !
     ! Initialise number of DoFs for any_w2
     !
-    ndf_any_w2 = wind_proxy % vspace % get_ndf()
-    undf_any_w2 = wind_proxy % vspace % get_undf()
+    ndf_any_w2 = wind_proxy%vspace%get_ndf()
+    undf_any_w2 = wind_proxy%vspace%get_undf()
     !
     ! Set-up all of the loop bounds
     !
     loop0_start = 1
-    loop0_stop = mesh % get_last_edge_cell()
+    loop0_stop = mesh%get_last_edge_cell()
     !
     ! Call kernels and communication routines
     !
@@ -234,7 +234,7 @@ module invoke_adj_w3h_adv_upd_lookup_mod
     !
     ! Set halos dirty/clean for fields modified in the above loop
     !
-    call tracer_proxy % set_dirty()
+    call tracer_proxy%set_dirty()
     !
     !
   end subroutine invoke_adj_w3h_adv_upd_lookup_kernel_type

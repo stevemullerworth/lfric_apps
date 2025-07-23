@@ -114,10 +114,10 @@ contains
       ! of the TL kernel.
       call create_lookup_poly1d( lookup_poly, field_new, field_ptr, &
                                  flux_coeffs, stencil_extent, fv_horizontal_order )
-      lookup_poly_field => lookup_poly % get_lookup_field()
-      num_sets_poly_field => lookup_poly % get_set_count_field()
-      nindices = lookup_poly % get_nindices()
-      nsets = lookup_poly % get_nsets_max()
+      lookup_poly_field => lookup_poly%get_lookup_field()
+      num_sets_poly_field => lookup_poly%get_set_count_field()
+      nindices = lookup_poly%get_nindices()
+      nsets = lookup_poly%get_nsets_max()
 
       ! Invoke lookup table kernel.
       call invoke_adj_poly1d_recon_lookup( field_new, field_ptr, &
@@ -131,10 +131,10 @@ contains
       ! of the TL kernel.
       call create_lookup_poly2d( lookup_poly, field_new, field_old_big_halo, flux_coeffs, &
                                  stencil_size, stencil_extent )
-      lookup_poly_field => lookup_poly % get_lookup_field()
-      num_sets_poly_field => lookup_poly % get_set_count_field()
-      nindices = lookup_poly % get_nindices()
-      nsets = lookup_poly % get_nsets_max()
+      lookup_poly_field => lookup_poly%get_lookup_field()
+      num_sets_poly_field => lookup_poly%get_set_count_field()
+      nindices = lookup_poly%get_nindices()
+      nsets = lookup_poly%get_nsets_max()
 
       call invoke_adj_poly2d_recon_lookup( field_new, field_old_big_halo, &
                                            lookup_poly_field, num_sets_poly_field, &

@@ -56,7 +56,7 @@
 -    call face_selector_ew%initialise(vector_space=vector_space_w3_ptr, name='face_selector_ew')
 -    call face_selector_ns%initialise(vector_space=vector_space_w3_ptr, name='face_selector_ns')
 -    call uvw_input%initialise(vector_space=vector_space_w3_ptr, name='uvw_input')
-+    vector_space_w2_ptr => function_space_collection % get_fs(mesh, element_order_h, element_order_v, w2)
++    vector_space_w2_ptr => function_space_collection%get_fs(mesh, element_order_h, element_order_v, w2)
 +    call uvw%initialise(vector_space=vector_space_w2_ptr, name='uvw')
 +    call uvw_input%initialise(vector_space=vector_space_w2_ptr, name='uvw_input')
      call uv_input%initialise(vector_space=vector_space_w2h_ptr, name='uv_input')

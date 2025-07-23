@@ -89,9 +89,9 @@ contains
     type(field_type),              pointer :: mt_lumped_inv
     type(mesh_type),               pointer :: mesh
 
-    mesh => wind % get_mesh()
-    call u_grad_f % initialise( adv_field%get_function_space() )
-    mt_lumped_inv => get_inverse_lumped_mass_matrix_fe( Wtheta, mesh % get_id() )
+    mesh => wind%get_mesh()
+    call u_grad_f%initialise( adv_field%get_function_space() )
+    mt_lumped_inv => get_inverse_lumped_mass_matrix_fe( Wtheta, mesh%get_id() )
     call invoke( X_times_Y(u_grad_f, rhs, mt_lumped_inv), &
                  setval_c(rhs, 0.0_r_def) )
 
@@ -278,10 +278,10 @@ contains
     stencil_extent = 1_i_def
 
     ! Stencil fields need bigger halos due to atl_poly being a stencil operation with GH_INC.
-    call wind_dir_big_halo % initialise( wind_dir % get_function_space(), &
-                                         halo_depth=stencil_extent + 1_i_def )
-    call ls_h_reconstruction_big_halo % initialise( ls_h_reconstruction % get_function_space(), &
-                                                    halo_depth=stencil_extent + 1_i_def )
+    call wind_dir_big_halo%initialise( wind_dir%get_function_space(), &
+                                       halo_depth=stencil_extent + 1_i_def )
+    call ls_h_reconstruction_big_halo%initialise( ls_h_reconstruction%get_function_space(), &
+                                                  halo_depth=stencil_extent + 1_i_def )
 
     call invoke( setval_X( ls_h_reconstruction_big_halo, ls_h_reconstruction ), &
                  setval_X( wind_dir_big_halo, wind_dir ),                       &

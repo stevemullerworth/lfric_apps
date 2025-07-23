@@ -126,7 +126,7 @@ contains
 
     ! To ensure the setting of dummy in the LS calculation does not affect the adjoint,
     ! we initialise it more formally here.
-    call advecting_wind % copy_field_properties( dummy )
+    call advecting_wind%copy_field_properties( dummy )
 
     !--------------------------------------------------------------------------!
     !                    Linearisation state
