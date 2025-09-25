@@ -165,7 +165,8 @@ program jedi_tlm_tests
   absolute_diff = abs( dot_product_1 - dot_product_2 )
   machine_tolerance = spacing( max( abs( dot_product_1 ), abs( dot_product_2 ) ) )
   relative_diff = absolute_diff / machine_tolerance
-  if ( absolute_diff > absolute_tolerance ) then
+  if (absolute_diff > absolute_tolerance ) then
+    call run%finalise_timers()  ! We still want timing info even if the test fails
     write( log_scratch_space, * ) "Adjoint test FAILED", &
       dot_product_1, dot_product_2, absolute_diff, relative_diff
     call log_event( log_scratch_space, LOG_LEVEL_ERROR )
