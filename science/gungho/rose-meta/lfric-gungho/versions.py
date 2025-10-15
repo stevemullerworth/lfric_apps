@@ -32,7 +32,6 @@ class vn22_t885(MacroUpgrade):
         self.add_setting(
             config, ["namelist:section_choice", "iau_sst"], ".false."
         )
-
         return config, self.reports
 
 
@@ -45,7 +44,6 @@ class vn22_t4661(MacroUpgrade):
     def upgrade(self, config, meta_config=None):
         # Commands From: rose-meta/lfric-driver
         self.add_setting(config, ["namelist:extrusion", "eta_values"], "''")
-
         return config, self.reports
 
 
@@ -63,7 +61,6 @@ class vn22_t771(MacroUpgrade):
             ["namelist:chemistry", "i_chem_timestep_halvings"],
             value="0",
         )
-
         return config, self.reports
 
 
@@ -78,7 +75,6 @@ class vn22_t887(MacroUpgrade):
         nml = "namelist:cloud"
         self.add_setting(config, [nml, "dbsdtbs_turb_0"], "1.5E-4")
         self.add_setting(config, [nml, "i_pc2_erosion_numerics"], "'implicit'")
-
         return config, self.reports
 
 
@@ -186,6 +182,45 @@ class vn22_t850(MacroUpgrade):
             config,
             ["namelist:stochastic_physics", "blpert_max_magnitude"],
             "1.0",
+        )
+        return config, self.reports
+
+
+class vn22_t36(MacroUpgrade):
+    """Upgrade macro for ticket #36 by Thomas Bendall."""
+
+    BEFORE_TAG = "vn2.2_t850"
+    AFTER_TAG = "vn2.2_t36"
+
+    def upgrade(self, config, meta_config=None):
+        # Commands From: rose-meta/lfric-gungho
+        """
+        Reorganises the transport options that describe treatment of
+        cubed-sphere panel edges.
+        Replace all "special edges" options with "remapping".
+        """
+        # Get values of old options
+        nml = "namelist:transport"
+        special_edges = self.get_setting_value(
+            config, [nml, "special_edges_treatment"]
+        )
+        extended = self.get_setting_value(config, [nml, "extended_mesh"])
+        # Work out the new option for "panel_edge_treatment"
+        if special_edges == ".true.":
+            panel_edge_treatment = "'special_edges'"
+            self.add_setting(config, [nml, "panel_edge_high_order"], ".true.")
+        elif extended == ".true.":
+            panel_edge_treatment = "'extended_mesh'"
+            self.add_setting(config, [nml, "panel_edge_high_order"], ".false.")
+        else:
+            panel_edge_treatment = "'none'"
+            self.add_setting(config, [nml, "panel_edge_high_order"], ".true.")
+        # Add the new option and remove the old ones
+        self.remove_setting(config, [nml, "extended_mesh"])
+        self.remove_setting(config, [nml, "special_edges_treatment"])
+        self.remove_setting(config, [nml, "special_edges_high_order"])
+        self.add_setting(
+            config, [nml, "panel_edge_treatment"], panel_edge_treatment
         )
 
         return config, self.reports

@@ -204,3 +204,43 @@ class vn22_t850(MacroUpgrade):
         )
 
         return config, self.reports
+
+
+class vn22_t36(MacroUpgrade):
+    """Upgrade macro for ticket #36 by Thomas Bendall."""
+
+    BEFORE_TAG = "vn2.2_t850"
+    AFTER_TAG = "vn2.2_t36"
+
+    def upgrade(self, config, meta_config=None):
+        # Commands From: rose-meta/lfric-gungho
+        """
+        Reorganises the transport options that describe treatment of
+        cubed-sphere panel edges.
+        Replace all "special edges" options with "remapping".
+        """
+        # Get values of old options
+        nml = "namelist:transport"
+        special_edges = self.get_setting_value(
+            config, [nml, "special_edges_treatment"]
+        )
+        extended = self.get_setting_value(config, [nml, "extended_mesh"])
+        # Work out the new option for "panel_edge_treatment"
+        if special_edges == ".true.":
+            panel_edge_treatment = "'special_edges'"
+            self.add_setting(config, [nml, "panel_edge_high_order"], ".true.")
+        elif extended == ".true.":
+            panel_edge_treatment = "'extended_mesh'"
+            self.add_setting(config, [nml, "panel_edge_high_order"], ".false.")
+        else:
+            panel_edge_treatment = "'none'"
+            self.add_setting(config, [nml, "panel_edge_high_order"], ".true.")
+        # Add the new option and remove the old ones
+        self.remove_setting(config, [nml, "extended_mesh"])
+        self.remove_setting(config, [nml, "special_edges_treatment"])
+        self.remove_setting(config, [nml, "special_edges_high_order"])
+        self.add_setting(
+            config, [nml, "panel_edge_treatment"], panel_edge_treatment
+        )
+
+        return config, self.reports
