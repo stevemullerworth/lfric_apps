@@ -201,15 +201,18 @@ contains
         allocate(real_array(stph_spectral_dim))
         real_array = 0.0_r_def
         do i = 1, spt_array_count
-          call spt_arrays(i)%init(trim(spt_array_name(i)),real_array)
-          call modeldb%values%add_key_value(trim(spt_array_name(i)), &
+          call spt_arrays(i)%init(trim(spt_array_names(i)),real_array)
+          call modeldb%values%add_key_value(trim(spt_array_names(i)), &
                                             spt_arrays(i))
         end do
+      end if
+      if (use_skeb) then
         do i = 1, skeb_array_count
-          call skeb_arrays(i)%init(trim(skeb_array_name(i)),real_array)
-          call modeldb%values%add_key_value(trim(skeb_array_name(i)), &
+          call skeb_arrays(i)%init(trim(skeb_array_names(i)),real_array)
+          call modeldb%values%add_key_value(trim(skeb_array_names(i)), &
                                             skeb_arrays(i))
         end do
+      end if
     end if
 
     ! Instantiate the fields stored in model_data

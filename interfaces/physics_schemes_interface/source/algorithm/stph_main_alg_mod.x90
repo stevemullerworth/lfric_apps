@@ -8,7 +8,7 @@
 
 module stph_main_alg_mod
 
-  use constants_mod,            only: r_def, i_def
+  use constants_mod,            only: r_def, i_def, str_def
   !types
   use field_mod,                only: field_type
   use clock_mod,                only: clock_type
@@ -21,7 +21,8 @@ module stph_main_alg_mod
   private
 
   public stph_main_alg
-  public :: stph_array_names, stph_array_count
+  public :: spt_array_names, spt_array_count
+  public :: skeb_array_names, skeb_array_count
 
   integer(i_def), parameter :: spt_array_count = 3
   integer(i_def), parameter :: skeb_array_count = 3
