@@ -24,6 +24,11 @@ module semi_implicit_timestep_alg_mod
                                        copy_bundle,       &
                                        set_bundle_scalar
 
+  use stph_main_alg_mod,           only : spt_array_names,  &
+                                          spt_array_count,  &
+                                          skeb_array_names, &
+                                          skeb_array_count
+
   ! Parent of this module's semi-implicit timestep type
   use timestep_method_mod,       only: timestep_method_type
 
@@ -284,6 +289,14 @@ contains
     type( field_collection_type ), pointer :: stph_fields
     type( field_collection_type ), pointer :: lbc_fields
 
+    type(io_value_type)  :: stph_io_value_type
+    real(r_def), pointer :: spt_spectral_coeffc(:)
+    real(r_def), pointer :: spt_spectral_coeffs(:)
+    real(r_def), pointer :: spt_power_law(:)
+    real(r_def), pointer :: skeb_spectral_coeffc(:)
+    real(r_def), pointer :: skeb_spectral_coeffs(:)
+    real(r_def), pointer :: skeb_power_law(:)
+
     type( io_value_type ), pointer :: temp_corr_io_value
     real( r_def )    :: dt
     real( r_def )    :: dtemp_encorr
@@ -335,6 +348,19 @@ contains
     ! Get temperature increment for energy correction
     dtemp_encorr = dt * temp_corr_io_value%data(1)
 
+    stph_io_value_type   = get_io_value(modeldb%values, spt_array_names(1))
+    spt_spectral_coeffc  = stph_io_value_type%data
+    stph_io_value_type   = get_io_value(modeldb%values, spt_array_names(2))
+    spt_spectral_coeffs  = stph_io_value_type%data
+    stph_io_value_type   = get_io_value(modeldb%values, spt_array_names(3))
+    spt_power_law        = stph_io_value_type%data
+    stph_io_value_type   = get_io_value(modeldb%values, spt_array_names(1))
+    skeb_spectral_coeffc = stph_io_value_type%data
+    stph_io_value_type   = get_io_value(modeldb%values, spt_array_names(2))
+    skeb_spectral_coeffs = stph_io_value_type%data
+    stph_io_value_type   = get_io_value(modeldb%values, spt_array_names(3))
+    skeb_power_law       = stph_io_value_type%data
+
     ! Run the timestep
     call run_step(self, modeldb,                              &
                   u, rho, theta, exner, mr, moist_dyn,        &
@@ -349,6 +375,10 @@ contains
                   snow_fields, chemistry_fields,              &
                   aerosol_fields, stph_fields, lbc_fields,    &
                   model_clock, dtemp_encorr,                  &
+                  spt_spectral_coeffc, spt_spectral_coeffs,   &
+                  spt_power_law,                              &
+                  skeb_spectral_coeffc, skeb_spectral_coeffs, &
+                  skeb_power_law,                             &
                   mesh, twod_mesh)
 
     nullify(      model_clock, mesh,                          &
@@ -551,6 +581,12 @@ contains
   !> @param[in]     model_clock            Time in the model.
   !> @param[in]     dtemp_encorr           Temperature increment for energy
   !>                                       correction
+  !> @param[in,out] spt_spectral_coeffc
+  !> @param[in,out] spt_spectral_coeffs
+  !> @param[in,out] spt_power_law
+  !> @param[in,out] skeb_spectral_coeffc
+  !> @param[in,out] skeb_spectral_coeffs
+  !> @param[in,out] skeb_power_law
   !> @param[in]     mesh                   The current mesh
   !> @param[in]     twod_mesh              The current 2d mesh
   subroutine run_step(self, modeldb,                              &
@@ -566,6 +602,10 @@ contains
                       snow_fields, chemistry_fields,              &
                       aerosol_fields, stph_fields, lbc_fields,    &
                       model_clock, dtemp_encorr,                  &
+                      spt_spectral_coeffc, spt_spectral_coeffs,   &
+                      spt_power_law,                              &
+                      skeb_spectral_coeffc, skeb_spectral_coeffs, &
+                      skeb_power_law,                             &
                       mesh, twod_mesh)
 
     implicit none
@@ -602,6 +642,13 @@ contains
     type( field_collection_type ), intent( inout ) :: lbc_fields
 
     class(model_clock_type), intent(in) :: model_clock
+
+    real(r_def), intent(inout) :: spt_spectral_coeffc(:)
+    real(r_def), intent(inout) :: spt_spectral_coeffs(:)
+    real(r_def), intent(inout) :: spt_power_law(:)
+    real(r_def), intent(inout) :: skeb_spectral_coeffc(:)
+    real(r_def), intent(inout) :: skeb_spectral_coeffs(:)
+    real(r_def), intent(inout) :: skeb_power_law(:)
 
     real(kind=r_def), intent(in)  :: dtemp_encorr
 
@@ -922,6 +969,10 @@ contains
                           convection_fields, cloud_fields,                     &
                           surface_fields, soil_fields, snow_fields,            &
                           chemistry_fields, aerosol_fields, stph_fields,       &
+                          spt_spectral_coeffc, spt_spectral_coeffs,            &
+                          spt_power_law,                                       &
+                          skeb_spectral_coeffc, skeb_spectral_coeffs,          &
+                          skeb_power_law,                                      &
                           outer, model_clock, cast_dt)
 
         if (smagorinsky .and. smagorinsky_placement == smagorinsky_placement_outer) then

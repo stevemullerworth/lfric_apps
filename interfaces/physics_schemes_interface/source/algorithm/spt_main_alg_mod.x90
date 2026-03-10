@@ -76,7 +76,9 @@ module spt_main_alg_mod
   subroutine spt_main_alg(dtheta_stph, dmv_stph, dtheta, mv,         &
                           convection_fields,                         &
                           microphysics_fields, radiation_fields,     &
-                          derived_fields, orography_fields, clock)
+                          derived_fields, orography_fields,          &
+                          spt_spectral_coeffc, spt_spectral_coeffs,  &
+                          spt_power_law, clock)
 
   ! Timestepping parameters
   use timestepping_config_mod,    only: dt_timestep => dt
@@ -153,6 +155,12 @@ module spt_main_alg_mod
   type( field_collection_type ), intent(in) :: radiation_fields
   type( field_collection_type ), intent(in) :: derived_fields
   type( field_collection_type ), intent(in) :: orography_fields
+
+  ! Spectral coefficients and power law
+  real(r_def), intent(inout) :: spt_spectral_coeffc(:)
+  real(r_def), intent(inout) :: spt_spectral_coeffs(:)
+  real(r_def), intent(inout) :: spt_power_law(:)
+
   ! classes
   class(clock_type), intent(in)   :: clock
 
@@ -212,11 +220,6 @@ module spt_main_alg_mod
   ! W0 intermediate field for 1-2-1 filtering
   type( field_type ) :: field_w0
 
-  ! Spectral coefficients and power law
-  real(kind=r_def), allocatable, save :: spt_spectral_coeffc(:)
-  real(kind=r_def), allocatable, save :: spt_spectral_coeffs(:)
-  real(kind=r_def), allocatable, save :: spt_power_law(:)
-
   ! Mesh
   type( mesh_type ), pointer :: mesh => null()
 
@@ -249,12 +252,7 @@ module spt_main_alg_mod
 
   ! Initialize spectral coefficients for the forcing pattern
   if (initialize_spt_spectral_coeffs) then
-    !allocate spectral coefficients and power law
-    allocate(spt_spectral_coeffc(stph_spectral_dim))
-    allocate(spt_spectral_coeffs(stph_spectral_dim))
-    allocate(spt_power_law(stph_spectral_dim))
-
-    ! set them to zero (invokes don't work for non-fields types)
+    ! set them to zero
     spt_spectral_coeffc = 0.0_r_def
     spt_spectral_coeffs = 0.0_r_def
     spt_power_law= 0.0_r_def
