@@ -205,13 +205,17 @@ contains
           call modeldb%values%add_key_value(trim(spt_array_names(i)), &
                                             spt_arrays(i))
         end do
+        deallocate(real_array)
       end if
       if (use_skeb) then
+        allocate(real_array(stph_spectral_dim))
+        real_array = 0.0_r_def
         do i = 1, skeb_array_count
           call skeb_arrays(i)%init(trim(skeb_array_names(i)),real_array)
           call modeldb%values%add_key_value(trim(skeb_array_names(i)), &
                                             skeb_arrays(i))
         end do
+        deallocate(real_array)
       end if
     end if
 
