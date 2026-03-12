@@ -290,13 +290,7 @@ contains
     type( field_collection_type ), pointer :: stph_fields
     type( field_collection_type ), pointer :: lbc_fields
 
-    type io_value_array
-      type(io_value_type), pointer :: ptr
-    end type io_value_array
-
-    type(io_value_array)  :: spt_io_value_type(spt_array_count)
-    type(io_value_array)  :: skeb_io_value_type(skeb_array_count)
-
+    ! Arrays for passing modeldb data to stochastic physics scheme
     real(r_def), allocatable :: spt_spectral_coeffc(:)
     real(r_def), allocatable :: spt_spectral_coeffs(:)
     real(r_def), allocatable :: spt_power_law(:)
@@ -307,8 +301,6 @@ contains
     type( io_value_type ), pointer :: temp_corr_io_value
     real( r_def )    :: dt
     real( r_def )    :: dtemp_encorr
-
-    integer(i_def)   :: i
 
     ! Get pointers to field collections for use downstream
     prognostic_fields => modeldb%fields%get_field_collection("prognostic_fields")

@@ -249,6 +249,13 @@ contains
     use formulation_config_mod,         only: use_physics
     use section_choice_config_mod,      only: stochastic_physics, &
                                               stochastic_physics_um
+    use stochastic_physics_config_mod, only : use_spt, &
+                                              use_skeb
+    use stph_main_alg_mod,             only : spt_array_names,  &
+                                              spt_array_count,  &
+                                              skeb_array_names, &
+                                              skeb_array_count
+
     use initialization_config_mod, only: init_option, &
                                          init_option_checkpoint_dump
     use io_config_mod,                  only: checkpoint_read, checkpoint_write
@@ -259,6 +266,7 @@ contains
     type(persistor_type) :: persistor
 
     real(r_second) :: DT
+    integer(i_def) :: i
 
     DT = clock%get_seconds_per_step()
     call set_variable("DT", DT, tolerant=.true.)
@@ -267,23 +275,60 @@ contains
     call process_gungho_prognostics(persistor)
     ! Add the temperature_correction_rate to the appropriate files
     if(checkpoint_write) then
-        if ( encorr_usage /= encorr_usage_none ) then
-          call add_field( persistor%ckp_out, "temperature_correction_rate", mode=CHECKPOINTING, operation="once", &
-                          id_as_name=.true.)
-        end if
-        if (stochastic_physics == stochastic_physics_um) then
-          call add_field( persistor%ckp_out, "random_seed", mode=CHECKPOINTING, operation="once", &
-                          id_as_name=.true.)
-        end if
-    end if
-    if (checkpoint_read .or. init_option == init_option_checkpoint_dump) then
+      write(10,*)'SDM adding fields for checkpoint'
+      flush(10)
       if ( encorr_usage /= encorr_usage_none ) then
-        call add_field( persistor%ckp_inp, "temperature_correction_rate", mode=RESTARTING, operation="once", &
+        call add_field( persistor%ckp_out, "temperature_correction_rate", &
+                        mode=CHECKPOINTING, operation="once",             &
                         id_as_name=.true.)
       end if
       if (stochastic_physics == stochastic_physics_um) then
-        call add_field( persistor%ckp_inp, "random_seed", mode=RESTARTING, operation="once", &
+        call add_field( persistor%ckp_out, "random_seed",     &
+                        mode=CHECKPOINTING, operation="once", &
                         id_as_name=.true.)
+
+        if (use_spt) then
+          do i = 1, spt_array_count
+            write(10,*)'SDM add_field for ',spt_array_names(i)
+            flush(10)
+            call add_field( persistor%ckp_out, spt_array_names(i),  &
+                            mode=CHECKPOINTING, operation="once",   &
+                            id_as_name=.true.)
+          end do
+        end if
+        if (use_skeb) then
+          do i = 1, skeb_array_count
+            call add_field( persistor%ckp_out, skeb_array_names(i), &
+                            mode=CHECKPOINTING, operation="once",   &
+                            id_as_name=.true.)
+          end do
+        end if
+      end if
+    end if
+    if (checkpoint_read .or. init_option == init_option_checkpoint_dump) then
+      if ( encorr_usage /= encorr_usage_none ) then
+        call add_field( persistor%ckp_inp, "temperature_correction_rate", &
+                        mode=RESTARTING, operation="once",                &
+                        id_as_name=.true.)
+      end if
+      if (stochastic_physics == stochastic_physics_um) then
+        call add_field( persistor%ckp_inp, "random_seed",  &
+                        mode=RESTARTING, operation="once", &
+                        id_as_name=.true.)
+        if (use_spt) then
+          do i = 1, spt_array_count
+            call add_field( persistor%ckp_inp, spt_array_names(i),  &
+                            mode=RESTARTING, operation="once",      &
+                            id_as_name=.true.)
+          end do
+        end if
+        if (use_skeb) then
+          do i = 1, skeb_array_count
+            call add_field( persistor%ckp_inp, skeb_array_names(i), &
+                            mode=RESTARTING, operation="once",      &
+                            id_as_name=.true.)
+          end do
+        end if
       end if
     end if
 
