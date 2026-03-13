@@ -24,13 +24,17 @@ module stph_main_alg_mod
   public :: spt_array_names, spt_array_count
   public :: skeb_array_names, skeb_array_count
 
+  ! Several variables need to be stored in the model checkpoint dumps. Here,
+  ! strings are defined that are named after these variables and are the same as
+  ! the names in the IO definition metadata. They can be used by code that
+  ! manages checkpoint/restart
   integer(i_def), parameter :: spt_array_count = 3
   integer(i_def), parameter :: skeb_array_count = 3
-  character(str_def), dimension(spt_array_count), parameter :: spt_array_names = &
-                  [character(str_def) :: "spt_spectral_coeffc",                  &
+  character(str_def), parameter :: spt_array_names(spt_array_count) = &
+                  [character(str_def) :: "spt_spectral_coeffc",       &
                   "spt_spectral_coeffs", "spt_power_law" ]
-  character(str_def), dimension(skeb_array_count), parameter :: skeb_array_names = &
-                  [character(str_def) ::  "skeb_spectral_coeffc",                  &
+  character(str_def), parameter :: skeb_array_names(skeb_array_count) = &
+                  [character(str_def) ::  "skeb_spectral_coeffc",       &
                   "skeb_spectral_coeffs", "skeb_power_law" ]
 
  contains
@@ -51,6 +55,12 @@ module stph_main_alg_mod
   !>@param[in]         radiation_fields        Fields from radiationmicrophysics scheme
   !>@param[in]         derived_fields          Fields from grid transformations
   !>@param[in]         orography_fields        Fields from orography
+  !>@param[in,out]     spt_spectral_coeffc     Real Spectral coefficients
+  !>@param[in,out]     spt_spectral_coeffs     Imaginary Spectral coefficients
+  !>@param[in,out]     spt_power_law           Spectral power law
+  !>@param[in,out]     skeb_spectral_coeffc    Real Spectral coefficients
+  !>@param[in,out]     skeb_spectral_coeffs    Imaginary Spectral coefficients
+  !>@param[in,out]     skeb_power_law          Spectral power law
   !>@param[in]         clock                   Model time information
   subroutine stph_main_alg( du_stph, dtheta_stph, dmv_stph,             &
                             dtheta, mv, rho, u,                         &

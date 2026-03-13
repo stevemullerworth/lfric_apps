@@ -199,7 +199,6 @@ contains
       deallocate(real_array)
 #ifdef UM_PHYSICS
       if (use_spt) then
-        write(10,*)'SDM size stph_spectral_dim ',stph_spectral_dim
         allocate(real_array(stph_spectral_dim))
         real_array = 0.0_r_def
         do i = 1, spt_array_count

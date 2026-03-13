@@ -277,8 +277,6 @@ contains
     call process_gungho_prognostics(persistor)
     ! Add the temperature_correction_rate to the appropriate files
     if(checkpoint_write) then
-      write(10,*)'SDM adding fields for checkpoint'
-      flush(10)
       if ( encorr_usage /= encorr_usage_none ) then
         call add_field( persistor%ckp_out, "temperature_correction_rate", &
                         mode=CHECKPOINTING, operation="once",             &
@@ -291,8 +289,6 @@ contains
 #ifdef UM_PHYSICS
         if (use_spt) then
           do i = 1, spt_array_count
-            write(10,*)'SDM add_field for ',spt_array_names(i)
-            flush(10)
             call add_field( persistor%ckp_out, spt_array_names(i),  &
                             mode=CHECKPOINTING, operation="once",   &
                             id_as_name=.true.)

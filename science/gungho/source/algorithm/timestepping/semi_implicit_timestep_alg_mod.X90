@@ -302,11 +302,6 @@ contains
     real( r_def )    :: dt
     real( r_def )    :: dtemp_encorr
 
-#ifdef UM_PHYSICS
-    ! SDM
-    integer(i_def) :: i
-#endif
-
     ! Get pointers to field collections for use downstream
     prognostic_fields => modeldb%fields%get_field_collection("prognostic_fields")
     model_clock => modeldb%clock
@@ -365,39 +360,6 @@ contains
     end if
 #endif
 
-#ifdef UM_PHYSICS
-    if (use_spt) then
-    write(10,*)'SDM start spt values:'
-    write(10,*)'SDM spt_spectral_coeffc:'
-    do i=1,275,30
-      write(10,'(i5,Z18)')i,spt_spectral_coeffc(i)
-    end do
-    write(10,*)'SDM spt_spectral_coeffs:'
-    do i=1,275,30
-      write(10,'(i5,Z18)')i,spt_spectral_coeffs(i)
-    end do
-    write(10,*)'SDM power_law:'
-    do i=1,275,30
-      write(10,'(i5,Z18)')i,spt_power_law(i)
-    end do
-    endif
-    if (use_skeb) then
-    write(10,*)'SDM start skeb values:'
-    write(10,*)'SDM skeb_spectral_coeffc:'
-    do i=1,275,30
-      write(10,'(i5,Z18)')i,skeb_spectral_coeffc(i)
-    end do
-    write(10,*)'SDM skeb_spectral_coeffs:'
-    do i=1,275,30
-      write(10,'(i5,Z18)')i,skeb_spectral_coeffs(i)
-    end do
-    write(10,*)'SDM power_law:'
-    do i=1,275,30
-      write(10,'(i5,Z18)')i,skeb_power_law(i)
-    end do
-    end if
-#endif
-
     ! Run the timestep
     call run_step(self, modeldb,                              &
                   u, rho, theta, exner, mr, moist_dyn,        &
@@ -418,38 +380,6 @@ contains
                   skeb_power_law,                             &
                   mesh, twod_mesh)
 
-#ifdef UM_PHYSICS
-    if (use_spt) then
-    write(10,*)'SDM end spt values:'
-    write(10,*)'SDM spt_spectral_coeffc:'
-    do i=1,275,30
-      write(10,'(i5,Z18)')i,spt_spectral_coeffc(i)
-    end do
-    write(10,*)'SDM spt_spectral_coeffs:'
-    do i=1,275,30
-      write(10,'(i5,Z18)')i,spt_spectral_coeffs(i)
-    end do
-    write(10,*)'SDM power_law:'
-    do i=1,275,30
-      write(10,'(i5,Z18)')i,spt_power_law(i)
-    end do
-    end if
-    if (use_skeb) then
-    write(10,*)'SDM end skeb values:'
-    write(10,*)'SDM skeb_spectral_coeffc:'
-    do i=1,275,30
-      write(10,'(i5,Z18)')i,skeb_spectral_coeffc(i)
-    end do
-    write(10,*)'SDM skeb_spectral_coeffs:'
-    do i=1,275,30
-      write(10,'(i5,Z18)')i,skeb_spectral_coeffs(i)
-    end do
-    write(10,*)'SDM power_law:'
-    do i=1,275,30
-      write(10,'(i5,Z18)')i,skeb_power_law(i)
-    end do
-    end if
-#endif
 #ifdef UM_PHYSICS
     if (use_spt) then
       call put_stph_values(modeldb, spt_array_names, spt_spectral_coeffc, &
@@ -662,12 +592,12 @@ contains
   !> @param[in]     model_clock            Time in the model.
   !> @param[in]     dtemp_encorr           Temperature increment for energy
   !>                                       correction
-  !> @param[in,out] spt_spectral_coeffc
-  !> @param[in,out] spt_spectral_coeffs
-  !> @param[in,out] spt_power_law
-  !> @param[in,out] skeb_spectral_coeffc
-  !> @param[in,out] skeb_spectral_coeffs
-  !> @param[in,out] skeb_power_law
+  !> @param[in,out] spt_spectral_coeffc    Real Spectral coefficients
+  !> @param[in,out] spt_spectral_coeffs    Imaginary Spectral coefficients
+  !> @param[in,out] spt_power_law          Spectral power law
+  !> @param[in,out] skeb_spectral_coeffc   Real Spectral coefficients
+  !> @param[in,out] skeb_spectral_coeffs   Imaginary Spectral coefficients
+  !> @param[in,out] skeb_power_law         Spectral power law
   !> @param[in]     mesh                   The current mesh
   !> @param[in]     twod_mesh              The current 2d mesh
   subroutine run_step(self, modeldb,                              &
