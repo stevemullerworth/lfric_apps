@@ -111,6 +111,13 @@ module gungho_model_mod
   use um_radaer_lut_init_mod,      only : um_radaer_lut_init
   use um_ukca_init_mod,            only : um_ukca_init
   use jules_timestep_alg_mod,      only : jules_timestep_type
+  use stochastic_physics_config_mod, only : use_spt, &
+                                            use_skeb
+  use stph_main_alg_mod,             only : spt_array_names,  &
+                                            spt_array_count,  &
+                                            skeb_array_names, &
+                                            skeb_array_count
+
 #endif
 
   implicit none
@@ -249,13 +256,6 @@ contains
     use formulation_config_mod,         only: use_physics
     use section_choice_config_mod,      only: stochastic_physics, &
                                               stochastic_physics_um
-    use stochastic_physics_config_mod, only : use_spt, &
-                                              use_skeb
-    use stph_main_alg_mod,             only : spt_array_names,  &
-                                              spt_array_count,  &
-                                              skeb_array_names, &
-                                              skeb_array_count
-
     use initialization_config_mod, only: init_option, &
                                          init_option_checkpoint_dump
     use io_config_mod,                  only: checkpoint_read, checkpoint_write
@@ -266,7 +266,9 @@ contains
     type(persistor_type) :: persistor
 
     real(r_second) :: DT
+#ifdef UM_PHYSICS
     integer(i_def) :: i
+#endif
 
     DT = clock%get_seconds_per_step()
     call set_variable("DT", DT, tolerant=.true.)
@@ -286,7 +288,7 @@ contains
         call add_field( persistor%ckp_out, "random_seed",     &
                         mode=CHECKPOINTING, operation="once", &
                         id_as_name=.true.)
-
+#ifdef UM_PHYSICS
         if (use_spt) then
           do i = 1, spt_array_count
             write(10,*)'SDM add_field for ',spt_array_names(i)
@@ -303,6 +305,7 @@ contains
                             id_as_name=.true.)
           end do
         end if
+#endif
       end if
     end if
     if (checkpoint_read .or. init_option == init_option_checkpoint_dump) then
@@ -315,6 +318,7 @@ contains
         call add_field( persistor%ckp_inp, "random_seed",  &
                         mode=RESTARTING, operation="once", &
                         id_as_name=.true.)
+#ifdef UM_PHYSICS
         if (use_spt) then
           do i = 1, spt_array_count
             call add_field( persistor%ckp_inp, spt_array_names(i),  &
@@ -329,6 +333,7 @@ contains
                             id_as_name=.true.)
           end do
         end if
+#endif
       end if
     end if
 

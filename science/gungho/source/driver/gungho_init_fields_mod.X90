@@ -714,8 +714,8 @@ subroutine create_model_data( modeldb,      &
           call stph_io_value%set_checkpoint_write_behaviour(io_op_write_ptr)
         end do
       end if
-    end if
 #endif
+    end if
     ! Initialise prognostic fields appropriately
     select case ( prognostic_init_choice )
 

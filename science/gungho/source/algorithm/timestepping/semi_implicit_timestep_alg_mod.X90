@@ -24,11 +24,6 @@ module semi_implicit_timestep_alg_mod
                                        copy_bundle,       &
                                        set_bundle_scalar
 
-  use stph_main_alg_mod,           only : spt_array_names,  &
-                                          spt_array_count,  &
-                                          skeb_array_names, &
-                                          skeb_array_count
-
   ! Parent of this module's semi-implicit timestep type
   use timestep_method_mod,       only: timestep_method_type
 
@@ -149,6 +144,11 @@ module semi_implicit_timestep_alg_mod
   use cld_alg_mod,                only: cld_alg
   use aerosol_ukca_alg_mod,       only: aerosol_ukca_alg
   use casim_activate_alg_mod,     only: casim_activate_alg
+  use stph_main_alg_mod,          only : spt_array_names,  &
+                                         spt_array_count,  &
+                                         skeb_array_names, &
+                                         skeb_array_count
+
 #endif
   use cld_incs_mod,               only: cld_incs_init, cld_incs_output
 
@@ -302,8 +302,10 @@ contains
     real( r_def )    :: dt
     real( r_def )    :: dtemp_encorr
 
+#ifdef UM_PHYSICS
     ! SDM
     integer(i_def) :: i
+#endif
 
     ! Get pointers to field collections for use downstream
     prognostic_fields => modeldb%fields%get_field_collection("prognostic_fields")
@@ -352,6 +354,7 @@ contains
     ! Get temperature increment for energy correction
     dtemp_encorr = dt * temp_corr_io_value%data(1)
 
+#ifdef UM_PHYSICS
     if (use_spt) then
       call get_stph_values(modeldb, spt_array_names, spt_spectral_coeffc, &
                            spt_spectral_coeffs, spt_power_law)
@@ -360,6 +363,9 @@ contains
       call get_stph_values(modeldb, skeb_array_names, skeb_spectral_coeffc, &
                            skeb_spectral_coeffs, skeb_power_law)
     end if
+#endif
+
+#ifdef UM_PHYSICS
     if (use_spt) then
     write(10,*)'SDM start spt values:'
     write(10,*)'SDM spt_spectral_coeffc:'
@@ -390,6 +396,8 @@ contains
       write(10,'(i5,Z18)')i,skeb_power_law(i)
     end do
     end if
+#endif
+
     ! Run the timestep
     call run_step(self, modeldb,                              &
                   u, rho, theta, exner, mr, moist_dyn,        &
@@ -410,6 +418,7 @@ contains
                   skeb_power_law,                             &
                   mesh, twod_mesh)
 
+#ifdef UM_PHYSICS
     if (use_spt) then
     write(10,*)'SDM end spt values:'
     write(10,*)'SDM spt_spectral_coeffc:'
@@ -440,6 +449,8 @@ contains
       write(10,'(i5,Z18)')i,skeb_power_law(i)
     end do
     end if
+#endif
+#ifdef UM_PHYSICS
     if (use_spt) then
       call put_stph_values(modeldb, spt_array_names, spt_spectral_coeffc, &
                            spt_spectral_coeffs, spt_power_law)
@@ -449,7 +460,7 @@ contains
       call put_stph_values(modeldb, skeb_array_names, skeb_spectral_coeffc, &
                            skeb_spectral_coeffs, skeb_power_law)
     end if
-
+#endif
 
     nullify(      model_clock, mesh,                          &
                   prognostic_fields, moisture_fields,         &
