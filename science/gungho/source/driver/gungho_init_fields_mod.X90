@@ -1084,7 +1084,7 @@ subroutine create_model_data( modeldb,      &
                '(": Random seed generation: Size of random seed: ", I6)' ) &
                random_seed_size
         call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
-        write( string, '("(",A23, I3, "(I8))" )' ) '"Random Seed Values: ",', &
+        write( string, '("(",A23, I3, "(I12))" )' ) '"Random Seed Values: ",', &
                random_seed_size
         write( log_scratch_space, trim(string) ) &
                (ranseed(i), i=1,random_seed_size)
