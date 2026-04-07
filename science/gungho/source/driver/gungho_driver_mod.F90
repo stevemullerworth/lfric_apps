@@ -180,7 +180,7 @@ contains
     if ( stochastic_physics == stochastic_physics_um ) then
       ! Random seed for stochastic physics
       call random_seed(size = random_seed_size)
-      allocate(integer_array(2*random_seed_size))
+      allocate(integer_array(random_seed_size))
       integer_array = 0
       call random_seed_io_value%init("random_seed", integer_array)
       call modeldb%values%add_key_value( 'random_seed_io_value', &
