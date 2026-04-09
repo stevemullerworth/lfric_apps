@@ -996,9 +996,9 @@ subroutine create_model_data( modeldb,      &
       end if
 
       if ( stochastic_physics == stochastic_physics_um ) then
-        random_seed_size = size(random_seed_io_value%data)
+        call random_seed(size = random_seed_size)
         allocate(ranseed(random_seed_size))
-        ranseed(1:random_seed_size) = 0
+        ranseed = 0
 
 #ifdef UM_PHYSICS
         if ( .not. checkpoint_read .or. use_random_parameters ) then
@@ -1022,7 +1022,6 @@ subroutine create_model_data( modeldb,      &
           ! Read the checkpointed random seed
           call random_seed_io_value%read_checkpoint()
           ranseed = random_seed_io_value%data
-          write(10,*)'SDM Checkpoint read ckp ',random_seed_io_value%data
         end if
 
         ! Set random seed for stochastic physics
@@ -1111,14 +1110,13 @@ subroutine create_model_data( modeldb,      &
     if( checkpoint_write ) then
 
       if ( stochastic_physics == stochastic_physics_um ) then
-        ! Get current random seed
-        random_seed_io_value => get_integer_io_value(modeldb%values, 'random_seed_io_value')
-        random_seed_size = size(random_seed_io_value%data)
+        ! Store current random seed in IO value data type for checkpointing
+        call random_seed(size = random_seed_size)
         allocate(ranseed(random_seed_size))
-
         call random_seed(get = ranseed(1:random_seed_size))
+
+        random_seed_io_value => get_integer_io_value(modeldb%values, 'random_seed_io_value')
         random_seed_io_value%data = ranseed
-        write(10,*)'SDM checkpoint write ',ranseed
         deallocate(ranseed)
       end if
       call split_complex_prognostics( prognostic_fields )
