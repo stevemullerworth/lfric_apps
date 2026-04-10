@@ -17,11 +17,13 @@ module gungho_init_fields_mod
   use integer_field_mod,                  only : integer_field_type
   use field_parent_mod,                   only : write_interface
   use field_collection_mod,               only : field_collection_type
-  use io_value_mod,                       only : io_value_type, &
-                                                 io_operation_interface, &
+  use io_value_mod,                       only : io_value_type,      &
+                                                 io_write_interface, &
+                                                 io_read_interface,  &
                                                  get_io_value
   use integer_io_value_mod,                       only : integer_io_value_type, &
-                                                 integer_io_operation_interface, &
+                                                 integer_io_write_interface,    &
+                                                 integer_io_read_interface,     &
                                                  get_integer_io_value
   use driver_modeldb_mod,                 only : modeldb_type
   use gungho_time_axes_mod,               only : gungho_time_axes_type, &
@@ -561,10 +563,10 @@ subroutine create_model_data( modeldb,      &
 
     type( io_value_type ),               pointer :: temp_corr_io_value
     type( integer_io_value_type ),       pointer :: random_seed_io_value
-    procedure( io_operation_interface ), pointer :: io_op_read_ptr
-    procedure( io_operation_interface ), pointer :: io_op_write_ptr
-    procedure( integer_io_operation_interface ), pointer :: integer_io_op_read_ptr
-    procedure( integer_io_operation_interface ), pointer :: integer_io_op_write_ptr
+    procedure( io_read_interface ),          pointer :: io_op_read_ptr
+    procedure( io_write_interface ),         pointer :: io_op_write_ptr
+    procedure( integer_io_read_interface ),  pointer :: integer_io_op_read_ptr
+    procedure( integer_io_write_interface ), pointer :: integer_io_op_write_ptr
 
     ! Dust fields
 #ifdef UM_PHYSICS
