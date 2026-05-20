@@ -143,6 +143,7 @@ contains
     character(len=*), parameter :: io_context_name = "gungho_atm"
     integer(i_def) :: random_seed_size
     integer(i_def), allocatable :: integer_array(:)
+    real(r_def),    allocatable :: real_array(:)
     integer(tik)   :: id
 
 #ifdef UM_PHYSICS
@@ -199,6 +200,28 @@ contains
       call modeldb%values%add_key_value( 'random_seed_io_value', &
                                          random_seed_io_value )
       deallocate(integer_array)
+#ifdef UM_PHYSICS
+      if (use_spt) then
+        allocate(real_array(stph_spectral_dim))
+        real_array = 0.0_r_def
+        do i = 1, spt_array_count
+          call spt_arrays(i)%init(trim(spt_array_names(i)),real_array)
+          call modeldb%values%add_key_value(trim(spt_array_names(i)), &
+                                            spt_arrays(i))
+        end do
+        deallocate(real_array)
+      end if
+      if (use_skeb) then
+        allocate(real_array(stph_spectral_dim))
+        real_array = 0.0_r_def
+        do i = 1, skeb_array_count
+          call skeb_arrays(i)%init(trim(skeb_array_names(i)),real_array)
+          call modeldb%values%add_key_value(trim(skeb_array_names(i)), &
+                                            skeb_arrays(i))
+        end do
+        deallocate(real_array)
+      end if
+#endif
     end if
 
     ! Instantiate the fields stored in model_data

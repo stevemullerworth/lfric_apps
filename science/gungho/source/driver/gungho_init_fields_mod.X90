@@ -658,7 +658,6 @@ subroutine create_model_data( modeldb,      &
 
     temp_corr_io_value => get_io_value( modeldb%values, 'temperature_correction_io_value' )
     nullify(random_seed_io_value)
-
     if ( stochastic_physics == stochastic_physics_um ) then
       random_seed_io_value => get_integer_io_value( modeldb%values, 'random_seed_io_value' )
     end if
@@ -709,6 +708,23 @@ subroutine create_model_data( modeldb,      &
     if ( stochastic_physics == stochastic_physics_um ) then
       call random_seed_io_value%set_checkpoint_read_behaviour(integer_io_op_read_ptr)
       call random_seed_io_value%set_checkpoint_write_behaviour(integer_io_op_write_ptr)
+
+#ifdef UM_PHYSICS
+      if (use_spt) then
+        do i = 1, spt_array_count
+          stph_io_value => get_io_value(modeldb%values, trim(spt_array_names(i)))
+          call stph_io_value%set_checkpoint_read_behaviour(io_op_read_ptr)
+          call stph_io_value%set_checkpoint_write_behaviour(io_op_write_ptr)
+        end do
+      end if
+      if (use_skeb) then
+        do i = 1, skeb_array_count
+          stph_io_value => get_io_value(modeldb%values, trim(skeb_array_names(i)))
+          call stph_io_value%set_checkpoint_read_behaviour(io_op_read_ptr)
+          call stph_io_value%set_checkpoint_write_behaviour(io_op_write_ptr)
+        end do
+      end if
+#endif
     end if
     ! Initialise prognostic fields appropriately
     select case ( prognostic_init_choice )
@@ -1034,6 +1050,8 @@ subroutine create_model_data( modeldb,      &
           ! Read the checkpointed random seed
           call random_seed_io_value%read_checkpoint()
           ranseed = random_seed_io_value%data
+
+          
 #ifdef UM_PHYSICS
           ! Read arrays for SPT and SKEB schemes
           if (use_spt) then
