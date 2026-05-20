@@ -85,7 +85,15 @@ module gungho_driver_mod
                                           iau_mode_instantaneous, &
                                           iau_mode_time_mixed
   use stochastic_physics_config_mod, &
-                                   only : use_random_parameters
+                                   only : use_random_parameters, &
+                                          use_skeb,              &
+                                          use_spt,               &
+                                          stph_spectral_dim
+  use stph_main_alg_mod,           only : spt_array_names,  &
+                                          spt_array_count,  &
+                                          skeb_array_names, &
+                                          skeb_array_count
+
   use stph_rp_main_alg_mod,        only : stph_rp_main_alg
   use flux_calc_all_mod,           only : flux_calc_init, &
                                           flux_calc_step
@@ -135,6 +143,8 @@ contains
     character(len=*), parameter :: io_context_name = "gungho_atm"
     integer(i_def) :: random_seed_size
     integer(i_def), allocatable :: integer_array(:)
+    real(r_def),    allocatable :: real_array(:)
+
     integer(tik)   :: id
 
 #ifdef UM_PHYSICS
@@ -191,6 +201,28 @@ contains
       call modeldb%values%add_key_value( 'random_seed_io_value', &
                                          random_seed_io_value )
       deallocate(integer_array)
+#ifdef UM_PHYSICS
+      if (use_spt) then
+        allocate(real_array(stph_spectral_dim))
+        real_array = 0.0_r_def
+        do i = 1, spt_array_count
+          call spt_arrays(i)%init(trim(spt_array_names(i)),real_array)
+          call modeldb%values%add_key_value(trim(spt_array_names(i)), &
+                                            spt_arrays(i))
+        end do
+        deallocate(real_array)
+      end if
+      if (use_skeb) then
+        allocate(real_array(stph_spectral_dim))
+        real_array = 0.0_r_def
+        do i = 1, skeb_array_count
+          call skeb_arrays(i)%init(trim(skeb_array_names(i)),real_array)
+          call modeldb%values%add_key_value(trim(skeb_array_names(i)), &
+                                            skeb_arrays(i))
+        end do
+        deallocate(real_array)
+      end if
+#endif
     end if
 
     ! Instantiate the fields stored in model_data
