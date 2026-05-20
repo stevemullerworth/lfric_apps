@@ -1051,7 +1051,6 @@ subroutine create_model_data( modeldb,      &
           call random_seed_io_value%read_checkpoint()
           ranseed = random_seed_io_value%data
 
-          
 #ifdef UM_PHYSICS
           ! Read arrays for SPT and SKEB schemes
           if (use_spt) then
